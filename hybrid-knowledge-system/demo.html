@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hybrid Knowledge System - Tech Europe Hackathon 2025</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f9fa;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .section {
+            background: white;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .section-header {
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+            padding: 15px 20px;
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+        }
+
+        .section-header:hover {
+            background: #e9ecef;
+        }
+
+        .section-content {
+            padding: 20px;
+            display: none;
+        }
+
+        .section-content.visible {
+            display: block;
+        }
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .kpi-card {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .kpi-value {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .kpi-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .demo-section {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .query-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .query-panel {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #3498db;
+        }
+
+        .query-panel h3 {
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+
+        .query-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .query-button {
+            background: linear-gradient(135deg, #3498db 0%, #2c3e50 100%);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .query-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .results-panel {
+            background: #f8f9fa;
+            border-radius: 8px;
+            min-height: 200px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .spinner {
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #3498db;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-connected {
+            background: #27ae60;
+        }
+
+        .status-disconnected {
+            background: #e74c3c;
+        }
+
+        .status-checking {
+            background: #f39c12;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>Hybrid Knowledge System</h1>
+            <p>Neo4j + Weaviate + Redis Multi-Modal Knowledge Integration</p>
+            <p style="font-size: 0.9em; opacity: 0.8;">Hackathon {Tech: Europe} September 13-14th 2025</p>
+        </div>
+
+        <!-- System Status -->
+        <div class="section">
+            <div class="section-header" onclick="toggleSection('status')">
+                <span>📊 System Status</span>
+                <span class="toggle-icon" id="status-toggle">▼</span>
+            </div>
+            <div class="section-content visible" id="status-content">
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-value" id="neo4j-status">
+                            <span class="status-indicator status-checking" id="neo4j-indicator"></span>Neo4j
+                        </div>
+                        <div class="kpi-label">Graph Database</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-value" id="weaviate-status">
+                            <span class="status-indicator status-checking" id="weaviate-indicator"></span>Weaviate
+                        </div>
+                        <div class="kpi-label">Vector Database</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-value" id="redis-status">
+                            <span class="status-indicator status-checking" id="redis-indicator"></span>Redis
+                        </div>
+                        <div class="kpi-label">Cache Layer</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-value" id="hybrid-queries">0</div>
+                        <div class="kpi-label">Hybrid Queries</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hybrid Query Demo -->
+        <div class="demo-section">
+            <h2>🔄 Hybrid Query Interface</h2>
+            <p>Experience the power of combined graph, vector, and cache technologies working together.</p>
+            
+            <div class="query-section">
+                <div class="query-panel">
+                    <h3>🕸️ Graph Query (Neo4j)</h3>
+                    <p style="font-size: 0.9em; margin-bottom: 10px;">Explore relationships and connections</p>
+                    <input type="text" class="query-input" id="graph-query" placeholder="e.g., Find all companies connected to AI research">
+                    <button class="query-button" onclick="executeGraphQuery()">Execute Graph Query</button>
+                </div>
+                
+                <div class="query-panel">
+                    <h3>🔍 Vector Query (Weaviate)</h3>
+                    <p style="font-size: 0.9em; margin-bottom: 10px;">Semantic similarity search</p>
+                    <input type="text" class="query-input" id="vector-query" placeholder="e.g., Healthcare digital transformation strategies">
+                    <button class="query-button" onclick="executeVectorQuery()">Execute Vector Query</button>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <h3>🔄 Hybrid Query (Combined Power)</h3>
+                <p style="font-size: 0.9em; margin-bottom: 10px;">Leverage both graph relationships AND semantic similarity</p>
+                <input type="text" class="query-input" id="hybrid-query" placeholder="e.g., Should we approve the $4.2M PatientCare Suite investment?" style="width: 100%;">
+                <button class="query-button" onclick="executeHybridQuery()" style="width: auto; padding: 12px 30px;">Execute Hybrid Query</button>
+            </div>
+
+            <div class="results-panel" id="results-panel">
+                <h4>Query Results</h4>
+                <p style="color: #6c757d;">Execute a query above to see the power of hybrid knowledge integration.</p>
+            </div>
+        </div>
+
+        <!-- Technology Showcase -->
+        <div class="section">
+            <div class="section-header" onclick="toggleSection('tech')">
+                <span>🚀 Technology Architecture</span>
+                <span class="toggle-icon" id="tech-toggle">▼</span>
+            </div>
+            <div class="section-content" id="tech-content">
+                <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; border-left: 4px solid #3498db;">
+                    <h3>Multi-Modal Knowledge Integration</h3>
+                    <p><strong>Purpose:</strong> Demonstrate how different database technologies can work together to create a comprehensive knowledge system that's more powerful than the sum of its parts.</p>
+                    
+                    <h4>🏗️ Architecture Benefits:</h4>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li><strong>Graph Database (Neo4j):</strong> Relationship mapping, entity connections, complex graph traversals</li>
+                        <li><strong>Vector Database (Weaviate):</strong> Semantic search, similarity matching, AI-powered understanding</li>
+                        <li><strong>Cache Layer (Redis):</strong> Performance optimization, real-time data, session management</li>
+                        <li><strong>Unified Interface:</strong> Single query language that leverages all three systems</li>
+                    </ul>
+
+                    <h4>🎯 Use Cases:</h4>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li><strong>Enterprise Knowledge Management:</strong> Combine structured relationships with semantic understanding</li>
+                        <li><strong>Research & Discovery:</strong> Find both direct connections and conceptual similarities</li>
+                        <li><strong>Strategic Intelligence:</strong> Multi-dimensional analysis of business ecosystems</li>
+                        <li><strong>Recommendation Systems:</strong> Graph-based relationships + vector similarity</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let hybridQueries = 0;
+        
+        // Initialize the application
+        async function initializeApp() {
+            await checkSystemStatus();
+            setInterval(updateMetrics, 5000); // Update every 5 seconds
+        }
+
+        // Check system status
+        async function checkSystemStatus() {
+            const services = [
+                { name: 'neo4j', port: 7688, indicator: 'neo4j-indicator', status: 'neo4j-status' },
+                { name: 'weaviate', port: 8080, indicator: 'weaviate-indicator', status: 'weaviate-status' },
+                { name: 'redis', port: 6379, indicator: 'redis-indicator', status: 'redis-status' }
+            ];
+
+            for (const service of services) {
+                try {
+                    // Simulate service check (in real implementation, would check actual services)
+                    const isConnected = Math.random() > 0.3; // 70% chance of being connected
+                    updateServiceStatus(service.indicator, service.status, isConnected);
+                } catch (error) {
+                    updateServiceStatus(service.indicator, service.status, false);
+                }
+            }
+        }
+
+        // Update service status
+        function updateServiceStatus(indicatorId, statusId, isConnected) {
+            const indicator = document.getElementById(indicatorId);
+            const status = document.getElementById(statusId);
+            
+            if (isConnected) {
+                indicator.className = 'status-indicator status-connected';
+                status.innerHTML = `<span class="status-indicator status-connected"></span>${statusId.split('-')[0].toUpperCase()}`;
+            } else {
+                indicator.className = 'status-indicator status-disconnected';
+                status.innerHTML = `<span class="status-indicator status-disconnected"></span>${statusId.split('-')[0].toUpperCase()}`;
+            }
+        }
+
+        // Execute graph query
+        async function executeGraphQuery() {
+            const query = document.getElementById('graph-query').value;
+            if (!query.trim()) return;
+
+            showLoading('Executing graph traversal query...');
+            
+            // Simulate graph query
+            setTimeout(() => {
+                // Generate dynamic results based on query content
+                let results;
+                const queryLower = query.toLowerCase();
+
+                if (queryLower.includes('patientcare') || queryLower.includes('4.2m') || queryLower.includes('investment')) {
+                    results = {
+                        type: 'Graph Query',
+                        query: query,
+                        results: [
+                            { entity: 'PatientCare Suite', connections: ['Operational Excellence', 'Digital Maturity', 'ROI 285%'], type: 'Strategic Investment' },
+                            { entity: 'Budget Approval', connections: ['CFO Yamamoto', 'CTO Suzuki', 'Dr. Tanaka'], type: 'Stakeholder Network' },
+                            { entity: 'Competitive Position', connections: ['Tokyo General (45%)', 'Keio University (52%)', 'WellnessRoberts (32%)'], type: 'Market Analysis' }
+                        ],
+                        executionTime: '187ms',
+                        nodesTraversed: 89
+                    };
+                } else if (queryLower.includes('physician') || queryLower.includes('retention') || queryLower.includes('cardiac')) {
+                    results = {
+                        type: 'Graph Query',
+                        query: query,
+                        results: [
+                            { entity: 'Clinical Department', connections: ['1,456 staff', '$320M budget', 'Patient Care'], type: 'Healthcare Operations' },
+                            { entity: 'Physician Shortage', connections: ['15% Tokyo market', '35% salary increase', 'Training Impact'], type: 'HR Challenge' },
+                            { entity: 'Revenue Impact', connections: ['¥89M annual risk', 'Quality metrics', 'Samsung partnership'], type: 'Financial Analysis' }
+                        ],
+                        executionTime: '156ms',
+                        nodesTraversed: 67
+                    };
+                } else if (queryLower.includes('compliance') || queryLower.includes('regulatory') || queryLower.includes('data protection')) {
+                    results = {
+                        type: 'Graph Query',
+                        query: query,
+                        results: [
+                            { entity: 'Health Data Protection Act', connections: ['¥50M+ penalties', 'December 2025 deadline', 'IT Systems'], type: 'Regulatory Requirement' },
+                            { entity: 'Compliance Gaps', connections: ['Encryption 65%', 'Access Logging 78%', 'Patient Consent 45%'], type: 'Risk Assessment' },
+                            { entity: 'Implementation Cost', connections: ['$15M budget', 'External consultancy', '6-month timeline'], type: 'Resource Planning' }
+                        ],
+                        executionTime: '203ms',
+                        nodesTraversed: 124
+                    };
+                } else {
+                    // Default healthcare organizational results
+                    results = {
+                        type: 'Graph Query',
+                        query: query,
+                        results: [
+                            { entity: 'WellnessRoberts Care', connections: ['2,623 employees', 'Tokyo healthcare', '$500M-$2B revenue'], type: 'Healthcare Organization' },
+                            { entity: 'Strategic Priorities', connections: ['Operational Excellence', 'Customer Experience', 'Cost Reduction'], type: 'Business Strategy' },
+                            { entity: 'Digital Transformation', connections: ['Innovation Index 82%', 'Digital Maturity 32%', 'Competitive Gap'], type: 'Technology Initiative' }
+                        ],
+                        executionTime: '198ms',
+                        nodesTraversed: 156
+                    };
+                }
+
+                displayResults(results);
+                updateQueryCount();
+            }, 1000);
+        }
+
+        // Execute vector query
+        async function executeVectorQuery() {
+            const query = document.getElementById('vector-query').value;
+            if (!query.trim()) return;
+
+            showLoading('Performing semantic similarity search...');
+            
+            // Simulate vector query
+            setTimeout(() => {
+                // Generate dynamic vector results based on query content
+                let results;
+                const queryLower = query.toLowerCase();
+
+                if (queryLower.includes('digital') || queryLower.includes('transformation') || queryLower.includes('healthcare')) {
+                    results = {
+                        type: 'Vector Query',
+                        query: query,
+                        results: [
+                            { document: 'Healthcare Digital Transformation 2025', similarity: 0.92, content: 'Digital maturity in healthcare requires strategic technology investments and organizational change management...' },
+                            { document: 'Patient Care Technology Integration', similarity: 0.88, content: 'Modern healthcare systems leverage AI diagnostics and cloud platforms for operational excellence...' },
+                            { document: 'Tokyo Healthcare Market Analysis', similarity: 0.84, content: 'Competitive healthcare landscape in Tokyo shows 15% physician shortage and growing digital adoption...' }
+                        ],
+                        executionTime: '134ms',
+                        vectorSpace: '384 dimensions'
+                    };
+                } else if (queryLower.includes('investment') || queryLower.includes('budget') || queryLower.includes('roi')) {
+                    results = {
+                        type: 'Vector Query',
+                        query: query,
+                        results: [
+                            { document: 'Healthcare Technology ROI Analysis', similarity: 0.91, content: 'Technology investments in healthcare show average ROI of 250-300% over 3-year periods...' },
+                            { document: 'Budget Planning for Healthcare Systems', similarity: 0.86, content: 'Strategic budget allocation requires balancing operational needs with technology advancement...' },
+                            { document: 'PatientCare Suite Implementation Guide', similarity: 0.83, content: 'Cloud migration and AI integration projects require careful stakeholder management and timeline planning...' }
+                        ],
+                        executionTime: '142ms',
+                        vectorSpace: '384 dimensions'
+                    };
+                } else {
+                    // Default healthcare results
+                    results = {
+                        type: 'Vector Query',
+                        query: query,
+                        results: [
+                            { document: 'Healthcare Strategy Framework', similarity: 0.76, content: 'Modern healthcare organizations balance quality care delivery with operational efficiency...' },
+                            { document: 'Organizational Excellence in Healthcare', similarity: 0.72, content: 'Strategic priorities include operational excellence, customer experience, and cost optimization...' },
+                            { document: 'Healthcare Innovation Trends', similarity: 0.68, content: 'Innovation in healthcare requires strong digital capabilities and strategic technology adoption...' }
+                        ],
+                        executionTime: '178ms',
+                        vectorSpace: '384 dimensions'
+                    };
+                }
+
+                displayResults(results);
+                updateQueryCount();
+            }, 800);
+        }
+
+        // Execute hybrid query
+        async function executeHybridQuery() {
+            const query = document.getElementById('hybrid-query').value;
+            if (!query.trim()) return;
+
+            showLoading('Executing hybrid query across all systems...');
+            
+            // Simulate hybrid query
+            setTimeout(() => {
+                // Generate dynamic hybrid results based on query content
+                let results;
+                const queryLower = query.toLowerCase();
+
+                if (queryLower.includes('patientcare') || queryLower.includes('investment') || queryLower.includes('4.2m')) {
+                    results = {
+                        type: 'Hybrid Query',
+                        query: query,
+                        graphResults: [
+                            { entity: 'PatientCare Suite Investment', connections: ['Strategic Priority: Operational Excellence', '$4.2M budget allocation', 'ROI: 285% over 36 months'], score: 0.94 }
+                        ],
+                        vectorResults: [
+                            { document: 'Investment Analysis Report', similarity: 0.89, relevance: 'High' },
+                            { document: 'Q4 Budget Priorities', similarity: 0.82, relevance: 'High' }
+                        ],
+                        combinedInsights: [
+                            'Investment directly supports Operational Excellence with $89M total budget allocation',
+                            'Critical for competitive positioning: WellnessRoberts 32% vs Keio University 52% digital maturity',
+                            'Timeline impact: Q1 2026 implementation delay affects competitive advantage'
+                        ],
+                        executionTime: '127ms',
+                        systems: ['Neo4j', 'Weaviate', 'Redis']
+                    };
+                } else {
+                    // Default healthcare hybrid results
+                    results = {
+                        type: 'Hybrid Query',
+                        query: query,
+                        graphResults: [
+                            { entity: 'WellnessRoberts Care', connections: ['Healthcare Leadership', 'Strategic Priorities', 'Digital Transformation'], score: 0.87 }
+                        ],
+                        vectorResults: [
+                            { document: 'Healthcare Strategy Report', similarity: 0.75, relevance: 'Medium' }
+                        ],
+                        combinedInsights: [
+                            'Organization shows strong innovation potential (82% index) with digital maturity opportunities',
+                            'Multiple strategic initiatives align with healthcare industry transformation trends',
+                            'Tokyo market positioning requires continued technology investment'
+                        ],
+                        executionTime: '165ms',
+                        systems: ['Neo4j', 'Weaviate', 'Redis']
+                    };
+                }
+                displayResults(results);
+                updateQueryCount();
+            }, 1200);
+        }
+
+        // Show loading state
+        function showLoading(message) {
+            document.getElementById('results-panel').innerHTML = `
+                <h4>Processing...</h4>
+                <p><div class="spinner"></div>${message}</p>
+            `;
+        }
+
+        // Display query results
+        function displayResults(results) {
+            const resultsHtml = `
+                <h4>${results.type} Results</h4>
+                <div style="background: #e8f5e8; padding: 15px; border-radius: 5px; margin-bottom: 15px;">
+                    <strong>Query:</strong> "${results.query}"<br>
+                    <strong>Execution Time:</strong> ${results.executionTime}<br>
+                    ${results.systems ? `<strong>Systems Used:</strong> ${results.systems.join(', ')}` : ''}
+                </div>
+                
+                ${results.results ? `
+                    <h5>Results:</h5>
+                    <ul>
+                        ${results.results.map(result => `
+                            <li style="margin-bottom: 8px;">
+                                ${result.entity || result.document || 'Result'}: 
+                                ${result.connections ? result.connections.join(', ') : ''}
+                                ${result.similarity ? `(${Math.round(result.similarity * 100)}% match)` : ''}
+                                ${result.content ? `<br><em style="color: #666; font-size: 0.9em;">${result.content}</em>` : ''}
+                            </li>
+                        `).join('')}
+                    </ul>
+                ` : ''}
+                
+                ${results.combinedInsights ? `
+                    <h5>Hybrid Insights:</h5>
+                    <ul>
+                        ${results.combinedInsights.map(insight => `<li style="margin-bottom: 5px;">${insight}</li>`).join('')}
+                    </ul>
+                ` : ''}
+            `;
+            
+            document.getElementById('results-panel').innerHTML = resultsHtml;
+        }
+
+        // Update query count
+        function updateQueryCount() {
+            hybridQueries++;
+            document.getElementById('hybrid-queries').textContent = hybridQueries;
+        }
+
+        // Update metrics periodically
+        function updateMetrics() {
+            // Simulate metric updates
+            checkSystemStatus();
+        }
+
+        // Toggle section visibility
+        function toggleSection(sectionId) {
+            const content = document.getElementById(sectionId + '-content');
+            const toggle = document.getElementById(sectionId + '-toggle');
+            
+            content.classList.toggle('visible');
+            toggle.textContent = content.classList.contains('visible') ? '▲' : '▼';
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', initializeApp);
+    </script>
+</body>
+</html>
