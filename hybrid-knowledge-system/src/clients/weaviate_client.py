@@ -63,9 +63,18 @@ class WeaviateClient:
                     additional_headers=additional_headers
                 )
             else:
-                self.client = weaviate.connect_to_local(
-                    host=self.config.url.replace("http://", "").replace("https://", "")
-                )
+                # Parse host and port from URL
+                url_without_scheme = self.config.url.replace("http://", "").replace("https://", "")
+                if ":" in url_without_scheme:
+                    host, port = url_without_scheme.split(":", 1)
+                    self.client = weaviate.connect_to_local(
+                        host=host,
+                        port=int(port)
+                    )
+                else:
+                    self.client = weaviate.connect_to_local(
+                        host=url_without_scheme
+                    )
             
             # Test connection
             await self._test_connection()
