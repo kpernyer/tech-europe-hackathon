@@ -32,7 +32,7 @@ This repository contains **hackathon research across 5 critical areas** that wil
 - **Use Case**: Interactive voice assistants for customer service, support, and conversational AI
 - **Demo URL**: `http://localhost:3001/`
 
-### 🧠 [Weaviate Knowledge Demo](./weaviate-demo/)
+### 🧠 [Weaviate Recall Knowledge](./weaviate-recall-knowledge/)
 **Strategic Knowledge Management & Semantic Search**
 
 - **Core Stack**: Weaviate 1.25.0, FastAPI, Python 3.11+, OpenAI GPT-4o-mini
@@ -93,8 +93,8 @@ cd openai-voice
 npm install
 npm run dev  # Runs on :3001
 
-# Weaviate Knowledge Demo
-cd weaviate-demo
+# Weaviate Recall Knowledge Demo
+cd weaviate-recall-knowledge
 open enhanced_demo.html  # Or serve via local server on :3333
 
 # Hybrid Knowledge System
@@ -107,7 +107,7 @@ make quick-start  # Full containerized setup
 ## 🎯 Demonstration Flow
 
 **Recommended Demo Sequence:**
-1. **Weaviate Demo** - Show progressive knowledge enhancement
+1. **Weaviate Recall Knowledge** - Show progressive knowledge enhancement
 2. **OpenAI Voice Demo** - Interactive voice AI capabilities
 3. **Hybrid Knowledge System** - Enterprise-scale architecture
 4. **Synthetic Data & Fine-tuning** - Advanced AI customization

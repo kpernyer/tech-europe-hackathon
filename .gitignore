@@ -225,9 +225,9 @@ logs/
 # living-twin-synthetic-data/generated/
 # Uncomment if the generated data becomes too large
 
-# Weaviate demo specific
-weaviate-demo/venv/
-weaviate-demo/.env
+# Weaviate recall knowledge specific
+weaviate-recall-knowledge/venv/
+weaviate-recall-knowledge/.env
 
 # Voice demo specific  
 openai-voice/**/.env
