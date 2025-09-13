@@ -1,0 +1,64 @@
+{
+  "next_id": 0,
+  "used_ids": [
+    "persona_org_001_p0000",
+    "persona_org_001_p0001",
+    "persona_org_001_p0002",
+    "persona_org_001_p0003",
+    "persona_org_001_p0004",
+    "persona_org_001_p0005",
+    "persona_org_001_p0006"
+  ],
+  "persona_mappings": {
+    "persona_org_001_p0000": {
+      "status": "active",
+      "generation": "current"
+    },
+    "persona_org_001_p0001": {
+      "status": "active",
+      "generation": "current"
+    },
+    "persona_org_001_p0002": {
+      "status": "active",
+      "generation": "current"
+    },
+    "persona_org_001_p0003": {
+      "status": "active",
+      "generation": "current"
+    },
+    "persona_org_001_p0004": {
+      "status": "active",
+      "generation": "current"
+    },
+    "persona_org_001_p0005": {
+      "status": "active",
+      "generation": "current"
+    },
+    "persona_org_001_p0006": {
+      "status": "active",
+      "generation": "current"
+    }
+  },
+  "generation_batches": {
+    "current_scan": {
+      "timestamp": "2025-09-13T19:35:43.414785",
+      "count": 7,
+      "ids": [
+        "persona_org_001_p0000",
+        "persona_org_001_p0001",
+        "persona_org_001_p0002",
+        "persona_org_001_p0003",
+        "persona_org_001_p0004",
+        "persona_org_001_p0005",
+        "persona_org_001_p0006"
+      ]
+    }
+  },
+  "reserved_ranges": {
+    "future_batch_demo": {
+      "count": 5,
+      "reserved_at": "2025-09-13T19:36:16.680070",
+      "status": "reserved"
+    }
+  }
+}

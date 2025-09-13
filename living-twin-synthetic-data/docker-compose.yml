@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  living-twin-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: living-twin-synthetic-data
+    ports:
+      - "8004:8000"
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-your_openai_key_here}
+      - ELEVENLABS_API_KEY=${ELEVENLABS_API_KEY:-your_elevenlabs_key_here}
+      - AWS_REGION=${AWS_REGION:-us-east-1}
+      - AWS_BEDROCK_ENABLED=${AWS_BEDROCK_ENABLED:-false}
+    volumes:
+      - ./outputs:/app/outputs
+      - ./data:/app/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Optional Redis for caching generated data
+  redis:
+    image: redis:7-alpine
+    container_name: synthetic-data-redis
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+
+volumes:
+  redis_data:
+    driver: local

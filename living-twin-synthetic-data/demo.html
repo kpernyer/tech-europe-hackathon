@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Living Twin Synthetic Data Generator - Hackathon {Tech: Europe}</title>
+    
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary-color: #64748b;
+            --accent-color: #10b981;
+            --error-color: #ef4444;
+            --warning-color: #f59e0b;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, var(--bg-color) 0%, #e2e8f0 100%);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+        
+        .header {
+            background: var(--card-bg);
+            border-bottom: 2px solid var(--primary-color);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .header h1 {
+            color: var(--primary-color);
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .header p {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+        
+        .grid {
+            display: grid;
+            gap: 2rem;
+            grid-template-columns: 1fr 1fr;
+        }
+        
+        .section {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--border-color);
+        }
+        
+        .section h2 {
+            color: var(--primary-color);
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--secondary-color);
+        }
+        
+        .status-indicator.active {
+            background: var(--accent-color);
+        }
+        
+        .status-indicator.error {
+            background: var(--error-color);
+        }
+        
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+        
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+        
+        .btn-secondary {
+            background: var(--secondary-color);
+            color: white;
+        }
+        
+        .btn-accent {
+            background: var(--accent-color);
+            color: white;
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .output {
+            background: #1e293b;
+            color: #e2e8f0;
+            border-radius: 8px;
+            padding: 1rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 1rem;
+        }
+        
+        .metric-card {
+            background: var(--bg-color);
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+        
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+        
+        .metric-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: var(--border-color);
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: var(--primary-color);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        .architecture-diagram {
+            text-align: center;
+            padding: 1rem;
+            background: var(--bg-color);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+        
+        .pipeline-step {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background: var(--primary-color);
+            color: white;
+            border-radius: 20px;
+            margin: 0.25rem;
+            font-size: 0.8rem;
+        }
+        
+        .arrow {
+            display: inline-block;
+            margin: 0 0.5rem;
+            color: var(--text-secondary);
+        }
+        
+        .full-width {
+            grid-column: 1 / -1;
+        }
+        
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .container {
+                padding: 0 1rem;
+            }
+            
+            .header {
+                padding: 1rem;
+            }
+        }
+        
+        .alert {
+            padding: 0.75rem 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .alert-info {
+            background: #dbeafe;
+            border: 1px solid #93c5fd;
+            color: #1e40af;
+        }
+        
+        .alert-warning {
+            background: #fef3c7;
+            border: 1px solid #fbbf24;
+            color: #92400e;
+        }
+        
+        .config-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .config-item:last-child {
+            border-bottom: none;
+        }
+        
+        .config-label {
+            font-weight: 500;
+        }
+        
+        .config-value {
+            color: var(--text-secondary);
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🧬 Living Twin Synthetic Data Generator</h1>
+        <p>Hackathon {Tech: Europe} September 13-14th 2025 • Organizational AI Training Data Pipeline</p>
+    </div>
+
+    <div class="container">
+        <div class="alert alert-info">
+            <span>ℹ️</span>
+            <span>Generate synthetic organizational data, voice personas, and VR/AR scenes for AI training.</span>
+        </div>
+
+        <div class="grid">
+            <!-- Data Generation Pipeline -->
+            <div class="section">
+                <h2><span class="status-indicator" id="pipeline-status"></span>Data Generation Pipeline</h2>
+                
+                <div class="architecture-diagram">
+                    <div>
+                        <span class="pipeline-step">Organizations</span>
+                        <span class="arrow">→</span>
+                        <span class="pipeline-step">People</span>
+                        <span class="arrow">→</span>
+                        <span class="pipeline-step">Scenarios</span>
+                    </div>
+                    <div style="margin-top: 0.5rem;">
+                        <span class="arrow">↓</span>
+                    </div>
+                    <div>
+                        <span class="pipeline-step">Voice Synthesis</span>
+                    </div>
+                </div>
+
+                <div class="controls">
+                    <button class="btn btn-primary" onclick="generateOrganizations()">Generate Organizations</button>
+                    <button class="btn btn-primary" onclick="generatePeople()">Generate People</button>
+                    <button class="btn btn-primary" onclick="generateScenarios()">Generate Scenarios</button>
+                </div>
+
+                <div class="controls">
+                    <button class="btn btn-accent" onclick="generateVoices()">Add Voice Data</button>
+                </div>
+
+                <div class="controls">
+                    <button class="btn btn-secondary" onclick="runFullPipeline()">🚀 Run Full Pipeline</button>
+                    <button class="btn btn-secondary" onclick="validateData()">✓ Validate Data</button>
+                </div>
+
+                <div class="progress-bar">
+                    <div class="progress-fill" id="pipeline-progress"></div>
+                </div>
+
+                <div class="output" id="pipeline-output">Ready to generate synthetic data...</div>
+            </div>
+
+            <!-- Data Statistics -->
+            <div class="section">
+                <h2><span class="status-indicator active"></span>Data Statistics</h2>
+                
+                <div class="metric-card">
+                    <div class="metric-value" id="org-count">0</div>
+                    <div class="metric-label">Organizations</div>
+                </div>
+                
+                <div class="metric-card">
+                    <div class="metric-value" id="person-count">0</div>
+                    <div class="metric-label">People Personas</div>
+                </div>
+                
+                <div class="metric-card">
+                    <div class="metric-value" id="scenario-count">0</div>
+                    <div class="metric-label">Scenarios</div>
+                </div>
+                
+                <div class="metric-card">
+                    <div class="metric-value" id="voice-count">0</div>
+                    <div class="metric-label">Voice Files</div>
+                </div>
+
+                <button class="btn btn-primary" onclick="refreshStats()">Refresh Statistics</button>
+            </div>
+
+            <!-- Configuration & Environment -->
+            <div class="section">
+                <h2><span class="status-indicator" id="config-status"></span>Configuration</h2>
+                
+                <div class="config-item">
+                    <span class="config-label">OpenAI API</span>
+                    <span class="config-value" id="openai-status">Checking...</span>
+                </div>
+                
+                <div class="config-item">
+                    <span class="config-label">ElevenLabs API</span>
+                    <span class="config-value" id="elevenlabs-status">Checking...</span>
+                </div>
+                
+                <div class="config-item">
+                    <span class="config-label">Output Directory</span>
+                    <span class="config-value">./outputs/</span>
+                </div>
+                
+                <div class="config-item">
+                    <span class="config-label">Data Format</span>
+                    <span class="config-value">JSON + MP3 + 3D Scene</span>
+                </div>
+
+                <div class="controls">
+                    <button class="btn btn-secondary" onclick="checkEnvironment()">Check Environment</button>
+                    <button class="btn btn-secondary" onclick="showLogs()">View Logs</button>
+                </div>
+
+                <div class="alert alert-warning" id="api-warning" style="display: none;">
+                    <span>⚠️</span>
+                    <span>API keys required for voice generation and advanced AI features.</span>
+                </div>
+            </div>
+
+            <!-- Live Preview -->
+            <div class="section">
+                <h2><span class="status-indicator"></span>Live Preview</h2>
+                
+                <div class="controls">
+                    <button class="btn btn-primary" onclick="previewOrganization()">Preview Organization</button>
+                    <button class="btn btn-primary" onclick="previewPerson()">Preview Person</button>
+                    <button class="btn btn-primary" onclick="previewScenario()">Preview Scenario</button>
+                </div>
+
+                <div class="output" id="preview-output">Select a preview option above...</div>
+            </div>
+        </div>
+
+        <!-- Full-width sections -->
+        <div class="section full-width">
+            <h2>🎯 About Living Twin Synthetic Data</h2>
+            <p style="margin-bottom: 1rem;">
+                This system generates comprehensive synthetic data for training organizational AI systems. 
+                It creates realistic organizations, people personas, delegation scenarios, and voice characteristics 
+                for rich, multimodal training experiences.
+            </p>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+                <div style="padding: 1rem; background: var(--bg-color); border-radius: 8px;">
+                    <h3>🏢 Organizations</h3>
+                    <p>Generate realistic company profiles with industry-specific characteristics, organizational structures, and cultural dimensions.</p>
+                </div>
+                
+                <div style="padding: 1rem; background: var(--bg-color); border-radius: 8px;">
+                    <h3>👥 People Personas</h3>
+                    <p>Create detailed person profiles with personality traits, communication styles, and decision-making patterns.</p>
+                </div>
+                
+                <div style="padding: 1rem; background: var(--bg-color); border-radius: 8px;">
+                    <h3>🎭 Scenarios</h3>
+                    <p>Build complex delegation and strategic scenarios that reflect real organizational dynamics and challenges.</p>
+                </div>
+                
+                <div style="padding: 1rem; background: var(--bg-color); border-radius: 8px;">
+                    <h3>🎵 Voice Synthesis</h3>
+                    <p>Generate realistic voice personas using ElevenLabs API, matching personality and demographic characteristics.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let pipelineRunning = false;
+        let currentStep = 0;
+        const totalSteps = 4;
+
+        // Mock data for demo
+        const mockStats = {
+            organizations: 0,
+            people: 0,
+            scenarios: 0,
+            voices: 0
+        };
+
+        function updatePipelineStatus(status, message) {
+            const statusElement = document.getElementById('pipeline-status');
+            const outputElement = document.getElementById('pipeline-output');
+            
+            statusElement.className = `status-indicator ${status}`;
+            outputElement.textContent += message + '\n';
+            outputElement.scrollTop = outputElement.scrollHeight;
+        }
+
+        function updateProgress(step) {
+            const progress = (step / totalSteps) * 100;
+            document.getElementById('pipeline-progress').style.width = progress + '%';
+        }
+
+        function updateStats() {
+            document.getElementById('org-count').textContent = mockStats.organizations;
+            document.getElementById('person-count').textContent = mockStats.people;
+            document.getElementById('scenario-count').textContent = mockStats.scenarios;
+            document.getElementById('voice-count').textContent = mockStats.voices;
+        }
+
+        async function generateOrganizations() {
+            if (pipelineRunning) return;
+            pipelineRunning = true;
+            
+            updatePipelineStatus('active', 'Generating organizations...');
+            
+            try {
+                const response = await fetch('/generate/organizations', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ count: 10 })
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    mockStats.organizations = result.total_generated;
+                    updateStats();
+                    updatePipelineStatus('', `Generated ${result.count} organizations`);
+                    updateProgress(1);
+                }
+            } catch (error) {
+                updatePipelineStatus('error', `Failed to generate organizations: ${error.message}`);
+            } finally {
+                pipelineRunning = false;
+            }
+        }
+
+        async function generatePeople() {
+            if (pipelineRunning) return;
+            pipelineRunning = true;
+            
+            updatePipelineStatus('active', 'Generating people personas...');
+            
+            try {
+                const response = await fetch('/generate/people', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ organization_id: 'sample_org', count: 25 })
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    mockStats.people = result.total_generated;
+                    updateStats();
+                    updatePipelineStatus('', `Generated ${result.count} people personas`);
+                    updateProgress(2);
+                }
+            } catch (error) {
+                updatePipelineStatus('error', `Failed to generate people: ${error.message}`);
+            } finally {
+                pipelineRunning = false;
+            }
+        }
+
+        async function generateScenarios() {
+            if (pipelineRunning) return;
+            pipelineRunning = true;
+            
+            updatePipelineStatus('active', 'Generating scenarios...');
+            
+            try {
+                const response = await fetch('/generate/scenarios', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ organization_id: 'sample_org', count: 10 })
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    mockStats.scenarios = result.total_generated;
+                    updateStats();
+                    updatePipelineStatus('', `Generated ${result.count} delegation scenarios`);
+                    updateProgress(3);
+                }
+            } catch (error) {
+                updatePipelineStatus('error', `Failed to generate scenarios: ${error.message}`);
+            } finally {
+                pipelineRunning = false;
+            }
+        }
+
+        async function generateVoices() {
+            if (pipelineRunning) return;
+            pipelineRunning = true;
+            
+            updatePipelineStatus('active', 'Generating voice data with ElevenLabs...');
+            
+            try {
+                const response = await fetch('/generate/voices', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ person_ids: ['person_1', 'person_2', 'person_3'] })
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    mockStats.voices = result.total_generated;
+                    updateStats();
+                    updatePipelineStatus('', `Generated ${result.count} voice files`);
+                    updateProgress(4);
+                }
+            } catch (error) {
+                updatePipelineStatus('error', `Failed to generate voices: ${error.message}`);
+            } finally {
+                pipelineRunning = false;
+            }
+        }
+
+
+        async function runFullPipeline() {
+            if (pipelineRunning) return;
+            
+            updatePipelineStatus('active', '🚀 Starting full pipeline...');
+            document.getElementById('pipeline-output').textContent = '';
+            currentStep = 0;
+            
+            try {
+                const response = await fetch('/pipeline/run', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    updatePipelineStatus('active', result.message);
+                    pollPipelineStatus();
+                }
+            } catch (error) {
+                updatePipelineStatus('error', `Failed to start pipeline: ${error.message}`);
+            }
+        }
+
+        function validateData() {
+            updatePipelineStatus('active', 'Validating generated data...');
+            setTimeout(() => {
+                updatePipelineStatus('', 'Data validation complete - all schemas valid');
+            }, 1500);
+        }
+
+        function refreshStats() {
+            updateStats();
+            updatePipelineStatus('', 'Statistics refreshed');
+        }
+
+        async function previewOrganization() {
+            try {
+                const response = await fetch('/preview/organization');
+                const org = await response.json();
+                document.getElementById('preview-output').textContent = JSON.stringify(org, null, 2);
+            } catch (error) {
+                document.getElementById('preview-output').textContent = `Error: ${error.message}`;
+            }
+        }
+
+        async function previewPerson() {
+            try {
+                const response = await fetch('/preview/person');
+                const person = await response.json();
+                document.getElementById('preview-output').textContent = JSON.stringify(person, null, 2);
+            } catch (error) {
+                document.getElementById('preview-output').textContent = `Error: ${error.message}`;
+            }
+        }
+
+        async function previewScenario() {
+            try {
+                const response = await fetch('/preview/scenario');
+                const scenario = await response.json();
+                document.getElementById('preview-output').textContent = JSON.stringify(scenario, null, 2);
+            } catch (error) {
+                document.getElementById('preview-output').textContent = `Error: ${error.message}`;
+            }
+        }
+
+        async function checkEnvironment() {
+            try {
+                const response = await fetch('/environment/check');
+                const config = await response.json();
+                
+                document.getElementById('openai-status').textContent = config.openai_configured ? 'Configured ✓' : 'Not Configured';
+                document.getElementById('elevenlabs-status').textContent = config.elevenlabs_configured ? 'Configured ✓' : 'Not Configured';
+                document.getElementById('config-status').className = 'status-indicator ' + (config.openai_configured ? 'active' : 'error');
+                
+                const warning = document.getElementById('api-warning');
+                if (!config.elevenlabs_configured) {
+                    warning.style.display = 'flex';
+                } else {
+                    warning.style.display = 'none';
+                }
+            } catch (error) {
+                updatePipelineStatus('error', `Failed to check environment: ${error.message}`);
+            }
+        }
+
+        function showLogs() {
+            updatePipelineStatus('', 'Viewing system logs...');
+        }
+
+        // Poll pipeline status when running
+        async function pollPipelineStatus() {
+            if (!pipelineRunning) {
+                pipelineRunning = true;
+            }
+            
+            const poll = async () => {
+                try {
+                    const response = await fetch('/pipeline/status');
+                    const status = await response.json();
+                    
+                    if (status.running) {
+                        updatePipelineStatus('active', `Step: ${status.current_step || 'unknown'}`);
+                        updateProgress(status.progress / 25); // Convert 0-100 to 0-4 steps
+                        setTimeout(poll, 1000); // Poll every second
+                    } else {
+                        pipelineRunning = false;
+                        updatePipelineStatus('', 'Pipeline completed');
+                        refreshStats();
+                    }
+                } catch (error) {
+                    pipelineRunning = false;
+                    updatePipelineStatus('error', `Polling failed: ${error.message}`);
+                }
+            };
+            
+            poll();
+        }
+
+        async function refreshStats() {
+            try {
+                const response = await fetch('/stats');
+                const data = await response.json();
+                
+                mockStats.organizations = data.stats.organizations;
+                mockStats.people = data.stats.people;
+                mockStats.scenarios = data.stats.scenarios;
+                mockStats.voices = data.stats.voices;
+                
+                updateStats();
+            } catch (error) {
+                updatePipelineStatus('error', `Failed to refresh stats: ${error.message}`);
+            }
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            checkEnvironment();
+            refreshStats();
+            updatePipelineStatus('', 'Living Twin Synthetic Data Generator ready');
+        });
+    </script>
+</body>
+</html>

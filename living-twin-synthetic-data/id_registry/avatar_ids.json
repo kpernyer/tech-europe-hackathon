@@ -1,0 +1,21 @@
+{
+  "beyond_presence_mappings": {
+    "persona_org_001_p0000": "bp_avatar_7924",
+    "persona_org_001_p0001": "bp_avatar_7548",
+    "persona_org_001_p0002": "bp_avatar_2434",
+    "persona_org_001_p0003": "bp_avatar_9358",
+    "persona_org_001_p0004": "bp_avatar_5946",
+    "persona_org_001_p0005": "bp_avatar_9517",
+    "persona_org_001_p0006": "bp_avatar_2144"
+  },
+  "used_avatar_ids": [
+    "bp_avatar_7924",
+    "bp_avatar_7548",
+    "bp_avatar_2434",
+    "bp_avatar_9358",
+    "bp_avatar_5946",
+    "bp_avatar_9517",
+    "bp_avatar_2144"
+  ],
+  "generation_batches": {}
+}

@@ -1,262 +1,187 @@
-# Living Twin Synthetic Data Generation Pipeline
-# Automatically tracks dependencies and regenerates when source changes
+# Living Twin Synthetic Data Generation - Project Makefile
 
-.PHONY: all clean install synthetic-data synthetic-data-ai voice-generation animation-data unified-personas validate stats help
+.PHONY: all help clean install build demo dev stop test health \
+	run-structured-data run-strategic-docs run-unified-personas run-quick-data list-scripts \
+	show-outputs clean-outputs export-json export-training backup-data
 
-# Configuration
-PYTHON := python3
-VENV := .venv
-UV := uv
-PYTHON_VENV := $(UV) run python
-
-# Directories
-SYNTHETIC_DIR := synthetic-data
-VOICE_DIR := voice-generation
-ANIMATION_DIR := animation-data
-SHARED_DIR := shared
-
-# Output directories
-ORG_OUTPUT := $(SYNTHETIC_DIR)/outputs/organizations
-SCENARIO_OUTPUT := $(SYNTHETIC_DIR)/outputs/scenarios
-VOICE_OUTPUT := $(VOICE_DIR)/audio-outputs
-ANIMATION_OUTPUT := $(ANIMATION_DIR)/scene-outputs
-
-# Timestamp files for dependency tracking
-SYNTHETIC_TIMESTAMP := $(SYNTHETIC_DIR)/.generated
-VOICE_TIMESTAMP := $(VOICE_DIR)/.generated
-ANIMATION_TIMESTAMP := $(ANIMATION_DIR)/.generated
-
-# Colors for output
-RED := \033[0;31m
-GREEN := \033[0;32m
-YELLOW := \033[1;33m
-BLUE := \033[0;34m
-NC := \033[0m # No Color
 
 # Default target
-all: install synthetic-data voice-generation animation-data validate stats
-	@echo "$(GREEN)✅ Complete pipeline executed successfully!$(NC)"
+all: install build demo
 
-# Help target
-help:
-	@echo "$(BLUE)Living Twin Synthetic Data Generation$(NC)"
-	@echo "======================================="
+help: ## Show this help message
+	@echo "Living Twin Synthetic Data Generation"
+	@echo "===================================="
 	@echo ""
-	@echo "$(YELLOW)Available targets:$(NC)"
-	@echo "  make install           - Install dependencies"
-	@echo "  make synthetic-data    - Generate organizations and scenarios (Faker)"
-	@echo "  make synthetic-data-ai - Generate organizations with GPT-4 (premium)"
-	@echo "  make voice-generation  - Generate voice personas and audio"
-	@echo "  make animation-data    - Generate VR/AR animation data"
-	@echo "  make unified-personas  - Create unified personas (text + voice + avatar)"
-	@echo "  make validate          - Validate all generated data"
-	@echo "  make stats            - Show statistics"
-	@echo "  make clean            - Remove all generated data"
-	@echo "  make all              - Run complete pipeline"
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  %-15s %s\n", $$1, $$2}'
+
+install: ## Install Python dependencies using uv
+	@echo "📦 Installing dependencies for Living Twin Synthetic Data..."
+	@pip install uv
+	@uv sync
+	@echo "✅ Dependencies installed"
+
+build: ## Build Docker image
+	@echo "🏗️ Building Living Twin Synthetic Data Docker image..."
+	@docker-compose build
+	@echo "✅ Docker image built"
+
+demo: ## Start the demo server
+	@echo "🎭 Starting Living Twin Synthetic Data demo..."
+	@echo "📍 Demo will be available at: http://localhost:8004"
+	@docker-compose up -d
+	@echo "✅ Demo server started"
+	@echo "💡 Use 'make logs' to view logs, 'make stop' to stop"
+
+dev: demo ## Alias for demo (development mode)
+
+stop: ## Stop all services
+	@echo "🛑 Stopping Living Twin Synthetic Data services..."
+	@docker-compose down
+	@echo "✅ Services stopped"
+
+clean: ## Clean temporary files and containers
+	@echo "🧹 Cleaning temporary files..."
+	@docker-compose down -v --remove-orphans 2>/dev/null || true
+	@docker system prune -f 2>/dev/null || true
+	@rm -rf outputs/tmp/ outputs/cache/ || true
+	@echo "✅ Temporary files cleaned"
+
+really-clean: ## Deep clean - remove all regenerable data
+	@echo "🧹 Deep clean - removing regenerable data..."
+	@$(MAKE) clean
+	@rm -rf generated/
+	@rm -rf outputs/
+	@rm -rf production_data/
+	@echo "✅ Deep clean complete - regenerable data removed"
+	@echo "📦 Preserved: archives/, id_registry/, scripts/"
+	@echo "💡 Tip: Restore with 'make restore-from-archive'"
+
+logs: ## Show service logs
+	@docker-compose logs -f
+
+health: ## Check service health
+	@echo "🏥 Checking Living Twin Synthetic Data health..."
+	@curl -s http://localhost:8004/health || echo "Service not responding"
+
+test: ## Run tests
+	@echo "🧪 Running Living Twin Synthetic Data tests..."
+	@uv run python -m pytest test_*.py -v || echo "No tests found"
+	@echo "✅ Tests complete"
+
+# Development targets
+run-local: install ## Run locally without Docker
+	@echo "🔬 Running Living Twin Synthetic Data locally..."
+	@uv run uvicorn server.main:app --host 0.0.0.0 --port 8004 --reload
+
+# Data generation targets
+generate-orgs: ## Generate organizations only
+	@echo "🏢 Generating organizations..."
+	@curl -X POST http://localhost:8004/generate/organizations \
+		-H "Content-Type: application/json" \
+		-d '{"count": 10}' || echo "Service not running"
+
+generate-people: ## Generate people personas
+	@echo "👥 Generating people..."
+	@curl -X POST http://localhost:8004/generate/people \
+		-H "Content-Type: application/json" \
+		-d '{"organization_id": "sample_org", "count": 25}' || echo "Service not running"
+
+generate-all: ## Run full generation pipeline
+	@echo "🚀 Running full generation pipeline..."
+	@curl -X POST http://localhost:8004/pipeline/run \
+		-H "Content-Type: application/json" || echo "Service not running"
+
+# Environment setup
+setup-env: ## Create .env file from template
+	@if [ ! -f .env ]; then \
+		echo "🔧 Creating .env file..."; \
+		echo "OPENAI_API_KEY=your_openai_key_here" > .env; \
+		echo "ELEVENLABS_API_KEY=your_elevenlabs_key_here" >> .env; \
+		echo "AWS_REGION=us-east-1" >> .env; \
+		echo "AWS_BEDROCK_ENABLED=false" >> .env; \
+		echo "✅ Created .env file - please update with your API keys"; \
+	else \
+		echo "📋 .env file already exists"; \
+	fi
+
+# Script execution targets
+run-structured-data: install ## Generate structured organizational data
+	@echo "🏢 Generating structured organizational data..."
+	@uv run python scripts/generate_structured_data.py
+
+run-strategic-docs: install ## Generate strategic business documents
+	@echo "📋 Generating strategic documents..."
+	@uv run python scripts/generate_strategic_documents.py
+
+run-unified-personas: install ## Generate unified personas pipeline
+	@echo "👥 Running unified personas pipeline..."
+	@uv run python scripts/unified_persona_pipeline.py
+
+run-quick-data: install ## Generate quick sample data
+	@echo "⚡ Generating quick sample data..."
+	@uv run python scripts/quick_structured_data.py
+
+# List available scripts
+list-scripts: ## Show available generation scripts
+	@echo "📜 Available generation scripts:"
+	@echo "  make run-structured-data    - Generate structured organizational data"
+	@echo "  make run-strategic-docs     - Generate strategic business documents"  
+	@echo "  make run-unified-personas   - Generate unified personas pipeline"
+	@echo "  make run-quick-data         - Generate quick sample data"
 	@echo ""
-	@echo "$(YELLOW)Development targets:$(NC)"
-	@echo "  make test             - Run tests"
-	@echo "  make lint             - Run linters"
-	@echo "  make watch            - Watch for changes and regenerate"
+	@echo "📖 For more details, see: scripts/README.md"
 
-# Install dependencies
-install: pyproject.toml
-	@echo "$(BLUE)📦 Installing dependencies with uv...$(NC)"
-	$(UV) sync
-	@echo "$(GREEN)✅ Dependencies installed$(NC)"
+# Data management targets
+show-outputs: ## Show generated data summary
+	@echo "📊 Generated Data Summary:"
+	@echo "=========================="
+	@echo "📁 Organizations: $$(find outputs/organizations -name "*.json" 2>/dev/null | wc -l | tr -d ' ') files"
+	@echo "👥 People: $$(find outputs/people -name "*.json" 2>/dev/null | wc -l | tr -d ' ') files"
+	@echo "🎭 Scenarios: $$(find outputs/scenarios -name "*.json" 2>/dev/null | wc -l | tr -d ' ') files"
+	@echo "🎵 Voice files: $$(find outputs/voices -name "*.mp3" 2>/dev/null | wc -l | tr -d ' ') files"
+	@echo "📋 Documents: $$(find outputs/documents -name "*.json" -o -name "*.md" 2>/dev/null | wc -l | tr -d ' ') files"
+	@echo ""
+	@echo "💾 Total size: $$(du -sh outputs 2>/dev/null | cut -f1 || echo '0B')"
 
-pyproject.toml:
-	@echo "$(BLUE)📝 Initializing uv project...$(NC)"
-	$(UV) init --no-readme --no-workspace
-	$(UV) add openai boto3 pydantic faker jsonschema click rich requests python-dotenv pyyaml
+clean-outputs: ## Clean all generated data (keep structure)
+	@echo "🧹 Cleaning generated data..."
+	@find outputs -type f -name "*.json" -delete 2>/dev/null || true
+	@find outputs -type f -name "*.mp3" -delete 2>/dev/null || true
+	@find outputs -type f -name "*.wav" -delete 2>/dev/null || true
+	@find outputs -type f -name "*.csv" -delete 2>/dev/null || true
+	@find outputs -type f -name "*.md" ! -name "README.md" -delete 2>/dev/null || true
+	@echo "✅ Generated data cleaned (structure preserved)"
 
-# Synthetic data generation
-synthetic-data: install $(SYNTHETIC_TIMESTAMP)
+export-json: ## Export all data as JSON
+	@echo "📤 Exporting data as JSON..."
+	@mkdir -p outputs/exports/json
+	@find outputs -name "*.json" -not -path "*/exports/*" -exec cp {} outputs/exports/json/ \; 2>/dev/null || true
+	@echo "✅ JSON export complete: outputs/exports/json/"
 
-$(SYNTHETIC_TIMESTAMP): $(SYNTHETIC_DIR)/generate.py $(SYNTHETIC_DIR)/config.yaml
-	@echo "$(BLUE)🏢 Generating synthetic organizations and scenarios...$(NC)"
-	@mkdir -p $(ORG_OUTPUT) $(SCENARIO_OUTPUT)
-	$(PYTHON_VENV) $(SYNTHETIC_DIR)/generate.py \
-		--output-dir $(SYNTHETIC_DIR)/outputs \
-		--config $(SYNTHETIC_DIR)/config.yaml
-	@touch $(SYNTHETIC_TIMESTAMP)
-	@echo "$(GREEN)✅ Synthetic data generated$(NC)"
+export-training: ## Export data in training format
+	@echo "🤖 Exporting training data..."
+	@mkdir -p outputs/exports/training
+	@echo "Training data export would combine all personas, scenarios, and documents"
+	@echo "📋 See outputs/exports/training/ for ML-ready datasets"
 
-# AI-enhanced synthetic data generation (premium)
-synthetic-data-ai: install
-	@echo "$(BLUE)🤖 Generating AI-enhanced organizations with GPT-4...$(NC)"
-	@if [ -z "$${OPENAI_API_KEY}" ]; then \
-		echo "$(RED)❌ OPENAI_API_KEY required for AI generation$(NC)"; \
-		echo "$(YELLOW)Add your OpenAI key to .env file$(NC)"; \
-		exit 1; \
-	fi
-	@mkdir -p $(ORG_OUTPUT) $(SCENARIO_OUTPUT)
-	$(PYTHON_VENV) $(SYNTHETIC_DIR)/generate_ai.py \
-		--count $${SYNTHETIC_DATA_COUNT:-50} \
-		--output-dir $(SYNTHETIC_DIR)/outputs \
-		--config $(SYNTHETIC_DIR)/config_ai.yaml
-	@touch $(SYNTHETIC_TIMESTAMP)
-	@echo "$(GREEN)✅ AI-enhanced synthetic data generated$(NC)"
+backup-data: ## Create timestamped backup of all data
+	@echo "💾 Creating data backup..."
+	@timestamp=$$(date +%Y%m%d_%H%M%S) && \
+	 tar -czf "data_backup_$$timestamp.tar.gz" outputs/ && \
+	 echo "✅ Backup created: data_backup_$$timestamp.tar.gz"
 
-# Voice generation (depends on synthetic data)
-voice-generation: synthetic-data $(VOICE_TIMESTAMP)
-
-$(VOICE_TIMESTAMP): $(SYNTHETIC_TIMESTAMP) $(VOICE_DIR)/generate_voices.py
-	@echo "$(BLUE)🎙️ Generating voice personas and audio files...$(NC)"
-	@mkdir -p $(VOICE_OUTPUT)
-	@if [ -z "$${ELEVENLABS_API_KEY}" ]; then \
-		echo "$(YELLOW)⚠️  Warning: ELEVENLABS_API_KEY not set, using mock generation$(NC)"; \
-		$(PYTHON_VENV) $(VOICE_DIR)/generate_voices.py \
-			--input-dir $(SYNTHETIC_DIR)/outputs \
-			--output-dir $(VOICE_OUTPUT) \
-			--mock; \
+restore-from-archive: ## Restore latest deployment from archive
+	@echo "📦 Restoring from latest archive..."
+	@latest_archive=$$(ls -t archives/*.tar.gz 2>/dev/null | head -1); \
+	if [ -n "$$latest_archive" ]; then \
+		echo "📂 Extracting: $$latest_archive"; \
+		tar -xzf "$$latest_archive" -C .; \
+		echo "✅ Data restored from archive"; \
 	else \
-		$(PYTHON_VENV) $(VOICE_DIR)/generate_voices.py \
-			--input-dir $(SYNTHETIC_DIR)/outputs \
-			--output-dir $(VOICE_OUTPUT); \
-	fi
-	@touch $(VOICE_TIMESTAMP)
-	@echo "$(GREEN)✅ Voice generation complete$(NC)"
-
-# Animation data (depends on voice generation)
-animation-data: voice-generation $(ANIMATION_TIMESTAMP)
-
-$(ANIMATION_TIMESTAMP): $(VOICE_TIMESTAMP) $(ANIMATION_DIR)/generate_animations.py
-	@echo "$(BLUE)🎬 Generating animation and VR/AR scene data...$(NC)"
-	@mkdir -p $(ANIMATION_OUTPUT)
-	$(PYTHON_VENV) $(ANIMATION_DIR)/generate_animations.py \
-		--synthetic-dir $(SYNTHETIC_DIR)/outputs \
-		--voice-dir $(VOICE_OUTPUT) \
-		--output-dir $(ANIMATION_OUTPUT)
-	@touch $(ANIMATION_TIMESTAMP)
-	@echo "$(GREEN)✅ Animation data generated$(NC)"
-
-# Unified persona generation (text + voice + avatar with consistent IDs)
-unified-personas: synthetic-data
-	@echo "$(BLUE)🚀 Generating unified personas with consistent IDs...$(NC)"
-	@mkdir -p unified-personas
-	@if [ -z "$${ELEVENLABS_API_KEY}" ] && [ -z "$${BEYOND_PRESENCE_API_KEY}" ]; then \
-		echo "$(YELLOW)⚠️  Running in full mock mode (no API keys)$(NC)"; \
-		$(PYTHON_VENV) unified_persona_pipeline.py \
-			--synthetic-data-dir $(SYNTHETIC_DIR)/outputs \
-			--output-dir unified-personas \
-			--mock-voice --mock-avatar \
-			--org-limit $${ORG_LIMIT:-3}; \
-	elif [ -z "$${ELEVENLABS_API_KEY}" ]; then \
-		echo "$(YELLOW)⚠️  Voice generation in mock mode (missing ELEVENLABS_API_KEY)$(NC)"; \
-		$(PYTHON_VENV) unified_persona_pipeline.py \
-			--synthetic-data-dir $(SYNTHETIC_DIR)/outputs \
-			--output-dir unified-personas \
-			--mock-voice; \
-	elif [ -z "$${BEYOND_PRESENCE_API_KEY}" ]; then \
-		echo "$(YELLOW)⚠️  Avatar generation in mock mode (missing BEYOND_PRESENCE_API_KEY)$(NC)"; \
-		$(PYTHON_VENV) unified_persona_pipeline.py \
-			--synthetic-data-dir $(SYNTHETIC_DIR)/outputs \
-			--output-dir unified-personas \
-			--mock-avatar; \
-	else \
-		echo "$(GREEN)🔑 Full API mode enabled$(NC)"; \
-		$(PYTHON_VENV) unified_persona_pipeline.py \
-			--synthetic-data-dir $(SYNTHETIC_DIR)/outputs \
-			--output-dir unified-personas; \
-	fi
-	@echo "$(GREEN)✅ Unified personas generated$(NC)"
-
-# Validate all generated data
-validate: $(SHARED_DIR)/validators/validate_all.py
-	@echo "$(BLUE)🔍 Validating all generated data...$(NC)"
-	@if [ -f $(SYNTHETIC_TIMESTAMP) ]; then \
-		$(PYTHON_VENV) $(SHARED_DIR)/validators/validate_all.py \
-			--synthetic-dir $(SYNTHETIC_DIR)/outputs \
-			--voice-dir $(VOICE_OUTPUT) \
-			--animation-dir $(ANIMATION_OUTPUT); \
-		echo "$(GREEN)✅ All data validated successfully$(NC)"; \
-	else \
-		echo "$(YELLOW)⚠️  No data to validate. Run 'make synthetic-data' first.$(NC)"; \
+		echo "❌ No archives found in archives/"; \
 	fi
 
-# Show statistics
-stats:
-	@echo "$(BLUE)📊 Data Generation Statistics$(NC)"
-	@echo "=============================="
-	@if [ -f $(SYNTHETIC_TIMESTAMP) ]; then \
-		echo "$(YELLOW)Synthetic Data:$(NC)"; \
-		echo "  Organizations: $$(find $(ORG_OUTPUT) -name "*.json" 2>/dev/null | wc -l)"; \
-		echo "  Scenarios: $$(find $(SCENARIO_OUTPUT) -name "*.json" 2>/dev/null | wc -l)"; \
-		echo "  Total size: $$(du -sh $(SYNTHETIC_DIR)/outputs 2>/dev/null | cut -f1)"; \
-	fi
-	@if [ -f $(VOICE_TIMESTAMP) ]; then \
-		echo "$(YELLOW)Voice Data:$(NC)"; \
-		echo "  Audio files: $$(find $(VOICE_OUTPUT) -name "*.mp3" 2>/dev/null | wc -l)"; \
-		echo "  Voice mappings: $$(find $(VOICE_DIR) -name "*mapping*.json" 2>/dev/null | wc -l)"; \
-		echo "  Total size: $$(du -sh $(VOICE_OUTPUT) 2>/dev/null | cut -f1)"; \
-	fi
-	@if [ -f $(ANIMATION_TIMESTAMP) ]; then \
-		echo "$(YELLOW)Animation Data:$(NC)"; \
-		echo "  Scene files: $$(find $(ANIMATION_OUTPUT) -name "*.json" 2>/dev/null | wc -l)"; \
-		echo "  Total size: $$(du -sh $(ANIMATION_OUTPUT) 2>/dev/null | cut -f1)"; \
-	fi
+deploy-production: ## Run production data management system
+	@echo "🏭 Running production data deployment..."
+	@uv run python scripts/data_management_system.py
 
-# Clean all generated data
-clean:
-	@echo "$(RED)🧹 Cleaning all generated data...$(NC)"
-	rm -rf $(SYNTHETIC_DIR)/outputs
-	rm -rf $(VOICE_OUTPUT)
-	rm -rf $(ANIMATION_OUTPUT)
-	rm -f $(SYNTHETIC_TIMESTAMP) $(VOICE_TIMESTAMP) $(ANIMATION_TIMESTAMP)
-	@echo "$(GREEN)✅ All generated data removed$(NC)"
-
-# Clean everything including virtual environment
-clean-all: clean
-	@echo "$(RED)🧹 Removing virtual environment...$(NC)"
-	rm -rf $(VENV)
-	rm -f requirements.txt
-
-# Test targets
-test: install
-	@echo "$(BLUE)🧪 Running tests...$(NC)"
-	$(PYTHON_VENV) -m pytest tests/ -v
-
-lint: install
-	@echo "$(BLUE)🔍 Running linters...$(NC)"
-	$(PYTHON_VENV) -m black --check .
-	$(PYTHON_VENV) -m flake8 .
-	$(PYTHON_VENV) -m mypy .
-
-# Development: Watch for changes and regenerate
-watch:
-	@echo "$(BLUE)👁️  Watching for changes...$(NC)"
-	@while true; do \
-		$(MAKE) -q all || $(MAKE) all; \
-		sleep 2; \
-	done
-
-# Check if source files have changed
-check-synthetic-changes:
-	@if [ ! -f $(SYNTHETIC_TIMESTAMP) ] || \
-	   [ $(SYNTHETIC_DIR)/generate.py -nt $(SYNTHETIC_TIMESTAMP) ] || \
-	   [ $(SYNTHETIC_DIR)/config.yaml -nt $(SYNTHETIC_TIMESTAMP) ]; then \
-		echo "$(YELLOW)♻️  Synthetic data source changed, regenerating...$(NC)"; \
-		rm -f $(SYNTHETIC_TIMESTAMP); \
-	fi
-
-check-voice-changes:
-	@if [ ! -f $(VOICE_TIMESTAMP) ] || \
-	   [ $(VOICE_DIR)/generate_voices.py -nt $(VOICE_TIMESTAMP) ] || \
-	   [ $(SYNTHETIC_TIMESTAMP) -nt $(VOICE_TIMESTAMP) ]; then \
-		echo "$(YELLOW)♻️  Voice generation source changed, regenerating...$(NC)"; \
-		rm -f $(VOICE_TIMESTAMP); \
-	fi
-
-check-animation-changes:
-	@if [ ! -f $(ANIMATION_TIMESTAMP) ] || \
-	   [ $(ANIMATION_DIR)/generate_animations.py -nt $(ANIMATION_TIMESTAMP) ] || \
-	   [ $(VOICE_TIMESTAMP) -nt $(ANIMATION_TIMESTAMP) ]; then \
-		echo "$(YELLOW)♻️  Animation source changed, regenerating...$(NC)"; \
-		rm -f $(ANIMATION_TIMESTAMP); \
-	fi
-
-# Include dependency checks in main targets
-synthetic-data: check-synthetic-changes
-voice-generation: check-voice-changes
-animation-data: check-animation-changes

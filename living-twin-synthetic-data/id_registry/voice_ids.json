@@ -1,0 +1,21 @@
+{
+  "elevenlabs_mappings": {
+    "persona_org_001_p0000": "elevenlabs_voice_1557",
+    "persona_org_001_p0001": "elevenlabs_voice_4743",
+    "persona_org_001_p0002": "elevenlabs_voice_6016",
+    "persona_org_001_p0003": "elevenlabs_voice_2579",
+    "persona_org_001_p0004": "elevenlabs_voice_3681",
+    "persona_org_001_p0005": "elevenlabs_voice_3251",
+    "persona_org_001_p0006": "elevenlabs_voice_6079"
+  },
+  "used_voice_ids": [
+    "elevenlabs_voice_1557",
+    "elevenlabs_voice_4743",
+    "elevenlabs_voice_6016",
+    "elevenlabs_voice_2579",
+    "elevenlabs_voice_3681",
+    "elevenlabs_voice_3251",
+    "elevenlabs_voice_6079"
+  ],
+  "generation_batches": {}
+}

@@ -36,26 +36,14 @@ ENV/
 env.bak/
 venv.bak/
 
-# Generated data outputs (consolidated in generated/)
-generated/raw/
-generated/structured/organizations/
-generated/structured/delegations/
-generated/voice/
-generated/avatar/
-generated/scenarios/
-# Keep personas examples and documentation
-!generated/README.md
-!generated/personas/
+# Archive-First Strategy: Generated data (regenerable from scripts and archives)
+generated/
+outputs/
+production_data/
 
-# Legacy output directories (deprecated)
-synthetic-data/outputs/
-voice-generation/audio-outputs/
-voice-generation/voice-mapping/
-voice-generation/audio-scripts/
-animation-data/scene-outputs/
-animation-data/spatial-configs/
-animation-data/avatar-models/
-data/
+# Keep valuable curated archives and ID management
+!archives/
+!id_registry/
 
 # Timestamp files for dependency tracking
 .generated

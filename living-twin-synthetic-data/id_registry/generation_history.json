@@ -1,0 +1,52 @@
+{
+  "generations": [
+    {
+      "deployment_id": "deployment_20250913_193543",
+      "timestamp": "2025-09-13T19:35:44.249917",
+      "system_version": "2.0",
+      "data_statistics": {
+        "organizations": {
+          "count": 160,
+          "with_flows": 45,
+          "with_enhanced_flows": 20
+        },
+        "personas": {
+          "count": 7,
+          "individual_profiles": 7
+        },
+        "communication_flows": {
+          "basic": 140,
+          "enhanced": 42,
+          "intent_based": 15
+        },
+        "voice_integration": {
+          "mappings": 0,
+          "samples": 0
+        },
+        "avatar_integration": {
+          "mappings": 0,
+          "behavior_profiles": 0
+        },
+        "total_files": 1413,
+        "total_size_mb": 2.88
+      },
+      "id_ranges": {
+        "organizations": {
+          "next_available": 160,
+          "reserved_ranges": {},
+          "total_used": 160
+        },
+        "personas": {
+          "total_used": 7,
+          "active_mappings": 7
+        }
+      },
+      "generator_commit": "271b8e703744dc64eccd846f7cc957edb94ed27c"
+    }
+  ],
+  "current_version": "2.0",
+  "schema_versions": {
+    "1.0": "basic",
+    "2.0": "intent_based"
+  }
+}
