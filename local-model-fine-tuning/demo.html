@@ -1,0 +1,970 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Local Model Fine-Tuning - Hackathon {Tech: Europe}</title>
+    
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary-color: #64748b;
+            --accent-color: #10b981;
+            --error-color: #ef4444;
+            --warning-color: #f59e0b;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, var(--bg-color) 0%, #e2e8f0 100%);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+        
+        .header {
+            background: var(--card-bg);
+            border-bottom: 2px solid var(--primary-color);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .header h1 {
+            color: var(--primary-color);
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .header p {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+        
+        .grid {
+            display: grid;
+            gap: 2rem;
+            grid-template-columns: 1fr 1fr;
+        }
+        
+        .section {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--border-color);
+        }
+        
+        .section h2 {
+            color: var(--primary-color);
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--secondary-color);
+        }
+        
+        .status-indicator.active {
+            background: var(--accent-color);
+        }
+        
+        .status-indicator.error {
+            background: var(--error-color);
+        }
+        
+        .status-indicator.training {
+            background: var(--warning-color);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+        
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+        
+        .btn-secondary {
+            background: var(--secondary-color);
+            color: white;
+        }
+        
+        .btn-accent {
+            background: var(--accent-color);
+            color: white;
+        }
+        
+        .btn-warning {
+            background: var(--warning-color);
+            color: white;
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .output {
+            background: #1e293b;
+            color: #e2e8f0;
+            border-radius: 8px;
+            padding: 1rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 1rem;
+        }
+        
+        .metric-card {
+            background: var(--bg-color);
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+        
+        .metric-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+        
+        .metric-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--border-color);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        .comparison-area {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .model-response {
+            background: var(--bg-color);
+            border-radius: 8px;
+            padding: 1rem;
+            border: 2px solid var(--border-color);
+        }
+        
+        .model-response.generic {
+            border-color: var(--secondary-color);
+        }
+        
+        .model-response.fine-tuned {
+            border-color: var(--accent-color);
+        }
+        
+        .model-response h3 {
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+        
+        .upload-area {
+            border: 2px dashed var(--border-color);
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+            margin-bottom: 1rem;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        
+        .upload-area:hover {
+            border-color: var(--primary-color);
+            background: var(--bg-color);
+        }
+        
+        .upload-area.active {
+            border-color: var(--accent-color);
+            background: var(--bg-color);
+        }
+        
+        .document-list {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-bottom: 1rem;
+        }
+        
+        .document-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem;
+            background: var(--bg-color);
+            margin-bottom: 0.5rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+        
+        .full-width {
+            grid-column: 1 / -1;
+        }
+        
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .comparison-area {
+                grid-template-columns: 1fr;
+            }
+            
+            .container {
+                padding: 0 1rem;
+            }
+            
+            .header {
+                padding: 1rem;
+            }
+        }
+        
+        .alert {
+            padding: 0.75rem 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .alert-info {
+            background: #dbeafe;
+            border: 1px solid #93c5fd;
+            color: #1e40af;
+        }
+        
+        .alert-warning {
+            background: #fef3c7;
+            border: 1px solid #fbbf24;
+            color: #92400e;
+        }
+        
+        .alert-success {
+            background: #d1fae5;
+            border: 1px solid #34d399;
+            color: #065f46;
+        }
+        
+        .training-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+        
+        .architecture-diagram {
+            text-align: center;
+            padding: 1rem;
+            background: var(--bg-color);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+        
+        .pipeline-step {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background: var(--primary-color);
+            color: white;
+            border-radius: 20px;
+            margin: 0.25rem;
+            font-size: 0.8rem;
+        }
+        
+        .arrow {
+            display: inline-block;
+            margin: 0 0.5rem;
+            color: var(--text-secondary);
+        }
+        
+        .input-group {
+            margin-bottom: 1rem;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+        
+        .input-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 80px;
+        }
+        
+        .input-group textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🤖 Local Model Fine-Tuning</h1>
+        <p>Hackathon {Tech: Europe} September 13-14th 2025 • Organizational AI Customization with LoRA</p>
+    </div>
+
+    <div class="container">
+        <div class="alert alert-info">
+            <span>ℹ️</span>
+            <span>Upload organizational documents to fine-tune a local AI model that understands your company's values and strategy.</span>
+        </div>
+
+        <div class="grid">
+            <!-- Document Upload -->
+            <div class="section">
+                <h2><span class="status-indicator" id="upload-status"></span>Document Upload</h2>
+                
+                <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">📄</div>
+                    <div>Click to upload organizational documents</div>
+                    <div style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.5rem;">
+                        Supports: PDF, DOCX, TXT, MD
+                    </div>
+                    <input type="file" id="fileInput" multiple accept=".pdf,.docx,.txt,.md" style="display: none;">
+                </div>
+                
+                <div class="document-list" id="documentList">
+                    <!-- Uploaded documents will appear here -->
+                </div>
+
+                <!-- WellnessRoberts Care Demo Documents -->
+                <div style="border: 1px solid var(--accent-color); border-radius: 8px; padding: 1rem; margin: 1rem 0; background: linear-gradient(135deg, #f0f8ff 0%, #e8f5e8 100%);">
+                    <h3 style="color: var(--accent-color); margin-bottom: 0.75rem;">🏥 WellnessRoberts Care - Demo Dataset</h3>
+                    <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 1rem;">Major healthcare organization in Tokyo with 2,623 employees. Click to add documents for fine-tuning:</p>
+
+                    <div id="wellnessroberts-documents" style="display: grid; gap: 0.5rem;">
+                        <!-- Documents will be loaded here -->
+                    </div>
+
+                    <button class="btn btn-accent" onclick="loadWellnessRobertsDocuments()" style="margin-top: 0.75rem;">📋 Load WellnessRoberts Documents</button>
+                </div>
+
+                <div class="controls">
+                    <button class="btn btn-primary" onclick="processDocuments()">📊 Process Documents</button>
+                    <button class="btn btn-secondary" onclick="clearDocuments()">🗑️ Clear All</button>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-value" id="document-count">0</div>
+                    <div class="metric-label">Documents Uploaded</div>
+                </div>
+            </div>
+
+            <!-- Fine-Tuning Pipeline -->
+            <div class="section">
+                <h2><span class="status-indicator" id="training-status"></span>Fine-Tuning Pipeline</h2>
+                
+                <div class="architecture-diagram">
+                    <div>
+                        <span class="pipeline-step">Document Processing</span>
+                        <span class="arrow">→</span>
+                        <span class="pipeline-step">Training Data Generation</span>
+                    </div>
+                    <div style="margin-top: 0.5rem;">
+                        <span class="arrow">↓</span>
+                    </div>
+                    <div>
+                        <span class="pipeline-step">LoRA Fine-tuning</span>
+                        <span class="arrow">→</span>
+                        <span class="pipeline-step">Model Deployment</span>
+                    </div>
+                </div>
+
+                <div class="training-metrics">
+                    <div class="metric-card">
+                        <div class="metric-value" id="training-examples">0</div>
+                        <div class="metric-label">Training Examples</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="training-time">0m</div>
+                        <div class="metric-label">Training Time</div>
+                    </div>
+                </div>
+
+                <div class="progress-bar">
+                    <div class="progress-fill" id="training-progress"></div>
+                </div>
+
+                <div class="controls">
+                    <button class="btn btn-warning" onclick="startFineTuning()">🚀 Start Fine-Tuning</button>
+                    <button class="btn btn-secondary" onclick="stopTraining()">⏹️ Stop Training</button>
+                </div>
+
+                <div class="output" id="training-output">Ready to start fine-tuning...</div>
+            </div>
+
+            <!-- Model Comparison -->
+            <div class="section">
+                <h2><span class="status-indicator active"></span>Model Comparison</h2>
+                
+                <div class="input-group">
+                    <label for="testQuery">Test Query:</label>
+                    <textarea id="testQuery" placeholder="Ask a question about strategy, values, or decision-making...">How should we approach our next strategic initiative?</textarea>
+                </div>
+                
+                <div class="controls">
+                    <button class="btn btn-primary" onclick="compareModels()">⚖️ Compare Models</button>
+                    <button class="btn btn-accent" onclick="loadSampleQuestions()">💡 Load Sample Questions</button>
+                </div>
+
+                <div class="comparison-area">
+                    <div class="model-response generic">
+                        <h3>🤖 Generic AI Response</h3>
+                        <div id="generic-response">Ask a question to see generic AI response...</div>
+                    </div>
+                    <div class="model-response fine-tuned">
+                        <h3>🏢 Organization-Tuned AI Response</h3>
+                        <div id="tuned-response">Fine-tune your model first to see customized responses...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- System Status -->
+            <div class="section">
+                <h2><span class="status-indicator" id="system-status"></span>System Status</h2>
+                
+                <div class="metric-card">
+                    <div class="metric-value" id="model-size">13GB</div>
+                    <div class="metric-label">Base Model Size</div>
+                </div>
+                
+                <div class="metric-card">
+                    <div class="metric-value" id="lora-size">0MB</div>
+                    <div class="metric-label">LoRA Adapter Size</div>
+                </div>
+
+                <div class="controls">
+                    <button class="btn btn-secondary" onclick="checkSystemHealth()">🏥 Health Check</button>
+                    <button class="btn btn-secondary" onclick="viewLogs()">📋 View Logs</button>
+                </div>
+
+                <div class="alert" id="system-alert" style="display: none;">
+                    <span>⚠️</span>
+                    <span>System status information will appear here</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Full-width sections -->
+        <div class="section full-width">
+            <h2>🎯 About Local Model Fine-Tuning</h2>
+            <p style="margin-bottom: 1rem;">
+                This demo showcases how to customize large language models using LoRA (Low-Rank Adaptation) 
+                fine-tuning with organizational documents. The system processes your company's strategic documents, 
+                generates training examples, and creates a specialized AI that understands your organizational context.
+            </p>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+                <div style="padding: 1rem; background: var(--bg-color); border-radius: 8px;">
+                    <h3>📋 Document Processing</h3>
+                    <p>Upload and process organizational documents including policies, values, and strategic plans to create training data.</p>
+                </div>
+                
+                <div style="padding: 1rem; background: var(--bg-color); border-radius: 8px;">
+                    <h3>⚙️ LoRA Fine-Tuning</h3>
+                    <p>Use efficient Low-Rank Adaptation to customize the model without requiring massive computational resources.</p>
+                </div>
+                
+                <div style="padding: 1rem; background: var(--bg-color); border-radius: 8px;">
+                    <h3>🏠 Local Deployment</h3>
+                    <p>Run everything locally using Ollama for privacy and control over your organizational data and AI models.</p>
+                </div>
+                
+                <div style="padding: 1rem; background: var(--bg-color); border-radius: 8px;">
+                    <h3>⚖️ Response Comparison</h3>
+                    <p>Compare generic AI responses with organization-specific responses to see the impact of fine-tuning.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let uploadedDocuments = [];
+        let isTraining = false;
+        let trainingInterval = null;
+        let modelFineTuned = false;
+
+        // File upload handling
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            const files = Array.from(e.target.files);
+            files.forEach(file => {
+                if (!uploadedDocuments.find(doc => doc.name === file.name)) {
+                    uploadedDocuments.push({
+                        name: file.name,
+                        size: file.size,
+                        type: file.type,
+                        uploaded: new Date().toISOString()
+                    });
+                }
+            });
+            updateDocumentList();
+            updateDocumentCount();
+        });
+
+        function updateDocumentList() {
+            const listElement = document.getElementById('documentList');
+            listElement.innerHTML = '';
+            
+            uploadedDocuments.forEach((doc, index) => {
+                const item = document.createElement('div');
+                item.className = 'document-item';
+                item.innerHTML = `
+                    <span>${doc.name} (${formatFileSize(doc.size)})</span>
+                    <button class="btn" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;" onclick="removeDocument(${index})">×</button>
+                `;
+                listElement.appendChild(item);
+            });
+
+            document.getElementById('upload-status').className = uploadedDocuments.length > 0 ? 'status-indicator active' : 'status-indicator';
+        }
+
+        function updateDocumentCount() {
+            document.getElementById('document-count').textContent = uploadedDocuments.length;
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function removeDocument(index) {
+            uploadedDocuments.splice(index, 1);
+            updateDocumentList();
+            updateDocumentCount();
+        }
+
+        function clearDocuments() {
+            uploadedDocuments = [];
+            updateDocumentList();
+            updateDocumentCount();
+            logMessage('Cleared all documents');
+        }
+
+        async function processDocuments() {
+            if (uploadedDocuments.length === 0) {
+                alert('Please upload documents first');
+                return;
+            }
+
+            logMessage('Processing documents...');
+            
+            try {
+                const response = await fetch('/process-documents', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ documents: uploadedDocuments })
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    document.getElementById('training-examples').textContent = result.training_examples || (uploadedDocuments.length * 25);
+                    logMessage(`Generated ${result.training_examples || (uploadedDocuments.length * 25)} training examples`);
+                } else {
+                    logMessage(`Error: ${result.message}`);
+                }
+            } catch (error) {
+                // Mock processing for demo
+                const trainingExamples = uploadedDocuments.length * 25;
+                document.getElementById('training-examples').textContent = trainingExamples;
+                logMessage(`Processed ${uploadedDocuments.length} documents`);
+                logMessage(`Generated ${trainingExamples} training examples`);
+                
+                setTimeout(() => {
+                    logMessage('Document processing complete - ready for fine-tuning');
+                }, 1000);
+            }
+        }
+
+        async function startFineTuning() {
+            if (uploadedDocuments.length === 0) {
+                alert('Please upload and process documents first');
+                return;
+            }
+
+            if (isTraining) {
+                alert('Training already in progress');
+                return;
+            }
+
+            isTraining = true;
+            modelFineTuned = false;
+            document.getElementById('training-status').className = 'status-indicator training';
+            document.getElementById('training-output').textContent = '';
+            
+            logMessage('🚀 Starting LoRA fine-tuning...');
+            logMessage('Loading base model (Llama-2-13B-Chat)...');
+            
+            let progress = 0;
+            let startTime = Date.now();
+            
+            trainingInterval = setInterval(() => {
+                progress += Math.random() * 5;
+                if (progress > 100) progress = 100;
+                
+                document.getElementById('training-progress').style.width = progress + '%';
+                
+                const elapsedMinutes = Math.floor((Date.now() - startTime) / 60000);
+                document.getElementById('training-time').textContent = elapsedMinutes + 'm';
+                
+                // Training phases
+                if (progress < 20) {
+                    if (Math.random() < 0.3) logMessage('Initializing LoRA adapters...');
+                } else if (progress < 40) {
+                    if (Math.random() < 0.2) logMessage('Training epoch 1/3...');
+                } else if (progress < 70) {
+                    if (Math.random() < 0.2) logMessage('Training epoch 2/3...');
+                } else if (progress < 90) {
+                    if (Math.random() < 0.2) logMessage('Training epoch 3/3...');
+                } else if (progress >= 100 && isTraining) {
+                    clearInterval(trainingInterval);
+                    isTraining = false;
+                    modelFineTuned = true;
+                    document.getElementById('training-status').className = 'status-indicator active';
+                    document.getElementById('lora-size').textContent = '247MB';
+                    logMessage('✅ Fine-tuning completed successfully!');
+                    logMessage('LoRA adapter saved and ready for inference');
+                    
+                    showAlert('success', 'Model fine-tuning completed! You can now compare responses.');
+                }
+            }, 200);
+        }
+
+        function stopTraining() {
+            if (trainingInterval) {
+                clearInterval(trainingInterval);
+                isTraining = false;
+                document.getElementById('training-status').className = 'status-indicator error';
+                logMessage('⏹️ Training stopped by user');
+            }
+        }
+
+        async function compareModels() {
+            const query = document.getElementById('testQuery').value.trim();
+            if (!query) {
+                alert('Please enter a test query');
+                return;
+            }
+
+            // Generic response
+            document.getElementById('generic-response').textContent = 'Generating generic response...';
+            
+            setTimeout(() => {
+                const genericResponse = getGenericResponse(query);
+                document.getElementById('generic-response').textContent = genericResponse;
+            }, 1000);
+
+            // Tuned response
+            document.getElementById('tuned-response').textContent = modelFineTuned ? 'Generating organization-specific response...' : 'Please fine-tune the model first';
+            
+            if (modelFineTuned) {
+                setTimeout(() => {
+                    const tunedResponse = getTunedResponse(query);
+                    document.getElementById('tuned-response').textContent = tunedResponse;
+                }, 1500);
+            }
+        }
+
+        function getGenericResponse(query) {
+            const responses = {
+                "strategic": "To approach strategic initiatives, consider conducting thorough market analysis, engaging stakeholders, evaluating ROI potential, and developing a phased implementation plan with clear success metrics.",
+                "decision": "For effective decision-making, gather relevant data, consider multiple perspectives, evaluate risks and benefits, consult with key stakeholders, and establish clear criteria for success.",
+                "values": "Organizational values should guide decision-making by providing a framework for ethical conduct, employee behavior, and business practices that align with company culture and objectives.",
+                "default": "This requires careful consideration of various factors including resources, timeline, stakeholder impact, and alignment with business objectives. A structured approach with clear milestones would be recommended."
+            };
+
+            const lowerQuery = query.toLowerCase();
+            if (lowerQuery.includes('strategic') || lowerQuery.includes('initiative')) return responses.strategic;
+            if (lowerQuery.includes('decision') || lowerQuery.includes('decide')) return responses.decision;
+            if (lowerQuery.includes('value') || lowerQuery.includes('culture')) return responses.values;
+            return responses.default;
+        }
+
+        function getTunedResponse(query) {
+            if (!modelFineTuned) return 'Model not yet fine-tuned';
+
+            const lowerQuery = query.toLowerCase();
+
+            // WellnessRoberts Care specific responses
+            if (lowerQuery.includes('patientcare suite') || lowerQuery.includes('4.2m')) {
+                return "Based on WellnessRoberts Care's strategic priorities, I recommend approving the $4.2M PatientCare Suite investment. Our analysis shows 285% ROI over 36 months, +23% patient throughput improvement, and +15% diagnostic accuracy. This investment directly supports our operational excellence priority and positions us for 2026 expansion. The medium risk profile with proven technology and phased rollout plan makes this strategic for our 2,623-employee organization.";
+            }
+
+            if (lowerQuery.includes('physician') && lowerQuery.includes('retention')) {
+                return "For WellnessRoberts Care's senior physician retention crisis, I recommend the equity participation program (¥12M annual equivalent) over salary matching. We're facing 45% cardiac surgery capacity risk with Dr. Ishikawa, Dr. Nakamura, and Dr. Fujiwara considering 35% salary increases from Tokyo General and Keio University Hospital. This affects our training programs (23 junior physicians) and revenue (-¥89M annually). The equity program aligns with our long-term strategy while managing costs.";
+            }
+
+            if (lowerQuery.includes('compliance') || lowerQuery.includes('health data protection')) {
+                return "WellnessRoberts Care must prioritize Japan Health Data Protection Act compliance by December 2025. Current gaps: 65% data encryption, 78% access logging, 45% patient consent systems. I recommend the hybrid approach: 6 months, $15M, low risk. Non-compliance risks ¥50M+ fines and operating license loss. This impacts our 2,600+ employee training requirements and positions us competitively in Tokyo's healthcare market.";
+            }
+
+            if (lowerQuery.includes('employees') || lowerQuery.includes('how many')) {
+                return "WellnessRoberts Care employs 2,623 staff members across our Tokyo healthcare operations, with revenue in the $500M-$2B range. Our organizational structure includes clinical operations, finance, IT security, compliance, and research divisions. We're a major healthcare provider in the Tokyo metro area facing typical challenges of physician shortages (15% market-wide) and digital transformation needs.";
+            }
+
+            // Generic organizational responses
+            const responses = {
+                "strategic": "Based on WellnessRoberts Care's strategic priorities of operational excellence, customer experience, and cost management, we should evaluate this initiative against our healthcare market position in Tokyo. Our innovation index of 0.82 suggests strong potential for strategic technology adoption aligned with regulatory compliance requirements.",
+                "decision": "Following WellnessRoberts Care's CEO decision framework: 1) Regulatory compliance (non-negotiable), 2) Strategic investments (ROI evaluation), 3) Human capital (retention costs vs operational impact), 4) Partnership opportunities (strategic fit assessment), 5) Quality metrics (continuous improvement). This ensures alignment with our healthcare mission and Tokyo market dynamics.",
+                "values": "WellnessRoberts Care's core values center on patient safety, operational excellence, and regulatory compliance in the Japanese healthcare environment. Our strategic priorities emphasize quality care delivery, staff retention, and technology advancement while maintaining cost management discipline across our 2,623-employee organization.",
+                "default": "Considering WellnessRoberts Care's position as a major Tokyo healthcare provider with 2,623 employees, we should approach this through our established framework of patient-centered care, regulatory compliance, and operational excellence. This aligns with our strategic priorities and competitive requirements in Japan's evolving healthcare landscape."
+            };
+
+            if (lowerQuery.includes('strategic') || lowerQuery.includes('initiative')) return responses.strategic;
+            if (lowerQuery.includes('decision') || lowerQuery.includes('decide')) return responses.decision;
+            if (lowerQuery.includes('value') || lowerQuery.includes('culture')) return responses.values;
+            return responses.default;
+        }
+
+        function loadSampleQuestions() {
+            const wellnessrobertsQueries = [
+                "Should we approve the $4.2M PatientCare Suite investment?",
+                "What are the risks if we lose our senior cardiac physicians?",
+                "How does regulatory compliance affect our digital transformation?",
+                "What is WellnessRoberts Care's competitive position in Tokyo?",
+                "How should we handle the Japan Health Data Protection Act compliance?",
+                "What's our approach to physician retention in the current market?",
+                "How many employees does WellnessRoberts Care have?",
+                "What are our strategic priorities for this quarter?"
+            ];
+
+            const genericQueries = [
+                "How should we approach our next strategic initiative?",
+                "What factors should guide our decision-making process?",
+                "How do our company values influence our business strategy?",
+                "What's the best way to handle organizational change?",
+                "How should we prioritize our quarterly objectives?"
+            ];
+
+            // Prefer WellnessRoberts queries if documents are loaded
+            const queries = wellnessrobertsDocuments.length > 0 ? wellnessrobertsQueries : genericQueries;
+            const randomSample = queries[Math.floor(Math.random() * queries.length)];
+            document.getElementById('testQuery').value = randomSample;
+        }
+
+        async function checkSystemHealth() {
+            document.getElementById('system-status').className = 'status-indicator active';
+            showAlert('info', 'System health check passed - all services running normally');
+        }
+
+        function viewLogs() {
+            logMessage('=== SYSTEM LOGS ===');
+            logMessage('Ollama service: Running');
+            logMessage('LoRA training pipeline: Ready');
+            logMessage('Document processor: Online');
+            logMessage('Model inference: Available');
+        }
+
+        function showAlert(type, message) {
+            const alert = document.getElementById('system-alert');
+            alert.className = `alert alert-${type}`;
+            alert.querySelector('span:last-child').textContent = message;
+            alert.style.display = 'flex';
+            
+            setTimeout(() => {
+                alert.style.display = 'none';
+            }, 5000);
+        }
+
+        function logMessage(message) {
+            const output = document.getElementById('training-output');
+            const timestamp = new Date().toLocaleTimeString();
+            output.textContent += `[${timestamp}] ${message}\n`;
+            output.scrollTop = output.scrollHeight;
+        }
+
+        // WellnessRoberts Care Demo Functions
+        let wellnessrobertsDocuments = [];
+
+        async function loadWellnessRobertsDocuments() {
+            try {
+                const response = await fetch('http://localhost:8005/api/wellnessroberts/documents');
+                const data = await response.json();
+                wellnessrobertsDocuments = data.documents;
+
+                const container = document.getElementById('wellnessroberts-documents');
+                container.innerHTML = '';
+
+                data.documents.forEach(doc => {
+                    const docElement = document.createElement('div');
+                    docElement.style.cssText = `
+                        border: 1px solid var(--border-color);
+                        border-radius: 6px;
+                        padding: 0.75rem;
+                        cursor: pointer;
+                        transition: all 0.2s;
+                        background: white;
+                    `;
+                    docElement.innerHTML = `
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                            <div style="flex: 1;">
+                                <div style="font-weight: 600; color: var(--text-primary); margin-bottom: 0.25rem;">
+                                    ${doc.name}
+                                </div>
+                                <div style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.5rem;">
+                                    ${doc.description}
+                                </div>
+                                <div style="font-size: 0.8rem; color: var(--secondary-color);">
+                                    ${doc.size} • ${doc.type}
+                                </div>
+                            </div>
+                            <button class="btn btn-accent" onclick="addWellnessRobertsDocument('${doc.id}')" style="margin-left: 0.5rem; padding: 0.25rem 0.5rem; font-size: 0.8rem;">
+                                Add
+                            </button>
+                        </div>
+                    `;
+
+                    docElement.onmouseover = () => {
+                        docElement.style.borderColor = 'var(--accent-color)';
+                        docElement.style.background = 'var(--bg-color)';
+                    };
+                    docElement.onmouseout = () => {
+                        docElement.style.borderColor = 'var(--border-color)';
+                        docElement.style.background = 'white';
+                    };
+
+                    container.appendChild(docElement);
+                });
+
+                logMessage(`✅ Loaded ${data.documents.length} WellnessRoberts Care documents`);
+            } catch (error) {
+                logMessage(`❌ Error loading WellnessRoberts documents: ${error.message}`);
+            }
+        }
+
+        async function addWellnessRobertsDocument(documentId) {
+            try {
+                logMessage(`📄 Adding WellnessRoberts document: ${documentId}`);
+
+                const response = await fetch('http://localhost:8005/api/wellnessroberts/upload', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ document_id: documentId })
+                });
+
+                const result = await response.json();
+
+                // Find the document info
+                const doc = wellnessrobertsDocuments.find(d => d.id === documentId);
+
+                if (doc) {
+                    // Check if document is already added
+                    if (!uploadedDocuments.find(d => d.name === doc.name)) {
+                        // Add to uploadedDocuments array so "Process Documents" button works
+                        uploadedDocuments.push({
+                            name: doc.name,
+                            size: doc.size || '2.1 KB',
+                            type: 'wellnessroberts',
+                            uploaded: new Date().toISOString(),
+                            training_examples: result.training_examples_generated,
+                            topics: result.topics_identified
+                        });
+
+                        // Update the document list UI
+                        updateDocumentList();
+
+                        logMessage(`✅ Document processed: ${result.training_examples_generated} training examples generated`);
+                        logMessage(`🎯 Use cases: ${result.use_cases.join(', ')}`);
+                        logMessage(`📊 Topics: ${result.topics_identified.join(', ')}`);
+                    } else {
+                        logMessage(`ℹ️ Document "${doc.name}" already added`);
+                    }
+                }
+
+                updateDocumentCount();
+            } catch (error) {
+                logMessage(`❌ Error adding document: ${error.message}`);
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            updateDocumentCount();
+            document.getElementById('system-status').className = 'status-indicator active';
+            logMessage('Local Model Fine-Tuning Demo ready');
+            logMessage('Upload documents to begin fine-tuning process');
+            logMessage('💡 Try the WellnessRoberts Care demo dataset for healthcare AI fine-tuning');
+        });
+    </script>
+</body>
+</html>

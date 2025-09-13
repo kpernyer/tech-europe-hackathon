@@ -1,18 +1,48 @@
+version: '3.8'
+
 services:
-  api:
-    build: ./backend
+  local-model-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: local-model-fine-tuning
     ports:
-      - "8000:8000"
+      - "8005:8000"
     environment:
-      - ENVIRONMENT=demo
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-your_openai_key_here}
+      - OLLAMA_HOST=${OLLAMA_HOST:-http://ollama:11434}
+      - MODEL_CACHE_DIR=/app/models
+      - TRAINING_DATA_DIR=/app/training_data
     volumes:
-      - ./experiments:/app/experiments
-    
-  frontend:
-    build: ./frontend
-    ports:
-      - "3000:3000"
-    environment:
-      - VITE_API_URL=http://localhost:8000
+      - ./models:/app/models
+      - ./training_data:/app/training_data
+      - ./outputs:/app/outputs
     depends_on:
-      - api
+      - ollama
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: local-model-ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    environment:
+      - OLLAMA_KEEP_ALIVE=24h
+      - OLLAMA_HOST=0.0.0.0
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+volumes:
+  ollama_data:
+    driver: local

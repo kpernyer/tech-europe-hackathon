@@ -4,9 +4,9 @@ import { RealtimeAgent, RealtimeSession } from '@openai/agents/realtime'
 document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
   <div class="container">
     <div class="header">
-      <h1>🎙️ OpenAI Voice Demo at Hackathon {Tech: Europe}</h1>
-      <p>September 13-14th 2025, Kenneth Pernyer</p>
-      <p>Real-time Voice AI Agent with WebSocket Transport</p>
+      <h1>🏥 Organizational Twin CEO Assistant</h1>
+      <p>WellnessRoberts Care - Healthcare Leadership Intelligence</p>
+      <p>Real-time Voice AI with Organizational Context & Sentiment Analysis</p>
     </div>
 
     <div class="status-bar">
@@ -35,21 +35,21 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
             <div class="step-number">1</div>
             <div class="step-content">
               <h3>Connect</h3>
-              <p>Click "Connect to Voice Agent" to establish WebSocket connection</p>
+              <p>Click "Connect to Voice Agent" to load your organizational twin</p>
             </div>
           </div>
           <div class="step">
             <div class="step-number">2</div>
             <div class="step-content">
-              <h3>Allow Microphone</h3>
-              <p>Grant microphone permissions when prompted by your browser</p>
+              <h3>Daily Briefing</h3>
+              <p>Your assistant will present today's 5 priority items automatically</p>
             </div>
           </div>
           <div class="step">
             <div class="step-number">3</div>
             <div class="step-content">
-              <h3>Start Talking</h3>
-              <p>Speak naturally with the AI assistant - it will respond in real-time</p>
+              <h3>Interactive Discussion</h3>
+              <p>Interrupt anytime to ask questions or dive deeper into any topic</p>
             </div>
           </div>
         </div>
@@ -57,10 +57,10 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
     </div>
 
     <div class="section">
-      <h2>🎙️ Voice Agent Controls</h2>
+      <h2>🎙️ CEO Assistant Controls</h2>
       <div class="demo-controls">
         <button id="connect" class="btn btn-primary" type="button">
-          🔗 Connect to Voice Agent
+          🏥 Connect to Organizational Twin
         </button>
         <button id="disconnect" class="btn btn-danger" type="button" disabled>
           ❌ Disconnect
@@ -71,8 +71,8 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
     <div class="section compact">
       <h2>ℹ️ Demo Information</h2>
       <div class="warning">
-        <p>⚠️ <strong>Development Setup:</strong> This demo uses WebSocket transport with direct API key for simplicity.</p>
-        <p>For production WebRTC implementation, a backend service should generate ephemeral client keys.</p>
+        <p>🏥 <strong>Organizational Twin:</strong> This AI assistant has deep knowledge of WellnessRoberts Care's context, priorities, and culture.</p>
+        <p>💼 <strong>Demo Features:</strong> Daily backlog presentation, interruption handling, sentiment analysis, and conversation state management.</p>
       </div>
     </div>
 
@@ -80,7 +80,29 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
       <h2>📊 Session Status</h2>
       <div id="status" class="response-area">
         <p>Status: Disconnected</p>
-        <p>Ready to connect to OpenAI's realtime voice model.</p>
+        <p>Ready to connect to your organizational twin assistant.</p>
+      </div>
+
+      <div class="section">
+        <h2>📈 Conversation Analytics</h2>
+        <div class="analytics-grid">
+          <div class="analytics-card">
+            <h4>📊 Backlog Progress</h4>
+            <div id="backlog-progress" class="status-value">Not Started</div>
+          </div>
+          <div class="analytics-card">
+            <h4>⏱️ Conversation Time</h4>
+            <div id="conversation-time" class="status-value">00:00</div>
+          </div>
+          <div class="analytics-card">
+            <h4>🎯 Focus Area</h4>
+            <div id="focus-area" class="status-value">Awaiting Connection</div>
+          </div>
+          <div class="analytics-card">
+            <h4>📈 CEO Engagement</h4>
+            <div id="engagement-level" class="status-value">Baseline</div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -93,6 +115,11 @@ class VoiceAgentDemo {
   private disconnectBtn: HTMLButtonElement
   private statusDiv: HTMLDivElement
   private connectionStatusDiv: HTMLDivElement
+  private conversationStartTime: number | null = null
+  private conversationTimerInterval: number | null = null
+  private conversationSessionId: string | null = null
+  private lastTranscript: string = ''
+  private sentimentUpdateInterval: number | null = null
 
   constructor() {
     this.connectBtn = document.querySelector<HTMLButtonElement>('#connect')!
@@ -117,6 +144,117 @@ class VoiceAgentDemo {
     this.connectionStatusDiv.textContent = message
   }
 
+  private updateAnalytics(elementId: string, value: string) {
+    const element = document.getElementById(elementId)
+    if (element) {
+      element.textContent = value
+    }
+  }
+
+  private startConversationTimer() {
+    this.conversationStartTime = Date.now()
+    this.conversationTimerInterval = window.setInterval(() => {
+      if (this.conversationStartTime) {
+        const elapsed = Math.floor((Date.now() - this.conversationStartTime) / 1000)
+        const minutes = Math.floor(elapsed / 60)
+        const seconds = elapsed % 60
+        this.updateAnalytics('conversation-time', `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`)
+      }
+    }, 1000)
+  }
+
+  private stopConversationTimer() {
+    if (this.conversationTimerInterval) {
+      clearInterval(this.conversationTimerInterval)
+      this.conversationTimerInterval = null
+    }
+    this.conversationStartTime = null
+  }
+  
+  private async startConversationSession() {
+    try {
+      const response = await fetch('http://localhost:8787/api/conversation/start', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      })
+      
+      if (response.ok) {
+        const data = await response.json()
+        this.conversationSessionId = data.sessionId
+        console.log('Started conversation session:', this.conversationSessionId)
+      }
+    } catch (error) {
+      console.error('Failed to start conversation session:', error)
+    }
+  }
+  
+  private async trackConversationEvent(eventType: string, eventData: any) {
+    if (!this.conversationSessionId) return
+    
+    try {
+      await fetch('http://localhost:8787/api/conversation/update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sessionId: this.conversationSessionId,
+          event: {
+            type: eventType,
+            data: eventData
+          }
+        })
+      })
+    } catch (error) {
+      console.error('Failed to track conversation event:', error)
+    }
+  }
+  
+  private startSentimentMonitoring() {
+    this.sentimentUpdateInterval = window.setInterval(async () => {
+      await this.analyzeSentimentAndUpdateUI()
+    }, 5000) // Analyze sentiment every 5 seconds
+  }
+  
+  private stopSentimentMonitoring() {
+    if (this.sentimentUpdateInterval) {
+      clearInterval(this.sentimentUpdateInterval)
+      this.sentimentUpdateInterval = null
+    }
+  }
+  
+  private async analyzeSentimentAndUpdateUI() {
+    if (!this.conversationSessionId) return
+    
+    try {
+      // Get conversation analytics
+      const analyticsResp = await fetch(`http://localhost:8787/api/analytics/summary/${this.conversationSessionId}`)
+      if (analyticsResp.ok) {
+        const analytics = await analyticsResp.json()
+        
+        // Update UI with analytics
+        this.updateAnalytics('backlog-progress', `${analytics.backlogProgress.completed}/${analytics.backlogProgress.total} items (${analytics.backlogProgress.percentage}%)`)
+        this.updateAnalytics('focus-area', analytics.engagement.focusArea)
+        this.updateAnalytics('engagement-level', this.formatEngagementLevel(analytics.engagement.level))
+        
+        // Update conversation state if needed
+        if (analytics.sentiment.current !== 'neutral') {
+          console.log('Sentiment detected:', analytics.sentiment.current)
+        }
+      }
+    } catch (error) {
+      console.error('Failed to analyze sentiment:', error)
+    }
+  }
+  
+  private formatEngagementLevel(level: string): string {
+    switch (level) {
+      case 'high': return '🔥 Highly Engaged'
+      case 'active': return '✅ Actively Engaged'
+      case 'stressed': return '⚡ Stressed/Urgent'
+      case 'baseline': return '📊 Baseline'
+      default: return level
+    }
+  }
+
   private async connect() {
     try {
       this.updateStatus('🔄 Creating voice agent...')
@@ -125,9 +263,18 @@ class VoiceAgentDemo {
 
       console.log('Creating agent and session...')
 
+      // Load organizational context first
+      const contextResp = await fetch('http://localhost:8787/api/organization/context')
+      if (!contextResp.ok) {
+        throw new Error('Failed to load organizational context')
+      }
+      const contextData = await contextResp.json()
+      
+      this.updateStatus(`🏥 Loaded context for ${contextData.organization.name}...`)
+      
       const agent = new RealtimeAgent({
-        name: 'Assistant',
-        instructions: 'You are a helpful voice assistant for the Hackathon Tech Europe demo. Speak naturally and conversationally.',
+        name: 'Organizational Twin',
+        instructions: `You are an Organizational Twin AI Assistant for ${contextData.organization.name}. You will start the conversation by presenting today's priority items to the CEO.`,
       })
 
       this.session = new RealtimeSession(agent, {
@@ -194,17 +341,40 @@ class VoiceAgentDemo {
       await Promise.race([connectPromise, timeoutPromise])
 
       console.log('Connection successful!')
-      this.updateStatus('🎉 Connected successfully!\n\n✨ You can now speak naturally with the AI assistant.\n💬 It will respond in real-time using OpenAI\'s voice model.')
+      this.updateStatus('🎉 Connected to your organizational twin!\n\n🏥 Your assistant will now present today\'s priority items.\n💬 You can interrupt anytime to ask questions or dive deeper.')
+      
+      // Update analytics
+      this.updateAnalytics('backlog-progress', 'Starting Presentation')
+      this.updateAnalytics('focus-area', 'Daily Briefing')
+      this.updateAnalytics('engagement-level', 'Active')
+      this.startConversationTimer()
       this.updateConnectionStatus('connected', 'Connected')
       this.connectBtn.disabled = true
       this.disconnectBtn.disabled = false
 
+      // Start conversation session tracking
+      await this.startConversationSession()
+      
       // Add event listeners after successful connection
       this.session.on('error', (error) => {
         console.error('Session error:', error)
         this.updateStatus(`❌ Session error: ${error}`)
         this.updateConnectionStatus('error', 'Error')
       })
+      
+      // Track conversation events for sentiment analysis
+      this.session.on('response', (response) => {
+        console.log('AI Response:', response)
+        this.trackConversationEvent('ai_response', { response })
+      })
+      
+      this.session.on('input_audio_buffer_committed', (event) => {
+        console.log('Audio input committed:', event)
+        this.trackConversationEvent('user_speech', { duration: event.duration || 0 })
+      })
+      
+      // Start periodic sentiment analysis
+      this.startSentimentMonitoring()
 
     } catch (error) {
       console.error('Connection failed:', error)
@@ -226,14 +396,26 @@ class VoiceAgentDemo {
       this.micStream = null
     }
 
-    this.updateStatus('🔌 Disconnected from voice agent\n\nReady to reconnect when needed.')
+    this.updateStatus('🔌 Disconnected from organizational twin\n\nReady to reconnect when needed.')
     this.updateConnectionStatus('disconnected', 'Disconnected')
     this.connectBtn.disabled = false
     this.disconnectBtn.disabled = true
+    
+    // Reset analytics
+    this.updateAnalytics('backlog-progress', 'Not Started')
+    this.updateAnalytics('conversation-time', '00:00')
+    this.updateAnalytics('focus-area', 'Awaiting Connection')
+    this.updateAnalytics('engagement-level', 'Baseline')
+    this.stopConversationTimer()
+    this.stopSentimentMonitoring()
+    this.conversationSessionId = null
   }
 }
 
-new VoiceAgentDemo()
+const voiceDemo = new VoiceAgentDemo()
+
+// Export demo instance for global access
+;(window as any).voiceDemo = voiceDemo
 
 // Collapsible functionality
 function toggleCollapse(header: HTMLElement) {
