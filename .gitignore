@@ -234,9 +234,9 @@ openai-voice/**/.env
 openai-voice/**/node_modules/
 
 # Fine-tuning experiments
-organizational-ai-fine-tuning/experiments/
-organizational-ai-fine-tuning/models/
-organizational-ai-fine-tuning/datasets/
+local-model-fine-tuning/experiments/
+local-model-fine-tuning/models/
+local-model-fine-tuning/datasets/
 
 # ===============================
 # DOCUMENTATION BUILDS

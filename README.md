@@ -43,7 +43,7 @@ This repository contains **hackathon research across 5 critical areas** that wil
 - **Use Case**: Enterprise knowledge management, strategic decision support
 - **Demo URL**: `http://localhost:3333/`
 
-### 🏢 [Organizational AI Fine-tuning](./organizational-ai-fine-tuning/)
+### 🏢 [Local Model Fine-tuning](./local-model-fine-tuning/)
 **Custom AI Model Training for Business Context**
 
 - **Core Stack**: Python 3.11+, FastAPI, React 18, TypeScript, Docker, Ollama
@@ -89,7 +89,7 @@ This repository contains **hackathon research across 5 critical areas** that wil
 
 ```bash
 # OpenAI Voice Demo
-cd openai-voice/openai-voice-demo
+cd openai-voice
 npm install
 npm run dev  # Runs on :3001
 
