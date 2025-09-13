@@ -46,12 +46,14 @@ This repository contains **hackathon research across 5 critical areas** that wil
 ### 🏢 [Organizational AI Fine-tuning](./organizational-ai-fine-tuning/)
 **Custom AI Model Training for Business Context**
 
-- **Core Stack**: Python 3.11+, FastAPI, React 18, TypeScript, Docker
+- **Core Stack**: Python 3.11+, FastAPI, React 18, TypeScript, Docker, Ollama
 - **Backend**: FastAPI with fine-tuning orchestration, dataset management
 - **Frontend**: React with TypeScript, experiment tracking UI, progress visualization
-- **ML Pipeline**: Custom training workflows, validation metrics, model versioning
-- **Features**: Domain-specific AI adaptation, business process optimization, experiment tracking
-- **Use Case**: Tailored AI systems that understand organizational nuances
+- **ML Pipeline**: LoRA (Low-Rank Adaptation) fine-tuning, custom training workflows, validation metrics, model versioning
+- **Local LLM**: Ollama for local model hosting and inference, privacy-preserving fine-tuning
+- **Fine-tuning**: LoRA adapters for efficient parameter updates, organizational context adaptation
+- **Features**: Domain-specific AI adaptation, business process optimization, experiment tracking, local model deployment
+- **Use Case**: Tailored AI systems that understand organizational nuances without external API dependencies
 
 ### 🔄 [Hybrid Knowledge System](./hybrid-knowledge-system/)
 **Multi-Modal Knowledge Integration Platform**
@@ -124,9 +126,11 @@ make quick-start  # Full containerized setup
 - **OpenAI GPT-4o-mini** - Large language model for intelligent responses
 - **OpenAI Realtime API** - Real-time voice conversation capabilities
 - **OpenAI Embeddings** - text-embedding-3-small (1536 dimensions)
-- **Custom Fine-tuning** - Organization-specific model adaptation
+- **Ollama** - Local LLM hosting and inference for privacy-preserving AI
+- **LoRA (Low-Rank Adaptation)** - Efficient fine-tuning technique for parameter updates
+- **Custom Fine-tuning** - Organization-specific model adaptation with LoRA adapters
 - **LangChain** - AI application framework and RAG pipelines
-- **Transformers** - Hugging Face model library
+- **Transformers** - Hugging Face model library and training frameworks
 - **sentence-transformers** - Semantic similarity and embeddings
 
 ### 🗄️ Vector & Graph Databases  
