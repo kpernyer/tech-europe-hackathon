@@ -1,0 +1,38 @@
+{
+  "total_examples": 15,
+  "regions_covered": [
+    "North America",
+    "Europe",
+    "Asia Pacific",
+    "Latin America",
+    "Middle East & Africa"
+  ],
+  "industries_covered": [
+    "Metals",
+    "Plastics",
+    "Construction",
+    "Mining",
+    "Oil & Gas",
+    "Robotics",
+    "Aerospace & Defense",
+    "Nuclear",
+    "Semiconductors",
+    "Logistics",
+    "Utilities",
+    "Machinery",
+    "Software"
+  ],
+  "usage_guide": {
+    "description": "These examples show how industrial company data can be integrated into synthetic organization generation",
+    "fields_mapping": {
+      "name": "Use real company name or generate similar",
+      "industry": "Map to synthetic data industry categories",
+      "size": "Use actual employee count",
+      "revenue_range": "Convert to revenue range buckets",
+      "products_services": "Use for realistic product/service generation",
+      "certifications": "Industry-specific compliance and standards"
+    },
+    "scenario_suggestions": "Each example includes scenarios relevant to the industry",
+    "delegation_patterns": "Inferred delegation characteristics based on company size and industry"
+  }
+}

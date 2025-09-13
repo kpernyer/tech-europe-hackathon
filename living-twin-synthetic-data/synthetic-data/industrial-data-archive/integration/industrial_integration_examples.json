@@ -1,0 +1,697 @@
+[
+  {
+    "organization_template": {
+      "name": "Renewable Utilities Resources",
+      "industry": "Utilities",
+      "size": 29082,
+      "revenue_range": "$17.3B",
+      "headquarters": "Calgary, Canada",
+      "region": "North America",
+      "founded": 1922,
+      "products": [
+        "Industrial Equipment",
+        "Components",
+        "Systems"
+      ],
+      "services": [
+        "Consulting",
+        "Professional Services",
+        "Training"
+      ],
+      "certifications": [
+        "ISO 45001:2018",
+        "ISO 14001:2015",
+        "ISO 9001:2015"
+      ],
+      "sustainability_score": 0.7802640961436728,
+      "innovation_index": 0.8427147501154117,
+      "digital_maturity": 0.5447640453807197
+    },
+    "suggested_scenarios": [
+      "strategic_planning",
+      "resource_allocation",
+      "digital_transformation",
+      "operational_excellence",
+      "market_expansion",
+      "innovation_initiative",
+      "cost_optimization",
+      "competitive_response"
+    ],
+    "delegation_characteristics": {
+      "delegation_culture": "hierarchical",
+      "decision_speed": "moderate",
+      "collaboration_level": "high",
+      "innovation_orientation": "high"
+    }
+  },
+  {
+    "organization_template": {
+      "name": "Alpha Solutions",
+      "industry": "Mining",
+      "size": 1966,
+      "revenue_range": "$1.4B",
+      "headquarters": "Calgary, Canada",
+      "region": "North America",
+      "founded": 1999,
+      "products": [
+        "Systems",
+        "Components",
+        "Industrial Equipment"
+      ],
+      "services": [
+        "Training",
+        "Consulting",
+        "Technical Support"
+      ],
+      "certifications": [
+        "ISO 45001:2018",
+        "ISO 14001:2015",
+        "ISO 9001:2015"
+      ],
+      "sustainability_score": 0.8010822533829534,
+      "innovation_index": 0.9643031640828075,
+      "digital_maturity": 0.6192302735297981
+    },
+    "suggested_scenarios": [
+      "strategic_planning",
+      "resource_allocation",
+      "digital_transformation",
+      "operational_excellence",
+      "market_expansion",
+      "innovation_initiative",
+      "cost_optimization",
+      "competitive_response"
+    ],
+    "delegation_characteristics": {
+      "delegation_culture": "flat",
+      "decision_speed": "fast",
+      "collaboration_level": "high",
+      "innovation_orientation": "high"
+    }
+  },
+  {
+    "organization_template": {
+      "name": "Global Industries Corp.",
+      "industry": "Plastics",
+      "size": 89258,
+      "revenue_range": "$42.6B",
+      "headquarters": "Tijuana, Mexico",
+      "region": "North America",
+      "founded": 1985,
+      "products": [
+        "Systems",
+        "Components",
+        "Industrial Equipment"
+      ],
+      "services": [
+        "Professional Services",
+        "Training"
+      ],
+      "certifications": [
+        "ISO 14001:2015",
+        "ISO 45001:2018",
+        "ISO 9001:2015"
+      ],
+      "sustainability_score": 0.55136795104777,
+      "innovation_index": 0.6992193793596511,
+      "digital_maturity": 0.37043385728210204
+    },
+    "suggested_scenarios": [
+      "strategic_planning",
+      "resource_allocation",
+      "digital_transformation",
+      "operational_excellence",
+      "market_expansion",
+      "innovation_initiative",
+      "cost_optimization",
+      "competitive_response"
+    ],
+    "delegation_characteristics": {
+      "delegation_culture": "hierarchical",
+      "decision_speed": "deliberate",
+      "collaboration_level": "medium",
+      "innovation_orientation": "balanced"
+    }
+  },
+  {
+    "organization_template": {
+      "name": "Next-Gen Software Labs",
+      "industry": "Software",
+      "size": 5396,
+      "revenue_range": "$1.7B",
+      "headquarters": "Belgium, Belgium",
+      "region": "Europe",
+      "founded": 1921,
+      "products": [
+        "Enterprise Software",
+        "Industrial IoT Platforms",
+        "ERP Solutions"
+      ],
+      "services": [
+        "Implementation Services",
+        "Technical Support"
+      ],
+      "certifications": [
+        "ISO 14001:2015",
+        "ISO/IEC 27001",
+        "GDPR Compliant",
+        "CMMI Level 5"
+      ],
+      "sustainability_score": 0.917419066927266,
+      "innovation_index": 0.4553175433441116,
+      "digital_maturity": 0.6448081518484445
+    },
+    "suggested_scenarios": [
+      "strategic_planning",
+      "resource_allocation",
+      "digital_transformation",
+      "operational_excellence",
+      "market_expansion",
+      "innovation_initiative",
+      "cost_optimization",
+      "competitive_response"
+    ],
+    "delegation_characteristics": {
+      "delegation_culture": "collaborative",
+      "decision_speed": "fast",
+      "collaboration_level": "medium",
+      "innovation_orientation": "high"
+    }
+  },
+  {
+    "organization_template": {
+      "name": "Engineering Projects",
+      "industry": "Construction",
+      "size": 87859,
+      "revenue_range": "$28.1B",
+      "headquarters": "Manchester, United Kingdom",
+      "region": "Europe",
+      "founded": 2002,
+      "products": [
+        "Construction Equipment",
+        "Prefab Structures",
+        "Building Materials",
+        "Project Management Tools",
+        "Safety Systems"
+      ],
+      "services": [
+        "Project Management",
+        "Construction Services",
+        "Maintenance",
+        "Consulting",
+        "Engineering Services"
+      ],
+      "certifications": [
+        "ISO 45001:2018",
+        "Safety Certified",
+        "LEED Certified",
+        "Building Code Compliance",
+        "ISO 14001:2015"
+      ],
+      "sustainability_score": 0.7213778258483572,
+      "innovation_index": 0.8679794612013465,
+      "digital_maturity": 0.4102025562576229
+    },
+    "suggested_scenarios": [
+      "strategic_planning",
+      "resource_allocation",
+      "digital_transformation",
+      "operational_excellence",
+      "market_expansion",
+      "innovation_initiative",
+      "cost_optimization",
+      "competitive_response"
+    ],
+    "delegation_characteristics": {
+      "delegation_culture": "hierarchical",
+      "decision_speed": "deliberate",
+      "collaboration_level": "high",
+      "innovation_orientation": "high"
+    }
+  },
+  {
+    "organization_template": {
+      "name": "Nuclear Systems Corp.",
+      "industry": "Nuclear",
+      "size": 16801,
+      "revenue_range": "$7.2B",
+      "headquarters": "Barcelona, Spain",
+      "region": "Europe",
+      "founded": 1989,
+      "products": [
+        "Systems",
+        "Industrial Equipment",
+        "Components"
+      ],
+      "services": [
+        "Professional Services",
+        "Training"
+      ],
+      "certifications": [
+        "ISO 14001:2015",
+        "ISO 9001:2015",
+        "ISO 45001:2018"
+      ],
+      "sustainability_score": 0.21853318251226977,
+      "innovation_index": 0.6091717127553915,
+      "digital_maturity": 0.3817940831788736
+    },
+    "suggested_scenarios": [
+      "strategic_planning",
+      "resource_allocation",
+      "digital_transformation",
+      "operational_excellence",
+      "market_expansion",
+      "innovation_initiative",
+      "cost_optimization",
+      "competitive_response"
+    ],
+    "delegation_characteristics": {
+      "delegation_culture": "hierarchical",
+      "decision_speed": "moderate",
+      "collaboration_level": "medium",
+      "innovation_orientation": "balanced"
+    }
+  },
+  {
+    "organization_template": {
+      "name": "Oil & Gas Technologies",
+      "industry": "Oil & Gas",
+      "size": 80083,
+      "revenue_range": "$68.8B",
+      "headquarters": "Philippines, Philippines",
+      "region": "Asia Pacific",
+      "founded": 1898,
+      "products": [
+        "Pipeline Systems",
+        "Crude Oil",
+        "Natural Gas",
+        "Lubricants"
+      ],
+      "services": [
+        "Exploration Services",
+        "Technical Consulting"
+      ],
+      "certifications": [
+        "API Standards",
+        "NORSOK Standards",
+        "ATEX Certified",
+        "ISO 45001:2018",
+        "ISO 9001:2015"
+      ],
+      "sustainability_score": 0.28139900454629707,
+      "innovation_index": 0.543070494366779,
+      "digital_maturity": 0.5943613365732427
+    },
+    "suggested_scenarios": [
+      "strategic_planning",
+      "resource_allocation",
+      "digital_transformation",
+      "operational_excellence",
+      "energy_transition",
+      "carbon_neutrality_program",
+      "drilling_optimization",
+      "renewable_investment"
+    ],
+    "delegation_characteristics": {
+      "delegation_culture": "hierarchical",
+      "decision_speed": "deliberate",
+      "collaboration_level": "structured",
+      "innovation_orientation": "balanced"
+    }
+  },
+  {
+    "organization_template": {
+      "name": "Beta Solutions Corp.",
+      "industry": "Metals",
+      "size": 511,
+      "revenue_range": "$0.3B",
+      "headquarters": "Sydney, Australia",
+      "region": "Asia Pacific",
+      "founded": 2016,
+      "products": [
+        "Systems",
+        "Components",
+        "Industrial Equipment"
+      ],
+      "services": [
+        "Professional Services",
+        "Training"
+      ],
+      "certifications": [
+        "ISO 14001:2015",
+        "ISO 9001:2015",
+        "ISO 45001:2018"
+      ],
+      "sustainability_score": 0.1441957294870335,
+      "innovation_index": 0.7841303503610848,
+      "digital_maturity": 0.6449625986618857
+    },
+    "suggested_scenarios": [
+      "strategic_planning",
+      "resource_allocation",
+      "digital_transformation",
+      "operational_excellence",
+      "market_expansion",
+      "innovation_initiative",
+      "cost_optimization",
+      "competitive_response"
+    ],
+    "delegation_characteristics": {
+      "delegation_culture": "flat",
+      "decision_speed": "fast",
+      "collaboration_level": "medium",
+      "innovation_orientation": "balanced"
+    }
+  },
+  {
+    "organization_template": {
+      "name": "Build Logistics Group Corp.",
+      "industry": "Logistics",
+      "size": 5196,
+      "revenue_range": "$1.5B",
+      "headquarters": "Philippines, Philippines",
+      "region": "Asia Pacific",
+      "founded": 1913,
+      "products": [
+        "Industrial Equipment",
+        "Systems",
+        "Components"
+      ],
+      "services": [
+        "Training",
+        "Consulting"
+      ],
+      "certifications": [
+        "ISO 14001:2015",
+        "ISO 9001:2015",
+        "ISO 45001:2018"
+      ],
+      "sustainability_score": 0.6615390949383959,
+      "innovation_index": 0.8507202509437108,
+      "digital_maturity": 0.5469236746508448
+    },
+    "suggested_scenarios": [
+      "strategic_planning",
+      "resource_allocation",
+      "digital_transformation",
+      "operational_excellence",
+      "market_expansion",
+      "innovation_initiative",
+      "cost_optimization",
+      "competitive_response"
+    ],
+    "delegation_characteristics": {
+      "delegation_culture": "hierarchical",
+      "decision_speed": "moderate",
+      "collaboration_level": "high",
+      "innovation_orientation": "high"
+    }
+  },
+  {
+    "organization_template": {
+      "name": "Future Oil & Gas Group",
+      "industry": "Oil & Gas",
+      "size": 14619,
+      "revenue_range": "$11.5B",
+      "headquarters": "Rio de Janeiro, Brazil",
+      "region": "Latin America",
+      "founded": 1965,
+      "products": [
+        "Pipeline Systems",
+        "Refined Products",
+        "Lubricants",
+        "Petrochemicals"
+      ],
+      "services": [
+        "Drilling Services",
+        "Technical Consulting",
+        "Exploration Services",
+        "Refining Services"
+      ],
+      "certifications": [
+        "NORSOK Standards",
+        "ISO 29001",
+        "ISO 14001:2015"
+      ],
+      "sustainability_score": 0.20457555378723125,
+      "innovation_index": 0.4480203045730592,
+      "digital_maturity": 0.6539637350974004
+    },
+    "suggested_scenarios": [
+      "strategic_planning",
+      "resource_allocation",
+      "digital_transformation",
+      "operational_excellence",
+      "energy_transition",
+      "carbon_neutrality_program",
+      "drilling_optimization",
+      "renewable_investment"
+    ],
+    "delegation_characteristics": {
+      "delegation_culture": "hierarchical",
+      "decision_speed": "deliberate",
+      "collaboration_level": "structured",
+      "innovation_orientation": "balanced"
+    }
+  },
+  {
+    "organization_template": {
+      "name": "Aerospace & Defense Corp",
+      "industry": "Aerospace & Defense",
+      "size": 7505,
+      "revenue_range": "$2.6B",
+      "headquarters": "Venezuela, Venezuela",
+      "region": "Latin America",
+      "founded": 1973,
+      "products": [
+        "Defense Systems",
+        "Satellites",
+        "Navigation Equipment"
+      ],
+      "services": [
+        "Maintenance Services",
+        "Training Programs",
+        "Technical Support",
+        "Consulting Services"
+      ],
+      "certifications": [
+        "EASA Approval",
+        "FAA Certification",
+        "NADCAP",
+        "ISO 9001:2015",
+        "ISO 45001:2018"
+      ],
+      "sustainability_score": 0.5362055648668992,
+      "innovation_index": 0.3169144630101385,
+      "digital_maturity": 0.681782070307287
+    },
+    "suggested_scenarios": [
+      "strategic_planning",
+      "resource_allocation",
+      "digital_transformation",
+      "operational_excellence",
+      "next_gen_aircraft_program",
+      "defense_contract_execution",
+      "space_program_development",
+      "regulatory_compliance"
+    ],
+    "delegation_characteristics": {
+      "delegation_culture": "hierarchical",
+      "decision_speed": "deliberate",
+      "collaboration_level": "structured",
+      "innovation_orientation": "balanced"
+    }
+  },
+  {
+    "organization_template": {
+      "name": "Premier Technologies",
+      "industry": "Machinery",
+      "size": 196538,
+      "revenue_range": "$73.4B",
+      "headquarters": "Colombia, Colombia",
+      "region": "Latin America",
+      "founded": 1926,
+      "products": [
+        "Precision Tools",
+        "Automation Systems",
+        "Control Systems",
+        "Industrial Machines",
+        "Manufacturing Equipment",
+        "Assembly Lines"
+      ],
+      "services": [
+        "Consulting",
+        "Installation Services",
+        "Spare Parts"
+      ],
+      "certifications": [
+        "ISO 45001:2018",
+        "ISO 9001:2015",
+        "ISO 14001:2015"
+      ],
+      "sustainability_score": 0.34456289866450257,
+      "innovation_index": 0.8841342005952055,
+      "digital_maturity": 0.3758308801819594
+    },
+    "suggested_scenarios": [
+      "strategic_planning",
+      "resource_allocation",
+      "digital_transformation",
+      "operational_excellence",
+      "market_expansion",
+      "innovation_initiative",
+      "cost_optimization",
+      "competitive_response"
+    ],
+    "delegation_characteristics": {
+      "delegation_culture": "hierarchical",
+      "decision_speed": "deliberate",
+      "collaboration_level": "high",
+      "innovation_orientation": "high"
+    }
+  },
+  {
+    "organization_template": {
+      "name": "Metals Corp",
+      "industry": "Metals",
+      "size": 37707,
+      "revenue_range": "$14.6B",
+      "headquarters": "Qatar, Qatar",
+      "region": "Middle East & Africa",
+      "founded": 1926,
+      "products": [
+        "Components",
+        "Systems",
+        "Industrial Equipment"
+      ],
+      "services": [
+        "Technical Support",
+        "Training",
+        "Consulting"
+      ],
+      "certifications": [
+        "ISO 9001:2015",
+        "ISO 14001:2015",
+        "ISO 45001:2018"
+      ],
+      "sustainability_score": 0.6328716444170887,
+      "innovation_index": 0.7916444029583933,
+      "digital_maturity": 0.8815956988578317
+    },
+    "suggested_scenarios": [
+      "strategic_planning",
+      "resource_allocation",
+      "digital_transformation",
+      "operational_excellence",
+      "market_expansion",
+      "innovation_initiative",
+      "cost_optimization",
+      "competitive_response"
+    ],
+    "delegation_characteristics": {
+      "delegation_culture": "hierarchical",
+      "decision_speed": "fast",
+      "collaboration_level": "high",
+      "innovation_orientation": "balanced"
+    }
+  },
+  {
+    "organization_template": {
+      "name": "Gamma Digital Corp.",
+      "industry": "Semiconductors",
+      "size": 1517,
+      "revenue_range": "$0.9B",
+      "headquarters": "Egypt, Egypt",
+      "region": "Middle East & Africa",
+      "founded": 2002,
+      "products": [
+        "Memory Chips",
+        "Sensors",
+        "Analog Chips",
+        "Microprocessors",
+        "Power Semiconductors"
+      ],
+      "services": [
+        "R&D Services",
+        "Design Services",
+        "Technical Support",
+        "Custom Manufacturing"
+      ],
+      "certifications": [
+        "RBA Validated",
+        "ISO 9001:2015",
+        "JEDEC Standards",
+        "ISO 14001:2015",
+        "IPC-A-610",
+        "ISO 45001:2018"
+      ],
+      "sustainability_score": 0.7691744372584361,
+      "innovation_index": 0.35651729944777166,
+      "digital_maturity": 0.8002066294741386
+    },
+    "suggested_scenarios": [
+      "strategic_planning",
+      "resource_allocation",
+      "digital_transformation",
+      "operational_excellence",
+      "chip_shortage_response",
+      "fab_capacity_expansion",
+      "ai_chip_development",
+      "geopolitical_supply_chain"
+    ],
+    "delegation_characteristics": {
+      "delegation_culture": "flat",
+      "decision_speed": "fast",
+      "collaboration_level": "high",
+      "innovation_orientation": "high"
+    }
+  },
+  {
+    "organization_template": {
+      "name": "Global AI",
+      "industry": "Robotics",
+      "size": 4444,
+      "revenue_range": "$1.4B",
+      "headquarters": "Israel, Israel",
+      "region": "Middle East & Africa",
+      "founded": 1912,
+      "products": [
+        "Vision Systems",
+        "Automation Systems",
+        "Industrial Robots",
+        "Safety Systems",
+        "Robot Controllers"
+      ],
+      "services": [
+        "Programming Services",
+        "Maintenance Support",
+        "Consulting"
+      ],
+      "certifications": [
+        "ANSI/RIA R15.06",
+        "ISO 14001:2015",
+        "CE Marking"
+      ],
+      "sustainability_score": 0.36692573518691673,
+      "innovation_index": 0.27071205968811557,
+      "digital_maturity": 0.4771914913616298
+    },
+    "suggested_scenarios": [
+      "strategic_planning",
+      "resource_allocation",
+      "digital_transformation",
+      "operational_excellence",
+      "market_expansion",
+      "innovation_initiative",
+      "cost_optimization",
+      "competitive_response"
+    ],
+    "delegation_characteristics": {
+      "delegation_culture": "flat",
+      "decision_speed": "fast",
+      "collaboration_level": "medium",
+      "innovation_orientation": "balanced"
+    }
+  }
+]

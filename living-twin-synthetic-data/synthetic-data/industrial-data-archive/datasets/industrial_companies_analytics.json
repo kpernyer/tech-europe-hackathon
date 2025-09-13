@@ -1,0 +1,222 @@
+{
+  "market_insights": {},
+  "innovation_metrics": {
+    "average_innovation_score": 0.6023074288184074,
+    "innovation_leaders": 121,
+    "innovation_by_sector": {
+      "Energy": {
+        "average_score": 0.6224158188735464,
+        "companies": 133
+      },
+      "Manufacturing": {
+        "average_score": 0.5991118266867681,
+        "companies": 110
+      },
+      "Technology": {
+        "average_score": 0.5887472893039678,
+        "companies": 130
+      },
+      "Infrastructure": {
+        "average_score": 0.5978973382201711,
+        "companies": 127
+      }
+    }
+  },
+  "sustainability_metrics": {
+    "average_sustainability_score": 0.5135085050753795,
+    "sustainability_leaders": 88,
+    "sustainability_by_region": {
+      "North America": {
+        "average_score": 0.5168340473888603,
+        "companies": 125
+      },
+      "Europe": {
+        "average_score": 0.5156944342479384,
+        "companies": 125
+      },
+      "Asia Pacific": {
+        "average_score": 0.5097638493768875,
+        "companies": 150
+      },
+      "Latin America": {
+        "average_score": 0.5244234618420061,
+        "companies": 50
+      },
+      "Middle East & Africa": {
+        "average_score": 0.5000488366891295,
+        "companies": 50
+      }
+    }
+  },
+  "digital_transformation": {
+    "average_digital_maturity": 0.6111810687262027,
+    "digital_leaders": 100,
+    "digital_by_industry": {}
+  },
+  "competitive_landscape": {
+    "industry_concentration": {},
+    "largest_companies_by_revenue": [
+      {
+        "rank": 1,
+        "name": "Transportation Projects",
+        "revenue_billions": 480.06061059793115,
+        "industry": "Transportation",
+        "country": "Italy",
+        "employees": 1227275
+      },
+      {
+        "rank": 2,
+        "name": "Global Power",
+        "revenue_billions": 423.8811449988517,
+        "industry": "Oil & Gas",
+        "country": "Vietnam",
+        "employees": 605604
+      },
+      {
+        "rank": 3,
+        "name": "Eco Systems Corp.",
+        "revenue_billions": 400.6549747999958,
+        "industry": "Utilities",
+        "country": "Taiwan",
+        "employees": 781171
+      },
+      {
+        "rank": 4,
+        "name": "IoT AI",
+        "revenue_billions": 383.0223070561392,
+        "industry": "IoT",
+        "country": "Sweden",
+        "employees": 979858
+      },
+      {
+        "rank": 5,
+        "name": "Alpha Systems",
+        "revenue_billions": 382.255172808649,
+        "industry": "Textiles",
+        "country": "Switzerland",
+        "employees": 1197796
+      },
+      {
+        "rank": 6,
+        "name": "Robotics Labs",
+        "revenue_billions": 247.98114017896933,
+        "industry": "Robotics",
+        "country": "Italy",
+        "employees": 677313
+      },
+      {
+        "rank": 7,
+        "name": "Plastics Systems",
+        "revenue_billions": 220.91682255688391,
+        "industry": "Plastics",
+        "country": "United States",
+        "employees": 459035
+      },
+      {
+        "rank": 8,
+        "name": "Global Solutions",
+        "revenue_billions": 171.67003959524445,
+        "industry": "Textiles",
+        "country": "Chile",
+        "employees": 453167
+      },
+      {
+        "rank": 9,
+        "name": "Real Estate Construction Corp.",
+        "revenue_billions": 96.94089099651639,
+        "industry": "Real Estate",
+        "country": "Taiwan",
+        "employees": 254993
+      },
+      {
+        "rank": 10,
+        "name": "Software AI Corp.",
+        "revenue_billions": 95.64079134705129,
+        "industry": "Software",
+        "country": "Poland",
+        "employees": 293427
+      },
+      {
+        "rank": 11,
+        "name": "Delta Systems Corp.",
+        "revenue_billions": 95.52467522261927,
+        "industry": "Textiles",
+        "country": "Italy",
+        "employees": 215710
+      },
+      {
+        "rank": 12,
+        "name": "Imperial Resources Ltd.",
+        "revenue_billions": 94.40563030918001,
+        "industry": "Mining",
+        "country": "United Kingdom",
+        "employees": 135317
+      },
+      {
+        "rank": 13,
+        "name": "Construction Development",
+        "revenue_billions": 90.37756119584716,
+        "industry": "Construction",
+        "country": "Sweden",
+        "employees": 323077
+      },
+      {
+        "rank": 14,
+        "name": "Smart Robotics Labs Corp.",
+        "revenue_billions": 89.76624699854409,
+        "industry": "Robotics",
+        "country": "Canada",
+        "employees": 217128
+      },
+      {
+        "rank": 15,
+        "name": "Energy Resources",
+        "revenue_billions": 89.64528241557174,
+        "industry": "Mining",
+        "country": "Thailand",
+        "employees": 118479
+      },
+      {
+        "rank": 16,
+        "name": "Smart Solutions",
+        "revenue_billions": 89.07289451984603,
+        "industry": "Hardware",
+        "country": "Malaysia",
+        "employees": 215488
+      },
+      {
+        "rank": 17,
+        "name": "Digital Hardware AI Corp.",
+        "revenue_billions": 88.4190614162202,
+        "industry": "Hardware",
+        "country": "Netherlands",
+        "employees": 217808
+      },
+      {
+        "rank": 18,
+        "name": "Global AI",
+        "revenue_billions": 86.02554597957032,
+        "industry": "AI/ML",
+        "country": "Colombia",
+        "employees": 176747
+      },
+      {
+        "rank": 19,
+        "name": "Gamma Projects SE",
+        "revenue_billions": 83.34390416704963,
+        "industry": "Logistics",
+        "country": "Germany",
+        "employees": 284620
+      },
+      {
+        "rank": 20,
+        "name": "Advanced Manufacturing",
+        "revenue_billions": 83.0951661273782,
+        "industry": "Metals",
+        "country": "United States",
+        "employees": 209570
+      }
+    ]
+  },
+  "growth_indicators": {}
+}
