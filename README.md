@@ -25,38 +25,52 @@ This repository contains **hackathon research across 5 critical areas** that wil
 ### 🎙️ [OpenAI Voice Demo](./openai-voice/)
 **Real-time Voice AI Agent with WebRTC/WebSocket Transport**
 
-- **Technology**: OpenAI Realtime API, WebRTC, TypeScript, Vite
-- **Features**: Real-time voice conversations, ephemeral token management
+- **Core Stack**: OpenAI Realtime API, Node.js, TypeScript, Vite, WebRTC
+- **Backend**: Express.js server with WebSocket handling
+- **Frontend**: React 18 with TypeScript, real-time audio processing
+- **Features**: Real-time voice conversations, ephemeral token management, audio streaming
 - **Use Case**: Interactive voice assistants for customer service, support, and conversational AI
 - **Demo URL**: `http://localhost:3001/`
 
 ### 🧠 [Weaviate Knowledge Demo](./weaviate-demo/)
 **Strategic Knowledge Management & Semantic Search**
 
-- **Technology**: Weaviate Vector Database, OpenAI GPT-4o-mini, GraphQL
-- **Features**: Progressive document injection, semantic search, RAG pipeline
+- **Core Stack**: Weaviate 1.25.0, FastAPI, Python 3.11+, OpenAI GPT-4o-mini
+- **Backend**: FastAPI with uv package management, asyncio for high performance
+- **Vector DB**: Weaviate with text-embedding-3-small (1536 dims), GraphQL queries
+- **Frontend**: Pure HTML/CSS/JS with real-time metrics and vector confidence scoring
+- **Features**: Progressive document injection, semantic search, RAG pipeline, tiered responses
 - **Use Case**: Enterprise knowledge management, strategic decision support
-- **Demo URL**: `http://localhost:3333/enhanced_demo.html`
+- **Demo URL**: `http://localhost:3333/`
 
 ### 🏢 [Organizational AI Fine-tuning](./organizational-ai-fine-tuning/)
 **Custom AI Model Training for Business Context**
 
-- **Technology**: Fine-tuning workflows, custom datasets, organizational context
-- **Features**: Domain-specific AI adaptation, business process optimization
+- **Core Stack**: Python 3.11+, FastAPI, React 18, TypeScript, Docker
+- **Backend**: FastAPI with fine-tuning orchestration, dataset management
+- **Frontend**: React with TypeScript, experiment tracking UI, progress visualization
+- **ML Pipeline**: Custom training workflows, validation metrics, model versioning
+- **Features**: Domain-specific AI adaptation, business process optimization, experiment tracking
 - **Use Case**: Tailored AI systems that understand organizational nuances
 
 ### 🔄 [Hybrid Knowledge System](./hybrid-knowledge-system/)
 **Multi-Modal Knowledge Integration Platform**
 
-- **Technology**: Multiple vector databases, unified query interface
-- **Features**: Cross-platform knowledge synthesis, hybrid search capabilities
+- **Core Stack**: Python 3.11+, Neo4j 5.18, Weaviate, Redis, Docker Compose
+- **Graph DB**: Neo4j with vector search, APOC plugins, Cypher queries
+- **Vector DB**: Weaviate integration for semantic search capabilities  
+- **Cache Layer**: Redis for performance optimization and session management
+- **Features**: Cross-platform knowledge synthesis, hybrid search, unified query interface
 - **Use Case**: Complex enterprise environments with diverse data sources
 
 ### 🧬 [Living Twin Synthetic Data](./living-twin-synthetic-data/)
 **Synthetic Data Generation for AI Training**
 
-- **Technology**: Advanced data synthesis, privacy-preserving AI training
-- **Features**: Realistic synthetic datasets, privacy compliance, scalable generation
+- **Core Stack**: Python 3.11+, OpenAI GPT-4o-mini, AsyncIO, Rich CLI, uv packaging
+- **Data Generation**: AI-powered synthetic organizational data creation
+- **Processing**: Pandas for data manipulation, structured JSON/CSV output
+- **CLI Interface**: Rich-powered terminal UI with progress tracking
+- **Features**: Realistic synthetic datasets, privacy compliance, scalable generation, validation
 - **Use Case**: AI training without sensitive data exposure, compliance-friendly ML
 
 ---
@@ -96,19 +110,91 @@ make quick-start  # Full containerized setup
 3. **Hybrid Knowledge System** - Enterprise-scale architecture
 4. **Synthetic Data & Fine-tuning** - Advanced AI customization
 
-## 🔧 Technical Architecture
+## 🔧 Comprehensive Tech Stack
 
-### Core Technologies
-- **AI/ML**: OpenAI GPT-4o-mini, Realtime API, Custom fine-tuning
-- **Vector Databases**: Weaviate, Neo4j with vector search
-- **Frameworks**: FastAPI, React 18, TypeScript, Python
-- **Infrastructure**: Docker, GCP Cloud Run, Firebase
+### 🐍 Backend & AI/ML
+- **Python 3.11+** - Core backend language
+- **FastAPI** - Modern async web framework with automatic API docs
+- **uv** - Ultra-fast Python package manager and dependency resolver
+- **Pydantic** - Data validation and serialization
+- **AsyncIO** - Asynchronous programming for high-performance APIs
+- **Uvicorn** - ASGI server for production deployment
 
-### Key Patterns
-- **RAG (Retrieval-Augmented Generation)**: Context-aware AI responses
-- **Progressive Enhancement**: Knowledge quality improvement over time
-- **Multi-modal Integration**: Text, voice, and structured data synthesis
-- **Security-First**: Ephemeral tokens, data privacy, compliance
+### 🤖 AI & Machine Learning
+- **OpenAI GPT-4o-mini** - Large language model for intelligent responses
+- **OpenAI Realtime API** - Real-time voice conversation capabilities
+- **OpenAI Embeddings** - text-embedding-3-small (1536 dimensions)
+- **Custom Fine-tuning** - Organization-specific model adaptation
+- **LangChain** - AI application framework and RAG pipelines
+- **Transformers** - Hugging Face model library
+- **sentence-transformers** - Semantic similarity and embeddings
+
+### 🗄️ Vector & Graph Databases  
+- **Weaviate 1.25.0** - Primary vector database with OpenAI integration
+- **Neo4j 5.18+** - Graph database with vector search capabilities
+- **Redis 7.2** - In-memory cache and session storage
+- **GraphQL** - Query language for semantic search operations
+
+### 🌐 Frontend & UI
+- **TypeScript** - Type-safe JavaScript development
+- **React 18** - Modern frontend framework
+- **Vite** - Fast build tool and development server
+- **HTML/CSS/JS** - Pure web technologies for lightweight demos
+- **WebRTC** - Real-time communication for voice features
+- **WebSockets** - Real-time bidirectional communication
+
+### 🐳 Infrastructure & DevOps
+- **Docker** - Containerization for all services
+- **Docker Compose** - Multi-container orchestration
+- **GitHub Actions** - CI/CD workflows (planned)
+- **GCP Cloud Run** - Serverless container deployment
+- **Firebase Hosting** - Static site hosting and authentication
+- **Nginx** - Reverse proxy and load balancing
+
+### 📊 Data Processing & Analytics
+- **Pandas** - Data manipulation and analysis
+- **NumPy** - Numerical computing
+- **Jupyter Notebooks** - Interactive data exploration
+- **Matplotlib/Plotly** - Data visualization
+- **Rich** - Beautiful terminal output and progress bars
+
+### 🔧 Development Tools
+- **Git** - Version control with conventional commits
+- **GitHub CLI** - Repository management
+- **VSCode** - Primary development environment
+- **Black** - Python code formatting
+- **ESLint** - TypeScript/JavaScript linting
+- **Prettier** - Code formatting for web technologies
+
+### 🔒 Security & Authentication
+- **Environment Variables** - Secure configuration management
+- **OAuth 2.0** - Authentication protocols
+- **JWT Tokens** - Stateless authentication
+- **CORS** - Cross-origin resource sharing
+- **Rate Limiting** - API protection
+- **Input Validation** - Pydantic schemas for security
+
+### 📡 APIs & Communication
+- **REST APIs** - Standard HTTP-based services
+- **GraphQL** - Flexible query language for complex data
+- **WebSockets** - Real-time bidirectional communication
+- **Server-Sent Events** - Real-time server-to-client streaming
+- **Webhooks** - Event-driven integrations
+
+### 🧪 Testing & Quality Assurance
+- **pytest** - Python testing framework
+- **httpx** - Async HTTP client for API testing
+- **Jest** - JavaScript testing framework
+- **Coverage.py** - Code coverage analysis
+- **mypy** - Static type checking for Python
+
+### Key Architectural Patterns
+- **RAG (Retrieval-Augmented Generation)** - Context-aware AI responses
+- **Progressive Enhancement** - Knowledge quality improvement over time
+- **Multi-modal Integration** - Text, voice, and structured data synthesis
+- **Microservices Architecture** - Containerized, independently deployable services
+- **Event-Driven Architecture** - Asynchronous communication patterns
+- **Security-First Design** - Ephemeral tokens, data privacy, compliance
 
 ## 📊 Business Value for Aprio.One Strategy Alignment
 
