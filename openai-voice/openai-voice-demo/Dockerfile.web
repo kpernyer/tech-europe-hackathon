@@ -1,0 +1,19 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Install only npm dependencies (faster rebuilds)
+COPY package*.json ./
+RUN npm ci --no-audit --no-fund
+
+# Copy only what the dev server needs to start; the compose volume will overlay the full tree
+COPY index.html ./index.html
+COPY tsconfig.json ./tsconfig.json
+COPY public ./public
+COPY src ./src
+
+ENV NODE_ENV=development
+EXPOSE 5173
+
+# Vite will be started by docker-compose (so we can pass --host 0.0.0.0)
+CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]

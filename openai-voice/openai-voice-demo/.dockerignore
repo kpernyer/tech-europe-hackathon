@@ -1,0 +1,25 @@
+# Node / build artifacts
+node_modules
+dist
+build
+.cache
+coverage
+
+# Local env and editor cruft
+.env
+.env.*
+!.env.example
+.vscode
+.idea
+.DS_Store
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Git
+.git
+.gitignore
+
+# OS
+Thumbs.db

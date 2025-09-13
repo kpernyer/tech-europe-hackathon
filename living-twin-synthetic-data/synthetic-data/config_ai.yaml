@@ -1,0 +1,123 @@
+# AI-Enhanced Synthetic Data Configuration
+# Uses GPT-4 to generate realistic organizations with industry context
+
+generation:
+  # Number of organizations to generate (5, 50, 500, 5000+)
+  organization_count: 50
+  
+  # AI Model Configuration
+  ai_model: "gpt-4"  # or "gpt-3.5-turbo" for faster/cheaper generation
+  enable_web_scraping: true  # Scrape real industry data for context
+  batch_size: 10  # Organizations per batch (rate limiting)
+  
+  # Organization Variety Settings
+  industry_distribution:
+    technology: 25%      # Startups, SaaS, enterprise software
+    healthcare: 15%      # Hospitals, pharma, medical devices
+    finance: 15%         # Banks, fintech, insurance  
+    manufacturing: 15%   # Industrial, automotive, aerospace
+    retail: 10%          # E-commerce, brick-and-mortar
+    consulting: 10%      # Management, tech, specialized
+    education: 5%        # Universities, training, EdTech
+    nonprofit: 5%        # Foundations, advocacy, social impact
+  
+  size_distribution:
+    small: 30%          # 5-50 employees
+    medium: 40%         # 51-500 employees  
+    large: 25%          # 501-5,000 employees
+    enterprise: 5%      # 5,000+ employees
+    
+  lifecycle_distribution:
+    startup: 20%        # 0-5 years, high growth, burning cash
+    growth: 30%         # 5-15 years, scaling, profitable
+    mature: 35%         # 15+ years, stable, optimizing
+    decline: 10%        # Shrinking, cost-cutting, restructuring
+    turnaround: 5%      # Recovery mode, new leadership
+
+# Organization Characteristics to Generate
+organization_attributes:
+  basic_info:
+    - name                    # AI-generated realistic company names
+    - industry               # Primary industry classification  
+    - sub_industry          # Specific niche within industry
+    - size                  # Employee count
+    - revenue_range         # Annual revenue bracket
+    - profitable            # Current profitability status
+    - years_in_business     # Company age
+    - lifecycle_stage       # Business maturity stage
+    
+  geographic:
+    - headquarters          # Primary office location
+    - regions              # Geographic presence
+    - market_reach         # Local, national, global
+    
+  organizational:
+    - structure_type       # Flat, hierarchical, matrix, network
+    - delegation_culture   # How decisions flow down
+    - decision_speed       # Fast, moderate, deliberate
+    - leadership_style     # Autocratic, collaborative, servant
+    - communication_style  # Top-down, transparent, informal
+    
+  strategic:
+    - strategic_priorities # Top 3-5 current focuses
+    - competitive_advantages # What makes them win
+    - key_challenges       # Major obstacles facing company
+    - risk_tolerance       # Conservative, moderate, aggressive
+    - change_management_approach # How they handle transformation
+    
+  operational:
+    - products             # What they sell/make
+    - services             # What services they provide
+    - departments          # Internal organization structure
+    - performance_metrics  # KPIs they track
+    - decision_making_process # How decisions get made
+    
+  cultural:
+    - values               # Core company values
+    - innovation_index     # 0-1 how innovative they are
+    - digital_maturity     # 0-1 how digitally advanced
+    - work_culture         # Remote, hybrid, in-person
+
+# Industry-Specific Context (AI will enhance these)
+industry_context:
+  technology:
+    terminology: ["API", "microservices", "cloud-native", "DevOps", "agile"]
+    challenges: ["technical debt", "scalability", "security", "talent"]
+    metrics: ["uptime", "deployment frequency", "user engagement"]
+    
+  healthcare:  
+    terminology: ["patient outcomes", "clinical trials", "compliance", "EHR"]
+    challenges: ["regulations", "patient safety", "costs", "staffing"]
+    metrics: ["patient satisfaction", "readmission rates", "quality scores"]
+    
+  finance:
+    terminology: ["risk management", "compliance", "liquidity", "capital"]
+    challenges: ["regulation", "fintech disruption", "cybersecurity"]
+    metrics: ["ROA", "ROE", "capital ratios", "loan quality"]
+
+# Delegation Scenario Generation
+scenario_generation:
+  scenarios_per_org: 20        # Generate many scenarios per org
+  scenario_types:
+    - strategic_decision       # CEO-level strategic choices
+    - operational_issue        # Department-level problems  
+    - crisis_response         # Emergency decision making
+    - resource_allocation     # Budget/people decisions
+    - policy_implementation   # Rolling out new policies
+    - performance_review      # People management decisions
+    - vendor_selection        # Procurement decisions
+    - compliance_issue        # Regulatory compliance
+    - innovation_project      # R&D and innovation
+    - customer_complaint      # Customer service escalation
+    
+  complexity_levels:
+    simple: 30%               # 2-3 step delegation chains
+    moderate: 50%             # 4-6 step delegation chains  
+    complex: 20%              # 7+ step delegation chains
+    
+# Output Configuration  
+output:
+  format: "json"
+  structure: "hierarchical"    # One file per org vs flat structure
+  include_metadata: true       # Generation timestamps, AI model used
+  validate_against_schema: true

@@ -1,0 +1,162 @@
+# Synthetic Data Generation Configuration
+# Defines parameters for organization and scenario generation
+
+generation:
+  organizations:
+    count: 10
+    size_distribution:
+      - type: startup
+        range: [50, 200]
+        weight: 0.3
+      - type: scaleup
+        range: [200, 1000]
+        weight: 0.3
+      - type: enterprise
+        range: [1000, 10000]
+        weight: 0.4
+    
+    industries:
+      - technology
+      - healthcare
+      - finance
+      - retail
+      - manufacturing
+      - consulting
+      - nonprofit
+      - education
+    
+    regions:
+      - Silicon Valley
+      - New York
+      - London
+      - Berlin
+      - Singapore
+      - Tokyo
+      - Boston
+      - Austin
+    
+    maturity_stages:
+      - seed
+      - growth
+      - scaling
+      - mature
+      - transforming
+      - declining
+  
+  people:
+    per_organization:
+      min: 10
+      max: 30
+    
+    hierarchy_levels:
+      - level: 1
+        titles: [CEO, President, Founder]
+        count: 1
+      - level: 2
+        titles: [VP, EVP, CTO, CFO, COO, CMO]
+        count_range: [3, 7]
+      - level: 3
+        titles: [Director, Head of]
+        count_range: [5, 10]
+      - level: 4
+        titles: [Manager, Lead, Senior]
+        count_range: [5, 12]
+    
+    personality_traits:
+      - analytical
+      - creative
+      - decisive
+      - collaborative
+      - visionary
+      - detail-oriented
+      - pragmatic
+      - innovative
+      - empathetic
+      - results-driven
+    
+    communication_styles:
+      - direct
+      - diplomatic
+      - collaborative
+      - analytical
+      - inspirational
+    
+    decision_styles:
+      - decisive
+      - consultative
+      - consensus-seeking
+      - data-driven
+      - intuitive
+  
+  scenarios:
+    per_organization: 8
+    
+    types:
+      - strategic_planning
+      - crisis_management
+      - resource_allocation
+      - market_expansion
+      - digital_transformation
+      - team_restructuring
+      - product_launch
+      - competitive_response
+      - cost_optimization
+      - innovation_initiative
+    
+    urgency_levels:
+      - low
+      - medium
+      - high
+      - critical
+    
+    scopes:
+      - department
+      - cross-functional
+      - company-wide
+      - external
+    
+    delegation_chains:
+      min_length: 3
+      max_length: 7
+      
+      response_types:
+        - accept
+        - clarify
+        - push_back
+        - delegate_further
+        - suggest_alternative
+      
+      response_distribution:
+        accept: 0.3
+        clarify: 0.35
+        push_back: 0.1
+        delegate_further: 0.15
+        suggest_alternative: 0.1
+
+diversity:
+  gender_balance: 0.5  # Target 50/50
+  age_distribution:
+    25-35: 0.3
+    35-45: 0.4
+    45-55: 0.2
+    55-65: 0.1
+  
+  cultural_backgrounds:
+    - American
+    - European
+    - Asian
+    - Latin American
+    - African
+    - Middle Eastern
+
+output:
+  format: json
+  pretty_print: true
+  include_metadata: true
+  batch_size: 10
+  
+  file_naming:
+    organizations: "org_{id}_{name}.json"
+    people: "people_{org_id}.json"
+    scenarios: "scenario_{org_id}_{type}_{id}.json"
+    delegation_chains: "delegation_{org_id}_{scenario_id}.json"

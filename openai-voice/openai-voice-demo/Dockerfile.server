@@ -1,0 +1,16 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Install only npm dependencies (faster rebuilds)
+COPY package*.json ./
+RUN npm ci --no-audit --no-fund
+
+# App source (server only is needed at runtime; the volume will overlay in dev)
+COPY server.mjs ./server.mjs
+
+ENV NODE_ENV=development
+EXPOSE 8787
+
+# Run the ephemeral token server
+CMD ["npm", "run", "server"]

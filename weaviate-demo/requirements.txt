@@ -1,0 +1,23 @@
+# Weaviate Client
+weaviate-client==4.5.1
+
+# ML and Embeddings
+sentence-transformers==2.4.0
+openai==1.12.0
+cohere==4.47
+tiktoken==0.6.0
+
+# Data Processing  
+pandas==2.2.1
+numpy==1.26.4
+
+# Utilities
+python-dotenv==1.0.1
+rich==13.7.1
+typer==0.9.0
+tqdm==4.66.2
+
+# Development
+jupyter==1.0.0
+matplotlib==3.8.3
+seaborn==0.13.2

@@ -1,0 +1,258 @@
+# ===============================
+# Tech Europe Hackathon - Git Ignore
+# ===============================
+
+# ===============================
+# SECRETS & SENSITIVE DATA
+# ===============================
+# Environment variables
+.env
+.env.local
+.env.production
+.env.staging
+
+# API Keys and Secrets
+**/sk-*
+**/*api*key*
+**/*secret*
+**/*token*
+**/*password*
+
+# OpenAI API keys specifically
+**/OPENAI_API_KEY
+**/OPENAI_APIKEY
+
+# ===============================
+# PYTHON
+# ===============================
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+env/
+.venv/
+.env/
+ENV/
+env.bak/
+venv.bak/
+
+# Python distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# pyenv
+.python-version
+
+# Pipenv
+Pipfile.lock
+
+# ===============================
+# NODE.JS
+# ===============================
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+*.lcov
+
+# nyc test coverage
+.nyc_output
+
+# Build outputs
+dist/
+build/
+
+# ===============================
+# DOCKER
+# ===============================
+# Docker volumes
+docker-volumes/
+
+# ===============================
+# DATABASE
+# ===============================
+# Neo4j
+neo4j/
+data/
+logs/
+import/
+plugins/
+
+# SQLite
+*.db
+*.sqlite
+*.sqlite3
+
+# Weaviate data
+weaviate_data/
+
+# ===============================
+# OPERATING SYSTEM
+# ===============================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.tmp
+Desktop.ini
+
+# Linux
+*~
+
+# ===============================
+# EDITORS & IDEs
+# ===============================
+# VSCode
+.vscode/
+*.code-workspace
+
+# JetBrains
+.idea/
+*.swp
+*.swo
+
+# Vim
+*.swp
+*.swo
+*~
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+
+# ===============================
+# AI/ML SPECIFIC
+# ===============================
+# Model files
+*.model
+*.pkl
+*.joblib
+*.h5
+*.pb
+
+# Large datasets
+*.csv
+*.json
+*.parquet
+
+# Training outputs
+experiments/
+checkpoints/
+logs/
+runs/
+wandb/
+
+# Transformers cache
+.cache/
+transformers/
+
+# ===============================
+# LOGS
+# ===============================
+*.log
+logs/
+*.out
+*.err
+
+# ===============================
+# TEMPORARY FILES
+# ===============================
+*.tmp
+*.temp
+*.bak
+*.backup
+
+# ===============================
+# PROJECT SPECIFIC
+# ===============================
+# Generated synthetic data (if too large)
+# living-twin-synthetic-data/generated/
+# Uncomment if the generated data becomes too large
+
+# Weaviate demo specific
+weaviate-demo/venv/
+weaviate-demo/.env
+
+# Voice demo specific  
+openai-voice/**/.env
+openai-voice/**/node_modules/
+
+# Fine-tuning experiments
+organizational-ai-fine-tuning/experiments/
+organizational-ai-fine-tuning/models/
+organizational-ai-fine-tuning/datasets/
+
+# ===============================
+# DOCUMENTATION BUILDS
+# ===============================
+# Sphinx documentation
+docs/_build/
+
+# MkDocs documentation
+/site
+
+# ===============================
+# TESTING
+# ===============================
+.coverage
+.pytest_cache/
+.tox/
+coverage.xml
+*.cover
+.hypothesis/
