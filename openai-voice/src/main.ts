@@ -263,18 +263,24 @@ class VoiceAgentDemo {
 
       console.log('Creating agent and session...')
 
-      // Load organizational context first
-      const contextResp = await fetch('http://localhost:8787/api/organization/context')
-      if (!contextResp.ok) {
-        throw new Error('Failed to load organizational context')
+      // Load organizational context and instructions
+      const [contextResp, instructionsResp] = await Promise.all([
+        fetch('http://localhost:8787/api/organization/context'),
+        fetch('http://localhost:8787/api/organization/instructions')
+      ])
+      
+      if (!contextResp.ok || !instructionsResp.ok) {
+        throw new Error('Failed to load organizational context or instructions')
       }
+      
       const contextData = await contextResp.json()
+      const instructionsData = await instructionsResp.json()
       
       this.updateStatus(`🏥 Loaded context for ${contextData.organization.name}...`)
       
       const agent = new RealtimeAgent({
         name: 'Organizational Twin',
-        instructions: `You are an Organizational Twin AI Assistant for ${contextData.organization.name}. You will start the conversation by presenting today's priority items to the CEO.`,
+        instructions: instructionsData.instructions,
       })
 
       this.session = new RealtimeSession(agent, {

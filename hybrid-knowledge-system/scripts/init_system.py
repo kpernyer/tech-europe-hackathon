@@ -5,8 +5,12 @@ System Initialization Script: Sets up schemas, indexes, and basic configuration
 
 import asyncio
 import sys
+import warnings
 from pathlib import Path
 from dotenv import load_dotenv
+
+# Suppress specific FutureWarnings from huggingface_hub
+warnings.filterwarnings("ignore", category=FutureWarning, module="huggingface_hub")
 
 # Load environment variables from .env file
 load_dotenv()

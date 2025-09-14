@@ -69,7 +69,7 @@ docker-clean:
 # System initialization
 init-system:
 	@echo "🔧 Initializing Neo4j indexes and Weaviate schema..."
-	$(PYTHON) scripts/init_system.py
+	@PYTHONWARNINGS=ignore::FutureWarning $(PYTHON) scripts/init_system.py
 
 load-sample-data:
 	@echo "📊 Loading sample business data..."

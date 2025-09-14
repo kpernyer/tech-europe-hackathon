@@ -460,11 +460,21 @@ class Neo4jClient:
         labels_str = ", ".join([f"'{label}'" for label in node_labels])
         props_str = ", ".join([f"'{prop}'" for prop in properties])
         
-        create_fulltext_query = f"""
-        CREATE FULLTEXT INDEX {index_name} IF NOT EXISTS
-        FOR (n:{"|".join(node_labels)})
-        ON EACH [{props_str}]
-        """
+        # For Neo4j 5.x, create fulltext index with proper syntax
+        if len(node_labels) == 1:
+            create_fulltext_query = f"""
+            CREATE FULLTEXT INDEX {index_name} IF NOT EXISTS
+            FOR (n:{node_labels[0]})
+            ON EACH [n.{properties[0]}]
+            """
+        else:
+            # Multiple labels need to be handled differently
+            label_union = "|".join(node_labels)
+            create_fulltext_query = f"""
+            CREATE FULLTEXT INDEX {index_name} IF NOT EXISTS
+            FOR (n:{label_union})
+            ON EACH [n.{properties[0]}]
+            """
         
         try:
             async with self.session() as session:

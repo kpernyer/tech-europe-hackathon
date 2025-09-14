@@ -1,0 +1,77 @@
+# Tech Europe Hackathon - Centralized Port Configuration
+# All projects must use these ports to avoid conflicts
+
+projects:
+  openai-voice:
+    name: "OpenAI Voice Demo"
+    ports:
+      web: 8001
+      api: 8787
+    docker_ports:
+      web: "8001:3000"
+      api: "8787:3001"
+
+  weaviate-recall-knowledge:
+    name: "Weaviate Recall Knowledge"
+    ports:
+      web: 8002
+      weaviate: 8082
+      weaviate_grpc: 50052
+    docker_ports:
+      web: "8002:8000"
+      weaviate: "8082:8080"
+      weaviate_grpc: "50052:50051"
+
+  hybrid-knowledge-system:
+    name: "Hybrid Knowledge System"
+    ports:
+      web: 8003
+      api: 8888
+      weaviate: 8081
+      neo4j_http: 7474
+      neo4j_bolt: 7687
+      redis: 6379
+    docker_ports:
+      web: "8003:3000"
+      api: "8888:8000"
+      weaviate: "8081:8080"
+      neo4j_http: "7474:7474"
+      neo4j_bolt: "7687:7687"
+      redis: "6379:6379"
+
+  living-twin-synthetic-data:
+    name: "Living Twin Synthetic Data"
+    ports:
+      web: 8004
+      api: 8889
+    docker_ports:
+      web: "8004:3000"
+      api: "8889:8000"
+
+  local-model-fine-tuning:
+    name: "Local Model Fine-tuning"
+    ports:
+      web: 8005
+      api: 8885
+    docker_ports:
+      web: "8005:3000"
+      api: "8885:8000"
+
+# Port ranges reserved for projects
+port_ranges:
+  web: "8001-8005"
+  api: "8785-8889"
+  databases: "7470-7690, 6370-6390, 8080-8085"
+  grpc: "50050-50060"
+
+# Docker network configuration
+networks:
+  default: "tech-europe-hackathon"
+
+# Health check URLs
+health_checks:
+  openai-voice: "http://localhost:8001"
+  weaviate-recall-knowledge: "http://localhost:8002"
+  hybrid-knowledge-system: "http://localhost:8003"
+  living-twin-synthetic-data: "http://localhost:8004"
+  local-model-fine-tuning: "http://localhost:8005"

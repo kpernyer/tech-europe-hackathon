@@ -1,6 +1,6 @@
 # Core Dependencies
 neo4j==5.18.0
-weaviate-client==4.5.1
+weaviate-client==4.16.9
 redis==5.0.1
 python-dotenv==1.0.1
 
@@ -41,7 +41,7 @@ isort==5.13.2
 mypy==1.9.0
 
 # Utilities
-pydantic==2.6.3
+pydantic==2.8.0
 typer==0.9.0
 tqdm==4.66.2
 click==8.1.7

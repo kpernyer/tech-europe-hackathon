@@ -14,7 +14,8 @@ help: ## Show this help message
 install: ## Install Python dependencies using uv
 	@echo "📦 Installing dependencies for Weaviate Recall Knowledge..."
 	@pip install uv
-	@uv sync
+	@uv venv --python 3.11 || true
+	@uv pip install -r requirements.txt
 	@echo "✅ Dependencies installed"
 
 build: ## Build Docker images
@@ -24,7 +25,7 @@ build: ## Build Docker images
 
 demo: ## Start the demo server
 	@echo "🎭 Starting Weaviate Recall Knowledge demo..."
-	@echo "📍 Demo will be available at: http://localhost:8002"
+	@echo "📍 Demo will be available at: http://localhost:$(WEAVIATE_RECALL_WEB_PORT)"
 	@docker-compose up -d
 	@echo "✅ Demo server started"
 	@echo "💡 Use 'make logs' to view logs, 'make stop' to stop"
@@ -48,7 +49,7 @@ logs: ## Show service logs
 
 health: ## Check service health
 	@echo "🏥 Checking Weaviate Recall Knowledge health..."
-	@curl -s http://localhost:8002/health || echo "Service not responding"
+	@curl -s http://localhost:$(WEAVIATE_RECALL_WEB_PORT)/health || echo "Service not responding"
 
 test: ## Run tests
 	@echo "🧪 Running Weaviate Recall Knowledge tests..."
@@ -58,7 +59,7 @@ test: ## Run tests
 # Development targets
 run-local: install ## Run locally without Docker
 	@echo "🔬 Running Weaviate Recall Knowledge locally..."
-	@uv run uvicorn server.main:app --host 0.0.0.0 --port 8002 --reload
+	@uv run uvicorn server.main:app --host 0.0.0.0 --port $(WEAVIATE_RECALL_WEB_PORT) --reload
 
 # Weaviate-specific targets
 setup-schema: ## Setup Weaviate schema

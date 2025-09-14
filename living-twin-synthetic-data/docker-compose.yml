@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   living-twin-api:
     build:
@@ -7,7 +5,7 @@ services:
       dockerfile: Dockerfile
     container_name: living-twin-synthetic-data
     ports:
-      - "8004:8000"
+      - "${LIVING_TWIN_WEB_PORT:-8004}:8000"
     environment:
       - OPENAI_API_KEY=${OPENAI_API_KEY:-your_openai_key_here}
       - ELEVENLABS_API_KEY=${ELEVENLABS_API_KEY:-your_elevenlabs_key_here}
@@ -28,7 +26,7 @@ services:
     image: redis:7-alpine
     container_name: synthetic-data-redis
     ports:
-      - "6380:6379"
+      - "${LIVING_TWIN_REDIS_PORT:-6381}:6379"
     volumes:
       - redis_data:/data
     command: redis-server --appendonly yes

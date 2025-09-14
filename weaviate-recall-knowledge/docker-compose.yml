@@ -1,9 +1,9 @@
 services:
   weaviate:
-    image: semitechnologies/weaviate:1.25.0
+    image: semitechnologies/weaviate:1.27.9
     ports:
-      - 8080:8080
-      - 50051:50051
+      - ${WEAVIATE_RECALL_WEAVIATE_PORT:-8082}:8080
+      - ${WEAVIATE_RECALL_GRPC_PORT:-50052}:50051
     environment:
       QUERY_DEFAULTS_LIMIT: 25
       AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED: 'true'
@@ -18,7 +18,7 @@ services:
   demo-api:
     build: .
     ports:
-      - 3333:8000
+      - ${WEAVIATE_RECALL_WEB_PORT:-8002}:8000
     environment:
       - WEAVIATE_URL=http://weaviate:8080
       - OPENAI_API_KEY=${OPENAI_API_KEY}

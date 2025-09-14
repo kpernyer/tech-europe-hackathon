@@ -70,6 +70,16 @@ app.get('/api/organization/context', (req, res) => {
   res.json(contextData);
 });
 
+// Get system instructions for the organizational twin
+app.get('/api/organization/instructions', (req, res) => {
+  if (!contextData) {
+    return res.status(500).json({ error: 'Organizational context not loaded' });
+  }
+  
+  const instructions = generateSystemInstructions(contextData);
+  res.json({ instructions });
+});
+
 // Start a new conversation session
 app.post('/api/conversation/start', (req, res) => {
   const sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -309,16 +319,6 @@ app.post('/api/ephemeral-token', async (req, res) => {
           type: 'realtime',
           model,
         },
-        instructions: contextData ? generateSystemInstructions(contextData) : undefined,
-        // Enable conversation intelligence and sentiment awareness
-        conversation_config: {
-          turn_detection: {
-            type: 'server_vad',
-            threshold: 0.5,
-            prefix_padding_ms: 300,
-            silence_duration_ms: 200,
-          }
-        }
       }),
     });
 

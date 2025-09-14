@@ -4,9 +4,13 @@ Embedding Service: Handles text embedding generation for semantic search
 
 import os
 import asyncio
+import warnings
 from typing import List, Optional, Union
 import numpy as np
 from functools import lru_cache
+
+# Suppress specific FutureWarnings from huggingface_hub
+warnings.filterwarnings("ignore", category=FutureWarning, module="huggingface_hub")
 
 try:
     from sentence_transformers import SentenceTransformer
