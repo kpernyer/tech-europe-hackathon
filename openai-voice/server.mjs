@@ -4,6 +4,8 @@ import cors from 'cors';
 import { readFile } from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { WebSocketServer } from 'ws';
+import { createServer } from 'http';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -337,6 +339,120 @@ app.post('/api/ephemeral-token', async (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`Ephemeral token server listening at http://localhost:${PORT}`);
+// Create HTTP server to support both Express and WebSocket
+const server = createServer(app);
+
+// WebSocket proxy for OpenAI Realtime API
+const wss = new WebSocketServer({ server, path: '/api/realtime-ws' });
+
+wss.on('connection', (ws, req) => {
+  console.log('Client connected to WebSocket proxy');
+
+  let openaiWs = null;
+
+  ws.on('message', async (message) => {
+    try {
+      const data = JSON.parse(message.toString());
+
+      // Handle connection initialization
+      if (data.type === 'init') {
+        const ephemeralToken = data.ephemeralToken;
+
+        if (!ephemeralToken || !ephemeralToken.startsWith('ek_')) {
+          ws.send(JSON.stringify({
+            type: 'error',
+            error: { message: 'Invalid ephemeral token' }
+          }));
+          return;
+        }
+
+        // Create WebSocket connection to OpenAI with proper authentication
+        const WebSocket = (await import('ws')).default;
+        const openaiUrl = `wss://api.openai.com/v1/realtime?model=gpt-4o-realtime-preview-2024-12-17`;
+
+        console.log('Connecting to OpenAI with token:', ephemeralToken.substring(0, 10) + '...');
+
+        openaiWs = new WebSocket(openaiUrl, {
+          headers: {
+            'Authorization': `Bearer ${ephemeralToken}`,
+            'OpenAI-Beta': 'realtime=v1'
+          }
+        });
+
+        openaiWs.on('open', () => {
+          console.log('Connected to OpenAI WebSocket');
+          ws.send(JSON.stringify({
+            type: 'connected'
+          }));
+        });
+
+        openaiWs.on('message', (data) => {
+          // Forward OpenAI messages to client
+          ws.send(data.toString());
+        });
+
+        openaiWs.on('error', (error) => {
+          console.error('OpenAI WebSocket error:', error);
+          console.error('Error details:', JSON.stringify(error, Object.getOwnPropertyNames(error)));
+          ws.send(JSON.stringify({
+            type: 'error',
+            error: {
+              message: error.message,
+              code: error.code,
+              details: error.toString()
+            }
+          }));
+        });
+
+        openaiWs.on('close', (code, reason) => {
+          console.log('OpenAI WebSocket closed:', code, reason.toString());
+          ws.send(JSON.stringify({
+            type: 'disconnected',
+            code,
+            reason: reason.toString()
+          }));
+        });
+
+        return;
+      }
+
+      // Forward other messages to OpenAI if connected
+      if (openaiWs && openaiWs.readyState === 1) { // Use numeric constant for OPEN state
+        console.log('Forwarding message to OpenAI:', data.type);
+        openaiWs.send(message);
+      } else {
+        console.log('Cannot forward message - OpenAI connection state:', openaiWs ? openaiWs.readyState : 'null');
+        ws.send(JSON.stringify({
+          type: 'error',
+          error: { message: 'Not connected to OpenAI' }
+        }));
+      }
+
+    } catch (error) {
+      console.error('WebSocket message processing error:', error);
+      ws.send(JSON.stringify({
+        type: 'error',
+        error: { message: error.message }
+      }));
+    }
+  });
+
+  ws.on('close', () => {
+    console.log('Client disconnected from WebSocket proxy');
+    if (openaiWs) {
+      openaiWs.close();
+    }
+  });
+
+  ws.on('error', (error) => {
+    console.error('Client WebSocket error:', error);
+    if (openaiWs) {
+      openaiWs.close();
+    }
+  });
+});
+
+server.listen(PORT, () => {
+  console.log(`Server listening at http://localhost:${PORT}`);
+  console.log(`WebSocket proxy available at ws://localhost:${PORT}/api/realtime-ws`);
 });

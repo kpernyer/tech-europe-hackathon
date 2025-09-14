@@ -1,5 +1,8 @@
 # OpenAI Voice - Project Makefile
 
+# Include common targets from parent directory
+include ../Makefile.common
+
 .PHONY: all help clean install build demo dev stop test health
 
 # Default target
@@ -9,7 +12,9 @@ help: ## Show this help message
 	@echo "OpenAI Voice"
 	@echo "============"
 	@echo ""
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  %-15s %s\n", $$1, $$2}'
+	@echo "📍 Project-specific targets:"
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(firstword $(MAKEFILE_LIST)) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  %-15s %s\n", $$1, $$2}'
+	@$(MAKE) help-common
 
 install: ## Install Node.js dependencies
 	@echo "📦 Installing dependencies for OpenAI Voice..."
