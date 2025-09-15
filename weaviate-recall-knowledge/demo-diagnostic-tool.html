@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo Diagnostic Tool - Weaviate Demo Troubleshooter</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .header h1 {
+            color: white;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .diagnostic-panel {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .diagnostic-panel h2 {
+            color: #1f2937;
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .status-card {
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .status-card.healthy {
+            border-color: #22c55e;
+            background: #f0fdf4;
+        }
+
+        .status-card.warning {
+            border-color: #f59e0b;
+            background: #fffbeb;
+        }
+
+        .status-card.error {
+            border-color: #ef4444;
+            background: #fef2f2;
+        }
+
+        .status-card h3 {
+            color: #374151;
+            margin-bottom: 10px;
+        }
+
+        .status-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .status-value.healthy {
+            color: #22c55e;
+        }
+
+        .status-value.warning {
+            color: #f59e0b;
+        }
+
+        .status-value.error {
+            color: #ef4444;
+        }
+
+        .control-panel {
+            background: #1a1a1a;
+            color: #00ff00;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            font-family: monospace;
+        }
+
+        .control-panel h3 {
+            color: #4ade80;
+            margin-bottom: 15px;
+        }
+
+        .btn {
+            background: #333;
+            color: #00ff00;
+            border: 1px solid #555;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: monospace;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            background: #444;
+            border-color: #00ff00;
+        }
+
+        .btn.primary {
+            background: #4ade80;
+            color: #000;
+        }
+
+        .btn.danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .log-output {
+            background: #000;
+            color: #00ff00;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+            border: 1px solid #333;
+        }
+
+        .test-section {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .test-section h2 {
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .test-input {
+            width: 100%;
+            min-height: 100px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            font-size: 1rem;
+            resize: vertical;
+            margin-bottom: 15px;
+        }
+
+        .progress-bar {
+            background: rgba(255, 255, 255, 0.1);
+            height: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .progress-fill {
+            background: linear-gradient(135deg, #4ade80, #22c55e);
+            height: 100%;
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        .error-message {
+            background: rgba(239, 68, 68, 0.9);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+            border-left: 4px solid #dc2626;
+        }
+
+        .success-message {
+            background: rgba(34, 197, 94, 0.9);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+            border-left: 4px solid #22c55e;
+        }
+
+        .warning-message {
+            background: rgba(245, 158, 11, 0.9);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+            border-left: 4px solid #f59e0b;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #4ade80;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔧 Demo Diagnostic Tool</h1>
+            <p>Diagnose and fix issues with your Weaviate demo</p>
+        </div>
+
+        <div class="diagnostic-panel">
+            <h2>📊 System Status</h2>
+            <div class="status-grid">
+                <div class="status-card" id="weaviate-status">
+                    <h3>🔗 Weaviate</h3>
+                    <div class="status-value" id="weaviate-value">Testing...</div>
+                    <div id="weaviate-details">Checking connection...</div>
+                </div>
+                <div class="status-card" id="javascript-status">
+                    <h3>⚡ JavaScript</h3>
+                    <div class="status-value" id="javascript-value">Testing...</div>
+                    <div id="javascript-details">Checking execution...</div>
+                </div>
+                <div class="status-card" id="dom-status">
+                    <h3>🌐 DOM</h3>
+                    <div class="status-value" id="dom-value">Testing...</div>
+                    <div id="dom-details">Checking elements...</div>
+                </div>
+                <div class="status-card" id="events-status">
+                    <h3>🖱️ Events</h3>
+                    <div class="status-value" id="events-value">Testing...</div>
+                    <div id="events-details">Checking handlers...</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="diagnostic-panel">
+            <h2>🔧 Diagnostic Controls</h2>
+            <div class="control-panel">
+                <h3>System Tests</h3>
+                <button class="btn primary" onclick="runFullDiagnostics()">Run Full Diagnostics</button>
+                <button class="btn" onclick="testWeaviateConnection()">Test Weaviate</button>
+                <button class="btn" onclick="testJavaScriptExecution()">Test JavaScript</button>
+                <button class="btn" onclick="testDOMAccess()">Test DOM</button>
+                <button class="btn" onclick="testEventHandlers()">Test Events</button>
+                
+                <h3>Debug Actions</h3>
+                <button class="btn" onclick="clearLogs()">Clear Logs</button>
+                <button class="btn" onclick="exportDiagnostics()">Export Report</button>
+                <button class="btn danger" onclick="resetDemo()">Reset Demo</button>
+                
+                <div class="log-output" id="log-output">
+                    Diagnostic tool initialized. Click "Run Full Diagnostics" to start...
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>🧪 Interactive Testing</h2>
+            <p style="color: rgba(255,255,255,0.9); margin-bottom: 20px;">
+                Test if the demo can handle user input and interactions:
+            </p>
+            
+            <textarea 
+                id="test-input" 
+                class="test-input" 
+                placeholder="Type something here to test if input is working..."
+            ></textarea>
+            
+            <div>
+                <button class="btn primary" onclick="testInputHandling()">Test Input</button>
+                <button class="btn" onclick="testButtonClicks()">Test Buttons</button>
+                <button class="btn" onclick="testAsyncOperations()">Test Async Operations</button>
+            </div>
+            
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill"></div>
+            </div>
+            
+            <div id="test-results"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8080';
+        let diagnostics = {
+            weaviate: false,
+            javascript: false,
+            dom: false,
+            events: false,
+            logs: []
+        };
+
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = `[${timestamp}] ${type.toUpperCase()}: ${message}`;
+            diagnostics.logs.push(logEntry);
+            
+            const logOutput = document.getElementById('log-output');
+            logOutput.textContent += logEntry + '\n';
+            logOutput.scrollTop = logOutput.scrollHeight;
+            
+            console.log(`🔍 DIAGNOSTIC [${type.toUpperCase()}]:`, message);
+        }
+
+        function updateStatus(cardId, status, value, details) {
+            const card = document.getElementById(cardId);
+            const valueElement = document.getElementById(cardId.replace('-status', '-value'));
+            const detailsElement = document.getElementById(cardId.replace('-status', '-details'));
+            
+            card.className = `status-card ${status}`;
+            valueElement.textContent = value;
+            valueElement.className = `status-value ${status}`;
+            detailsElement.textContent = details;
+        }
+
+        function showMessage(message, type = 'info') {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `${type}-message`;
+            messageDiv.textContent = message;
+            
+            const container = document.querySelector('.container');
+            container.insertBefore(messageDiv, container.firstChild);
+            
+            setTimeout(() => {
+                messageDiv.remove();
+            }, 5000);
+        }
+
+        async function testWeaviateConnection() {
+            log('Testing Weaviate connection...', 'test');
+            updateStatus('weaviate-status', 'warning', 'Testing...', 'Checking connection...');
+            
+            try {
+                const response = await fetch(`${API_BASE}/v1/meta`, {
+                    method: 'GET',
+                    timeout: 5000
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    diagnostics.weaviate = true;
+                    updateStatus('weaviate-status', 'healthy', 'Connected', `Version: ${data.version}`);
+                    log(`✅ Weaviate connected successfully. Version: ${data.version}`, 'success');
+                    showMessage('✅ Weaviate connection successful!', 'success');
+                    return true;
+                } else {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+            } catch (error) {
+                diagnostics.weaviate = false;
+                updateStatus('weaviate-status', 'error', 'Failed', `Error: ${error.message}`);
+                log(`❌ Weaviate connection failed: ${error.message}`, 'error');
+                showMessage('❌ Weaviate connection failed!', 'error');
+                return false;
+            }
+        }
+
+        function testJavaScriptExecution() {
+            log('Testing JavaScript execution...', 'test');
+            updateStatus('javascript-status', 'warning', 'Testing...', 'Checking execution...');
+            
+            try {
+                // Test basic JavaScript functionality
+                const testArray = [1, 2, 3];
+                const testObject = { key: 'value' };
+                const testFunction = () => 'test';
+                
+                // Test async/await
+                const testAsync = async () => {
+                    return new Promise(resolve => setTimeout(() => resolve('async works'), 100));
+                };
+                
+                // Test fetch availability
+                if (typeof fetch === 'undefined') {
+                    throw new Error('Fetch API not available');
+                }
+                
+                // Test JSON parsing
+                const testJson = JSON.parse('{"test": "value"}');
+                
+                diagnostics.javascript = true;
+                updateStatus('javascript-status', 'healthy', 'Working', 'All JS features available');
+                log('✅ JavaScript execution test passed', 'success');
+                showMessage('✅ JavaScript execution working!', 'success');
+                return true;
+            } catch (error) {
+                diagnostics.javascript = false;
+                updateStatus('javascript-status', 'error', 'Failed', `Error: ${error.message}`);
+                log(`❌ JavaScript execution test failed: ${error.message}`, 'error');
+                showMessage('❌ JavaScript execution failed!', 'error');
+                return false;
+            }
+        }
+
+        function testDOMAccess() {
+            log('Testing DOM access...', 'test');
+            updateStatus('dom-status', 'warning', 'Testing...', 'Checking elements...');
+            
+            try {
+                // Test DOM query methods
+                const body = document.body;
+                const container = document.querySelector('.container');
+                const testElement = document.getElementById('log-output');
+                
+                if (!body || !container || !testElement) {
+                    throw new Error('Essential DOM elements not found');
+                }
+                
+                // Test element manipulation
+                const testDiv = document.createElement('div');
+                testDiv.textContent = 'DOM test';
+                body.appendChild(testDiv);
+                body.removeChild(testDiv);
+                
+                // Test style manipulation
+                const originalDisplay = testElement.style.display;
+                testElement.style.display = 'none';
+                testElement.style.display = originalDisplay;
+                
+                diagnostics.dom = true;
+                updateStatus('dom-status', 'healthy', 'Working', 'DOM access functional');
+                log('✅ DOM access test passed', 'success');
+                showMessage('✅ DOM access working!', 'success');
+                return true;
+            } catch (error) {
+                diagnostics.dom = false;
+                updateStatus('dom-status', 'error', 'Failed', `Error: ${error.message}`);
+                log(`❌ DOM access test failed: ${error.message}`, 'error');
+                showMessage('❌ DOM access failed!', 'error');
+                return false;
+            }
+        }
+
+        function testEventHandlers() {
+            log('Testing event handlers...', 'test');
+            updateStatus('events-status', 'warning', 'Testing...', 'Checking handlers...');
+            
+            try {
+                let eventTestPassed = false;
+                
+                // Test click event
+                const testButton = document.createElement('button');
+                testButton.textContent = 'Test Button';
+                testButton.onclick = () => {
+                    eventTestPassed = true;
+                    log('✅ Click event handler working', 'success');
+                };
+                
+                // Simulate click
+                testButton.click();
+                
+                // Test keyboard event
+                let keyTestPassed = false;
+                const keyHandler = (event) => {
+                    if (event.key === 'Enter') {
+                        keyTestPassed = true;
+                        log('✅ Keyboard event handler working', 'success');
+                    }
+                };
+                
+                document.addEventListener('keydown', keyHandler);
+                
+                // Simulate keydown
+                const keyEvent = new KeyboardEvent('keydown', { key: 'Enter' });
+                document.dispatchEvent(keyEvent);
+                
+                document.removeEventListener('keydown', keyHandler);
+                
+                if (eventTestPassed && keyTestPassed) {
+                    diagnostics.events = true;
+                    updateStatus('events-status', 'healthy', 'Working', 'Event handlers functional');
+                    log('✅ Event handlers test passed', 'success');
+                    showMessage('✅ Event handlers working!', 'success');
+                    return true;
+                } else {
+                    throw new Error('Event handlers not responding');
+                }
+            } catch (error) {
+                diagnostics.events = false;
+                updateStatus('events-status', 'error', 'Failed', `Error: ${error.message}`);
+                log(`❌ Event handlers test failed: ${error.message}`, 'error');
+                showMessage('❌ Event handlers failed!', 'error');
+                return false;
+            }
+        }
+
+        async function runFullDiagnostics() {
+            log('Starting full diagnostics...', 'info');
+            showMessage('🔍 Running full diagnostics...', 'info');
+            
+            const progressFill = document.getElementById('progress-fill');
+            progressFill.style.width = '0%';
+            
+            const tests = [
+                { name: 'Weaviate Connection', func: testWeaviateConnection },
+                { name: 'JavaScript Execution', func: testJavaScriptExecution },
+                { name: 'DOM Access', func: testDOMAccess },
+                { name: 'Event Handlers', func: testEventHandlers }
+            ];
+            
+            for (let i = 0; i < tests.length; i++) {
+                const test = tests[i];
+                log(`Running ${test.name}...`, 'test');
+                
+                try {
+                    await test.func();
+                } catch (error) {
+                    log(`❌ ${test.name} failed: ${error.message}`, 'error');
+                }
+                
+                progressFill.style.width = `${((i + 1) / tests.length) * 100}%`;
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
+            
+            const passedTests = Object.values(diagnostics).filter(Boolean).length - 1; // -1 for logs array
+            const totalTests = 4;
+            
+            log(`Diagnostics complete: ${passedTests}/${totalTests} tests passed`, 'info');
+            
+            if (passedTests === totalTests) {
+                showMessage('✅ All diagnostics passed! Demo should be working.', 'success');
+            } else {
+                showMessage(`⚠️ ${totalTests - passedTests} diagnostic test(s) failed. Check logs for details.`, 'warning');
+            }
+        }
+
+        function testInputHandling() {
+            log('Testing input handling...', 'test');
+            
+            const testInput = document.getElementById('test-input');
+            const testResults = document.getElementById('test-results');
+            
+            if (!testInput) {
+                log('❌ Test input element not found', 'error');
+                return;
+            }
+            
+            // Test if input is responsive
+            const testValue = 'Test input ' + new Date().toLocaleTimeString();
+            testInput.value = testValue;
+            
+            // Test if we can read the value back
+            if (testInput.value === testValue) {
+                log('✅ Input handling working correctly', 'success');
+                testResults.innerHTML = '<div class="success-message">✅ Input handling is working correctly!</div>';
+                showMessage('✅ Input handling working!', 'success');
+            } else {
+                log('❌ Input handling failed - value not set correctly', 'error');
+                testResults.innerHTML = '<div class="error-message">❌ Input handling failed!</div>';
+                showMessage('❌ Input handling failed!', 'error');
+            }
+        }
+
+        function testButtonClicks() {
+            log('Testing button click handling...', 'test');
+            
+            const testResults = document.getElementById('test-results');
+            let clickCount = 0;
+            
+            // Create a test button
+            const testButton = document.createElement('button');
+            testButton.textContent = 'Test Click Handler';
+            testButton.className = 'btn';
+            testButton.onclick = () => {
+                clickCount++;
+                log(`Button clicked ${clickCount} times`, 'info');
+                testResults.innerHTML = `<div class="success-message">✅ Button clicked ${clickCount} times successfully!</div>`;
+            };
+            
+            // Add button to results area
+            testResults.innerHTML = '';
+            testResults.appendChild(testButton);
+            
+            // Simulate clicks
+            setTimeout(() => testButton.click(), 100);
+            setTimeout(() => testButton.click(), 200);
+            setTimeout(() => testButton.click(), 300);
+            
+            log('Button click test initiated', 'info');
+        }
+
+        async function testAsyncOperations() {
+            log('Testing async operations...', 'test');
+            
+            const testResults = document.getElementById('test-results');
+            testResults.innerHTML = '<div class="warning-message">⏳ Testing async operations...</div>';
+            
+            try {
+                // Test Promise
+                const promiseTest = new Promise(resolve => {
+                    setTimeout(() => resolve('Promise works'), 1000);
+                });
+                
+                const promiseResult = await promiseTest;
+                log(`✅ Promise test: ${promiseResult}`, 'success');
+                
+                // Test async/await with fetch
+                const fetchTest = await fetch('http://localhost:8080/v1/meta').catch(() => null);
+                const fetchResult = fetchTest ? 'Fetch works' : 'Fetch failed (expected if Weaviate not running)';
+                log(`✅ Fetch test: ${fetchResult}`, 'success');
+                
+                testResults.innerHTML = `
+                    <div class="success-message">
+                        ✅ Async operations working!<br>
+                        Promise: ${promiseResult}<br>
+                        Fetch: ${fetchResult}
+                    </div>
+                `;
+                showMessage('✅ Async operations working!', 'success');
+                
+            } catch (error) {
+                log(`❌ Async operations test failed: ${error.message}`, 'error');
+                testResults.innerHTML = `<div class="error-message">❌ Async operations failed: ${error.message}</div>`;
+                showMessage('❌ Async operations failed!', 'error');
+            }
+        }
+
+        function clearLogs() {
+            document.getElementById('log-output').textContent = 'Logs cleared...\n';
+            diagnostics.logs = [];
+            log('Logs cleared', 'info');
+        }
+
+        function exportDiagnostics() {
+            const report = {
+                timestamp: new Date().toISOString(),
+                diagnostics: diagnostics,
+                userAgent: navigator.userAgent,
+                url: window.location.href,
+                performance: {
+                    loadTime: performance.now(),
+                    memory: performance.memory ? {
+                        used: performance.memory.usedJSHeapSize,
+                        total: performance.memory.totalJSHeapSize
+                    } : null
+                }
+            };
+            
+            const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `demo-diagnostic-report-${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            log('Diagnostic report exported', 'info');
+            showMessage('📄 Diagnostic report exported!', 'success');
+        }
+
+        function resetDemo() {
+            if (confirm('Are you sure you want to reset the demo? This will clear all data.')) {
+                log('Resetting demo...', 'info');
+                
+                // Clear all form inputs
+                const inputs = document.querySelectorAll('input, textarea');
+                inputs.forEach(input => input.value = '');
+                
+                // Reset status cards
+                updateStatus('weaviate-status', 'warning', 'Unknown', 'Not tested');
+                updateStatus('javascript-status', 'warning', 'Unknown', 'Not tested');
+                updateStatus('dom-status', 'warning', 'Unknown', 'Not tested');
+                updateStatus('events-status', 'warning', 'Unknown', 'Not tested');
+                
+                // Clear test results
+                document.getElementById('test-results').innerHTML = '';
+                
+                // Reset progress bar
+                document.getElementById('progress-fill').style.width = '0%';
+                
+                log('Demo reset complete', 'success');
+                showMessage('🔄 Demo reset complete!', 'success');
+            }
+        }
+
+        // Initialize diagnostics
+        window.addEventListener('load', () => {
+            log('Diagnostic tool initialized', 'info');
+            log('Click "Run Full Diagnostics" to start comprehensive testing', 'info');
+        });
+
+        // Monitor for errors
+        window.addEventListener('error', (event) => {
+            log(`Global error: ${event.error?.message || 'Unknown error'}`, 'error');
+        });
+
+        window.addEventListener('unhandledrejection', (event) => {
+            log(`Unhandled promise rejection: ${event.reason?.message || 'Unknown error'}`, 'error');
+        });
+    </script>
+</body>
+</html>

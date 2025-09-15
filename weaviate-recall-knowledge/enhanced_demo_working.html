@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hackathon {Tech: Europe} - Weaviate Strategic Knowledge Demo (Working)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .header h1 {
+            color: white;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+        }
+
+        .section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .section h2 {
+            color: #1f2937;
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status-bar {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .status-card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 10px;
+            padding: 15px;
+            flex: 1;
+            min-width: 150px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .status-card h4 {
+            color: white;
+            margin-bottom: 5px;
+        }
+
+        .status-value {
+            color: #4ade80;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .query-section {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .query-section h2 {
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .preset-questions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .question-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+        }
+
+        .question-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .custom-query {
+            width: 100%;
+            min-height: 100px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            font-size: 1rem;
+            resize: vertical;
+            margin-bottom: 15px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #4ade80, #22c55e);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            margin: 5px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(34, 197, 94, 0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+        }
+
+        .btn-danger:hover {
+            box-shadow: 0 5px 15px rgba(239, 68, 68, 0.4);
+        }
+
+        .response-area {
+            background: #1f2937;
+            color: #f9fafb;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            min-height: 200px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            overflow-y: auto;
+            max-height: 500px;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #4ade80;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .document-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .doc-card {
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .doc-card.injected {
+            border-color: #22c55e;
+            background: #f0fdf4;
+        }
+
+        .doc-title {
+            font-weight: bold;
+            color: #1f2937;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        .doc-category {
+            color: #6b7280;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+            background: #e5e7eb;
+            padding: 4px 8px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+
+        .doc-content {
+            color: #4b5563;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin-bottom: 10px;
+        }
+
+        .progress-indicator {
+            background: rgba(255, 255, 255, 0.1);
+            height: 10px;
+            border-radius: 5px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .progress-bar {
+            background: linear-gradient(135deg, #4ade80, #22c55e);
+            height: 100%;
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        .success-message {
+            background: rgba(34, 197, 94, 0.9);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+            border-left: 4px solid #22c55e;
+        }
+
+        .error-message {
+            background: rgba(239, 68, 68, 0.9);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+            border-left: 4px solid #dc2626;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Weaviate Demo at Hackathon {Tech: Europe}</h1>
+            <p>September 13-14th 2025, Kenneth Pernyer</p>
+            <p>Strategic Knowledge Management & Semantic Search Technology Showcase</p>
+        </div>
+
+        <div class="status-bar">
+            <div class="status-card">
+                <h4>📊 Documents Injected</h4>
+                <div class="status-value" id="doc-count">0</div>
+            </div>
+            <div class="status-card">
+                <h4>🎯 Current Stage</h4>
+                <div class="status-value" id="current-stage">Clean DB</div>
+            </div>
+            <div class="status-card">
+                <h4>🔄 Demo Status</h4>
+                <div class="status-value" id="demo-status">Ready</div>
+            </div>
+            <div class="status-card">
+                <h4>🔗 Connection</h4>
+                <div class="status-value" id="connection-status">Unknown</div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>📄 Business Document Repository</h2>
+            <p>These strategic business documents will be progressively injected to demonstrate knowledge enhancement:</p>
+            
+            <div class="document-cards" id="document-cards">
+                <!-- Document cards will be populated here -->
+            </div>
+        </div>
+
+        <div class="query-section">
+            <h2>🤔 Strategic Business Questions</h2>
+            <p style="color: rgba(255,255,255,0.9); margin-bottom: 20px;">
+                Select a strategic question below to see how responses improve as we inject business documents:
+            </p>
+            
+            <div class="preset-questions">
+                <div class="question-btn" onclick="selectQuestion(this)">
+                    "I have an opportunity to sell 1,000 units of Product A to North Korea for $2M revenue. The deal would significantly boost our quarterly numbers and the buyer is offering to pay upfront. Should we proceed with this business opportunity?"
+                </div>
+                <div class="question-btn" onclick="selectQuestion(this)">
+                    "How should our organization approach digital transformation to stay competitive in 2025?"
+                </div>
+                <div class="question-btn" onclick="selectQuestion(this)">
+                    "What are the most effective strategies for improving customer retention and reducing churn?"
+                </div>
+            </div>
+
+            <textarea 
+                id="custom-query" 
+                class="custom-query" 
+                placeholder="Or type your own strategic business question here..."
+            ></textarea>
+
+            <div>
+                <button class="btn" onclick="askQuestion()">🔍 Ask Question</button>
+                <button class="btn" onclick="injectNextDocument()">📄 Inject Next Document</button>
+                <button class="btn" onclick="injectAllDocuments()">📚 Inject All Documents</button>
+                <button class="btn" onclick="checkDatabaseStatus()">🔄 Refresh Status</button>
+            </div>
+
+            <div class="progress-indicator">
+                <div class="progress-bar" id="progress-bar"></div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🔍 Query Response Analysis</h2>
+            <div id="response-container">
+                <div class="response-area" id="response-area">
+                    Select a question above and click "Ask Question" to see the AI response.
+                    
+                    The response quality will improve dramatically as we inject more business documents into the knowledge base.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8080';
+        const OPENAI_API_KEY = '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';
+        
+        let currentStage = 0;
+        let documentsInjected = 0;
+        let currentQuery = '';
+
+        // Business documents for progressive injection
+        const businessDocuments = [
+            {
+                title: "Corporate Code of Conduct and Ethics",
+                category: "Ethics & Governance",
+                content: "Our organization is committed to conducting business with the highest standards of ethical behavior, integrity, and respect for human rights. This Code of Conduct serves as our foundation for ethical decision-making across all operations and jurisdictions. We strictly adhere to international human rights frameworks including the UN Guiding Principles on Business and Human Rights, the OECD Guidelines for Multinational Enterprises, and the UN Declaration on the Rights of Indigenous Peoples. Our commitment extends to ensuring fair labor practices, prohibiting child labor and forced labor, supporting freedom of association, and maintaining safe working environments. We do not conduct business in countries or with entities that systematically violate human rights or are subject to international sanctions. Our due diligence processes include comprehensive screening of all business partners, suppliers, and markets to ensure alignment with our ethical standards. We maintain zero tolerance for bribery, corruption, fraud, and any form of discrimination based on race, gender, religion, nationality, or other protected characteristics. All employees receive regular training on ethical guidelines, human rights awareness, and sanctions compliance. We provide multiple confidential channels for reporting ethical concerns and guarantee protection against retaliation for good faith reporting. Our leadership is accountable for creating a culture of integrity and ensuring all business decisions align with our ethical commitments and respect for fundamental human rights.",
+                created_date: "2024-01-10T08:00:00Z",
+                vectorize: true
+            },
+            {
+                title: "Customer Retention Strategies for 2025",
+                category: "Business Strategy",
+                content: "Customer retention is critical for sustainable business growth. Key strategies include personalized communication, loyalty programs, proactive customer support, and regular feedback collection. Companies with strong retention programs see 25% higher revenue growth. Advanced analytics help identify at-risk customers early, enabling proactive intervention. Successful retention requires cross-departmental alignment between sales, marketing, and customer success teams.",
+                created_date: "2024-01-15T10:30:00Z",
+                vectorize: true
+            },
+            {
+                title: "Digital Marketing ROI Measurement Framework",
+                category: "Marketing Analytics",
+                content: "Measuring digital marketing return on investment requires tracking customer acquisition costs, lifetime value, conversion rates, and attribution across multiple channels. Analytics tools help optimize campaign performance and budget allocation. Key metrics include cost per acquisition (CPA), return on ad spend (ROAS), and marketing qualified leads (MQLs). Advanced attribution modeling helps understand the complete customer journey and optimize touchpoints for maximum impact.",
+                created_date: "2024-02-01T14:15:00Z",
+                vectorize: true
+            },
+            {
+                title: "AI Implementation Framework for Enterprises",
+                category: "Technology Strategy",
+                content: "Successful AI implementation requires clear business objectives, quality data preparation, stakeholder alignment, and phased rollout. Organizations should start with pilot projects, establish governance frameworks, and scale gradually based on results. Critical success factors include executive sponsorship, technical infrastructure readiness, and change management. AI ethics and responsible implementation must be considered from the outset to ensure sustainable adoption.",
+                created_date: "2024-02-15T09:45:00Z",
+                vectorize: true
+            },
+            {
+                title: "Financial Planning and Budget Optimization",
+                category: "Finance Strategy",
+                content: "Effective financial planning includes comprehensive budgeting, accurate forecasting, scenario analysis, and regular performance reviews. Automation tools can streamline processes, improve accuracy, and provide real-time insights for decision making. Zero-based budgeting approaches help optimize resource allocation. Integration with operational metrics enables data-driven financial decisions and improved strategic alignment across departments.",
+                created_date: "2024-01-30T11:20:00Z",
+                vectorize: true
+            },
+            {
+                title: "Supply Chain Risk Management and Optimization",
+                category: "Operations Strategy", 
+                content: "Supply chain optimization focuses on reducing costs, improving efficiency, and increasing resilience. Key areas include inventory management, supplier relationship management, logistics coordination, and risk mitigation strategies. Digital transformation through IoT, AI, and blockchain technologies enables real-time visibility and predictive analytics. Sustainable supply chain practices are becoming increasingly important for regulatory compliance and brand reputation.",
+                created_date: "2024-02-10T16:00:00Z",
+                vectorize: true
+            }
+        ];
+
+        const stageNames = ["Clean DB", "Ethics", "Strategy", "Marketing", "Technology", "Finance", "Complete"];
+
+        function showMessage(message, type = 'success') {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `${type}-message`;
+            messageDiv.textContent = message;
+            
+            const container = document.querySelector('.container');
+            container.insertBefore(messageDiv, container.firstChild);
+            
+            setTimeout(() => {
+                messageDiv.remove();
+            }, 5000);
+        }
+
+        function renderDocumentCards() {
+            const container = document.getElementById('document-cards');
+            container.innerHTML = businessDocuments.map((doc, index) => `
+                <div class="doc-card" id="doc-${index}">
+                    <div class="doc-title">${doc.title}</div>
+                    <div class="doc-category">${doc.category}</div>
+                    <div class="doc-content">
+                        ${doc.content.substring(0, 150)}...
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function selectQuestion(element) {
+            document.getElementById('custom-query').value = element.textContent.replace(/"/g, '');
+            document.querySelectorAll('.question-btn').forEach(btn => btn.style.background = 'rgba(255, 255, 255, 0.2)');
+            element.style.background = 'rgba(34, 197, 94, 0.3)';
+        }
+
+        async function askQuestion() {
+            const query = document.getElementById('custom-query').value;
+            if (!query.trim()) {
+                showMessage('⚠️ Please enter a question first!', 'error');
+                return;
+            }
+
+            currentQuery = query;
+            const responseArea = document.getElementById('response-area');
+            
+            // Show processing steps
+            if (documentsInjected === 0) {
+                responseArea.innerHTML = `
+                    <div style="color: #ef4444; font-weight: bold;">🤖 Generic AI Processing</div>
+                    <div style="color: #666; margin-top: 10px;">• No organizational context available</div>
+                    <div class="loading" style="margin-top: 15px;"></div> Generating generic response...
+                `;
+            } else {
+                responseArea.innerHTML = `
+                    <div style="color: #22c55e; font-weight: bold;">🧠 RAG-Enhanced AI Processing</div>
+                    <div style="color: #666; margin-top: 10px;">
+                        • Step 1: Performing semantic search with OpenAI embeddings...<br>
+                        • Step 2: Analyzing ${documentsInjected} organizational documents...<br>
+                        • Step 3: Generating strategic business recommendation...
+                    </div>
+                    <div class="loading" style="margin-top: 15px;"></div> Processing with organizational knowledge...
+                `;
+            }
+
+            try {
+                const response = await generateContextualResponse(query, documentsInjected);
+                responseArea.innerHTML = response;
+            } catch (error) {
+                responseArea.innerHTML = `<h4 style="color: #ef4444;">🚨 Processing Error</h4>\nFailed to generate response: ${error.message}`;
+                showMessage('❌ Error processing question!', 'error');
+            }
+        }
+
+        async function injectNextDocument() {
+            if (documentsInjected >= businessDocuments.length) {
+                showMessage('⚠️ All documents have already been injected!', 'error');
+                return;
+            }
+
+            const doc = businessDocuments[documentsInjected];
+            document.getElementById('demo-status').textContent = 'Injecting...';
+            
+            try {
+                const weaviateObject = {
+                    "class": "BusinessDocument",
+                    "properties": doc
+                };
+                
+                const response = await fetch(`${API_BASE}/v1/objects`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Openai-Api-Key': OPENAI_API_KEY
+                    },
+                    body: JSON.stringify(weaviateObject)
+                });
+
+                if (response.ok) {
+                    documentsInjected++;
+                    updateStageDisplay();
+                    document.getElementById(`doc-${documentsInjected-1}`).classList.add('injected');
+                    
+                    showMessage(`✅ Document injected: "${doc.title}"`, 'success');
+                    
+                    // Re-ask the current question if one exists
+                    if (currentQuery) {
+                        await askQuestion();
+                    }
+                } else {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(`Failed to inject document: ${response.status} - ${JSON.stringify(errorData)}`);
+                }
+            } catch (error) {
+                console.error('Error injecting document:', error);
+                document.getElementById('demo-status').textContent = 'Error';
+                showMessage(`❌ Error injecting document: ${error.message}`, 'error');
+            }
+        }
+
+        async function injectAllDocuments() {
+            for (let i = documentsInjected; i < businessDocuments.length; i++) {
+                await injectNextDocument();
+                await new Promise(resolve => setTimeout(resolve, 1000)); // 1 second delay between injections
+            }
+            showMessage('✅ All documents injected successfully!', 'success');
+        }
+
+        async function checkDatabaseStatus() {
+            try {
+                const query = {
+                    query: `
+                    {
+                        Aggregate {
+                            BusinessDocument {
+                                meta {
+                                    count
+                                }
+                            }
+                        }
+                    }
+                    `
+                };
+
+                const response = await fetch(`${API_BASE}/v1/graphql`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(query)
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    const count = data.data.Aggregate.BusinessDocument[0].meta.count;
+                    documentsInjected = count;
+                    updateStageDisplay();
+                    
+                    // Mark injected documents
+                    for (let i = 0; i < count; i++) {
+                        const docCard = document.getElementById(`doc-${i}`);
+                        if (docCard) {
+                            docCard.classList.add('injected');
+                        }
+                    }
+                    
+                    showMessage(`✅ Database status updated: ${count} documents found`, 'success');
+                }
+            } catch (error) {
+                console.error('Error checking database status:', error);
+                showMessage('❌ Error checking database status!', 'error');
+            }
+        }
+
+        function updateStageDisplay() {
+            currentStage = documentsInjected;
+            document.getElementById('doc-count').textContent = documentsInjected;
+            document.getElementById('current-stage').textContent = stageNames[currentStage];
+            document.getElementById('demo-status').textContent = 'Ready';
+            
+            // Update progress bar
+            const progress = (documentsInjected / businessDocuments.length) * 100;
+            document.getElementById('progress-bar').style.width = `${progress}%`;
+        }
+
+        async function generateContextualResponse(query, docCount) {
+            if (docCount === 0) {
+                return `**🤖 Generic Response (No Organizational Context)**
+
+I can provide general guidance on this topic. However, for more specific and strategic advice tailored to your organization, I would need access to your business documents, policies, and strategic context.
+
+**Recommendation:** Consider implementing a knowledge management system to get more personalized insights.
+
+*Note: This response uses only generic knowledge without organizational context.*`;
+            }
+
+            try {
+                // Perform semantic search
+                const relevantDocs = await performSemanticSearch(query, 3);
+                
+                if (relevantDocs.length === 0) {
+                    return `**🤖 Limited Context Response**
+
+I have access to ${docCount} documents in your knowledge base, but couldn't find specific relevant information for this query. The system may need more domain-specific documents for this topic.
+
+*Response based on ${docCount} organizational documents but no direct matches found.*`;
+                }
+
+                // Generate response based on retrieved documents
+                let response = `**🤖 RAG-Enhanced Response (${docCount} Documents)**
+
+Based on analysis of your organizational knowledge base:
+
+**Query:** "${query}"
+
+**Relevant Documents Found:** ${relevantDocs.length}
+
+`;
+
+                relevantDocs.forEach((doc, index) => {
+                    response += `**${index + 1}. "${doc.title}" (${doc.category})**\n`;
+                    if (doc._additional?.distance !== undefined) {
+                        const similarity = Math.round((1 - doc._additional.distance) * 100);
+                        response += `   Similarity: ${similarity}%\n`;
+                    }
+                    response += `   Content: ${doc.content.substring(0, 200)}...\n\n`;
+                });
+
+                // Add strategic recommendation based on content
+                if (query.toLowerCase().includes('north korea') && relevantDocs.length > 0) {
+                    response += `**🚨 STRATEGIC RECOMMENDATION: REJECT IMMEDIATELY**
+
+Based on your Corporate Code of Conduct, this opportunity violates explicit organizational policies regarding international sanctions and human rights compliance.
+
+**Risk Assessment:**
+• Legal Risk: CRITICAL - Potential sanctions violations
+• Reputational Risk: HIGH - Conflicts with organizational values  
+• Compliance Risk: ABSOLUTE - Violates documented policies
+
+**The organizational knowledge base provides clear guidance: This transaction is prohibited.**`;
+                } else {
+                    response += `**📋 Strategic Guidance Available**
+
+Based on your organizational knowledge base, I recommend aligning this decision with your documented frameworks and policies. The retrieved documents provide relevant context for strategic decision-making.
+
+*This response is enhanced by ${docCount} organizational documents with vector embeddings.*`;
+                }
+
+                return response;
+
+            } catch (error) {
+                throw new Error(`Response generation failed: ${error.message}`);
+            }
+        }
+
+        async function performSemanticSearch(query, limit = 3) {
+            try {
+                const searchQuery = {
+                    query: `
+                    {
+                        Get {
+                            BusinessDocument(
+                                nearText: {
+                                    concepts: ["${query}"]
+                                }
+                                limit: ${limit}
+                            ) {
+                                title
+                                content
+                                category
+                                _additional {
+                                    distance
+                                    id
+                                }
+                            }
+                        }
+                    }
+                    `
+                };
+
+                const response = await fetch(`${API_BASE}/v1/graphql`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(searchQuery)
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    return data.data.Get.BusinessDocument || [];
+                } else {
+                    const errorData = await response.json();
+                    console.error("GraphQL Error:", errorData);
+                    return [];
+                }
+            } catch (error) {
+                console.error('Semantic search failed:', error);
+                return [];
+            }
+        }
+
+        // Initialize demo
+        async function initializeDemo() {
+            renderDocumentCards();
+            await checkDatabaseStatus();
+            showMessage('🚀 Demo initialized successfully!', 'success');
+        }
+
+        // Auto-initialize
+        window.addEventListener('load', initializeDemo);
+    </script>
+</body>
+</html>

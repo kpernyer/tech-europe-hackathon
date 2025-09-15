@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hackathon {Tech: Europe} - Weaviate Strategic Knowledge Demo (Fixed)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .header h1 {
+            color: white;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+        }
+
+        .section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .section h2 {
+            color: #1f2937;
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status-bar {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .status-card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 10px;
+            padding: 15px;
+            flex: 1;
+            min-width: 150px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .status-card h4 {
+            color: white;
+            margin-bottom: 5px;
+        }
+
+        .status-value {
+            color: #4ade80;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .query-section {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .query-section h2 {
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .preset-questions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .question-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+        }
+
+        .question-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .question-btn:active {
+            transform: translateY(0);
+        }
+
+        .custom-query {
+            width: 100%;
+            min-height: 100px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            font-size: 1rem;
+            resize: vertical;
+            margin-bottom: 15px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #4ade80, #22c55e);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            margin: 5px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(34, 197, 94, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+        }
+
+        .btn-danger:hover {
+            box-shadow: 0 5px 15px rgba(239, 68, 68, 0.4);
+        }
+
+        .response-area {
+            background: #1f2937;
+            color: #f9fafb;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            min-height: 200px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            overflow-y: auto;
+            max-height: 500px;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #4ade80;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            background: rgba(239, 68, 68, 0.9);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+            border-left: 4px solid #dc2626;
+        }
+
+        .success-message {
+            background: rgba(34, 197, 94, 0.9);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+            border-left: 4px solid #22c55e;
+        }
+
+        .warning-message {
+            background: rgba(245, 158, 11, 0.9);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+            border-left: 4px solid #f59e0b;
+        }
+
+        .debug-panel {
+            background: #1a1a1a;
+            color: #00ff00;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            font-family: monospace;
+            font-size: 12px;
+        }
+
+        .debug-panel h3 {
+            color: #4ade80;
+            margin-bottom: 15px;
+        }
+
+        .debug-button {
+            background: #333;
+            color: #00ff00;
+            border: 1px solid #555;
+            padding: 8px 16px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: monospace;
+            transition: all 0.3s ease;
+        }
+
+        .debug-button:hover {
+            background: #444;
+            border-color: #00ff00;
+        }
+
+        .debug-output {
+            background: #000;
+            color: #00ff00;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 11px;
+            white-space: pre-wrap;
+            border: 1px solid #333;
+        }
+
+        .progress-indicator {
+            background: rgba(255, 255, 255, 0.1);
+            height: 10px;
+            border-radius: 5px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .progress-bar {
+            background: linear-gradient(135deg, #4ade80, #22c55e);
+            height: 100%;
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Weaviate Demo at Hackathon {Tech: Europe}</h1>
+            <p>September 13-14th 2025, Kenneth Pernyer</p>
+            <p>Strategic Knowledge Management & Semantic Search Technology Showcase</p>
+        </div>
+
+        <div class="section">
+            <h2>🔧 Debug Panel</h2>
+            <div class="debug-panel">
+                <h3>System Status</h3>
+                <button class="debug-button" onclick="testConnection()">Test Connection</button>
+                <button class="debug-button" onclick="clearLogs()">Clear Logs</button>
+                <button class="debug-button" onclick="showSystemInfo()">System Info</button>
+                
+                <div class="debug-output" id="debug-output">
+                    Debug panel initialized. Click "Test Connection" to check system status...
+                </div>
+            </div>
+        </div>
+
+        <div class="status-bar">
+            <div class="status-card">
+                <h4>📊 Documents Injected</h4>
+                <div class="status-value" id="doc-count">0</div>
+            </div>
+            <div class="status-card">
+                <h4>🎯 Current Stage</h4>
+                <div class="status-value" id="current-stage">Clean DB</div>
+            </div>
+            <div class="status-card">
+                <h4>🔄 Demo Status</h4>
+                <div class="status-value" id="demo-status">Ready</div>
+            </div>
+            <div class="status-card">
+                <h4>🔗 Connection</h4>
+                <div class="status-value" id="connection-status">Unknown</div>
+            </div>
+        </div>
+
+        <div class="query-section">
+            <h2>🤔 Strategic Business Questions</h2>
+            <p style="color: rgba(255,255,255,0.9); margin-bottom: 20px;">
+                Select a strategic question below to see how responses improve as we inject business documents:
+            </p>
+            
+            <div class="preset-questions">
+                <div class="question-btn" onclick="selectQuestion(this)">
+                    "I have an opportunity to sell 1,000 units of Product A to North Korea for $2M revenue. The deal would significantly boost our quarterly numbers and the buyer is offering to pay upfront. Should we proceed with this business opportunity?"
+                </div>
+                <div class="question-btn" onclick="selectQuestion(this)">
+                    "How should our organization approach digital transformation to stay competitive in 2025?"
+                </div>
+                <div class="question-btn" onclick="selectQuestion(this)">
+                    "What are the most effective strategies for improving customer retention and reducing churn?"
+                </div>
+            </div>
+
+            <textarea 
+                id="custom-query" 
+                class="custom-query" 
+                placeholder="Or type your own strategic business question here..."
+            ></textarea>
+
+            <div>
+                <button class="btn" id="ask-btn" onclick="askQuestion()">🔍 Ask Question</button>
+                <button class="btn btn-danger" id="clear-btn" onclick="clearDatabase()">🗑️ Reset Database</button>
+                <button class="btn" id="inject-btn" onclick="injectNextDocument()">📄 Inject Next Document</button>
+                <button class="btn" id="inject-all-btn" onclick="injectAllDocuments()">📚 Inject All Documents</button>
+            </div>
+
+            <div class="progress-indicator">
+                <div class="progress-bar" id="progress-bar"></div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🔍 Query Response Analysis</h2>
+            <div id="response-container">
+                <div class="response-area" id="response-area">
+                    Select a question above and click "Ask Question" to see the AI response.
+                    
+                    The response quality will improve dramatically as we inject more business documents into the knowledge base.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8080';
+        let currentStage = 0;
+        let documentsInjected = 0;
+        let currentQuery = '';
+        let isProcessing = false;
+        let debugMode = true;
+
+        // Business documents for progressive injection
+        const businessDocuments = [
+            {
+                title: "Corporate Code of Conduct and Ethics",
+                category: "Ethics & Governance",
+                content: "Our organization is committed to conducting business with the highest standards of ethical behavior, integrity, and respect for human rights. This Code of Conduct serves as our foundation for ethical decision-making across all operations and jurisdictions. We strictly adhere to international human rights frameworks including the UN Guiding Principles on Business and Human Rights, the OECD Guidelines for Multinational Enterprises, and the UN Declaration on the Rights of Indigenous Peoples. Our commitment extends to ensuring fair labor practices, prohibiting child labor and forced labor, supporting freedom of association, and maintaining safe working environments. We do not conduct business in countries or with entities that systematically violate human rights or are subject to international sanctions. Our due diligence processes include comprehensive screening of all business partners, suppliers, and markets to ensure alignment with our ethical standards. We maintain zero tolerance for bribery, corruption, fraud, and any form of discrimination based on race, gender, religion, nationality, or other protected characteristics. All employees receive regular training on ethical guidelines, human rights awareness, and sanctions compliance. We provide multiple confidential channels for reporting ethical concerns and guarantee protection against retaliation for good faith reporting. Our leadership is accountable for creating a culture of integrity and ensuring all business decisions align with our ethical commitments and respect for fundamental human rights.",
+                created_date: "2024-01-10T08:00:00Z",
+                vectorize: true
+            },
+            {
+                title: "Customer Retention Strategies for 2025",
+                category: "Business Strategy",
+                content: "Customer retention is critical for sustainable business growth. Key strategies include personalized communication, loyalty programs, proactive customer support, and regular feedback collection. Companies with strong retention programs see 25% higher revenue growth. Advanced analytics help identify at-risk customers early, enabling proactive intervention. Successful retention requires cross-departmental alignment between sales, marketing, and customer success teams.",
+                created_date: "2024-01-15T10:30:00Z"
+            },
+            {
+                title: "Digital Marketing ROI Measurement Framework",
+                category: "Marketing Analytics",
+                content: "Measuring digital marketing return on investment requires tracking customer acquisition costs, lifetime value, conversion rates, and attribution across multiple channels. Analytics tools help optimize campaign performance and budget allocation. Key metrics include cost per acquisition (CPA), return on ad spend (ROAS), and marketing qualified leads (MQLs). Advanced attribution modeling helps understand the complete customer journey and optimize touchpoints for maximum impact.",
+                created_date: "2024-02-01T14:15:00Z"
+            }
+        ];
+
+        const stageNames = ["Clean DB", "Ethics", "Strategy", "Marketing", "Complete"];
+
+        // Enhanced error handling and logging
+        function logDebug(message, type = 'info') {
+            if (!debugMode) return;
+            
+            const timestamp = new Date().toLocaleTimeString();
+            const debugOutput = document.getElementById('debug-output');
+            const logEntry = `[${timestamp}] ${type.toUpperCase()}: ${message}`;
+            
+            debugOutput.textContent += logEntry + '\n';
+            debugOutput.scrollTop = debugOutput.scrollHeight;
+            
+            console.log(`🔍 DEBUG [${type.toUpperCase()}]:`, message);
+        }
+
+        function showMessage(message, type = 'info') {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `${type}-message`;
+            messageDiv.textContent = message;
+            
+            const container = document.querySelector('.container');
+            container.insertBefore(messageDiv, container.firstChild);
+            
+            setTimeout(() => {
+                messageDiv.remove();
+            }, 5000);
+        }
+
+        function setButtonState(buttonId, enabled, text = null) {
+            const button = document.getElementById(buttonId);
+            if (button) {
+                button.disabled = !enabled;
+                if (text) {
+                    button.textContent = text;
+                }
+            }
+        }
+
+        // Enhanced connection testing with timeout
+        async function testConnection() {
+            logDebug('Testing Weaviate connection...', 'test');
+            setButtonState('ask-btn', false, '⏳ Testing...');
+            
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+                
+                const response = await fetch(`${API_BASE}/v1/meta`, {
+                    signal: controller.signal
+                });
+                
+                clearTimeout(timeoutId);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    logDebug(`✅ Weaviate connected. Version: ${data.version}`, 'success');
+                    document.getElementById('connection-status').textContent = 'Connected';
+                    document.getElementById('connection-status').style.color = '#4ade80';
+                    showMessage('✅ Weaviate connection successful!', 'success');
+                    setButtonState('ask-btn', true, '🔍 Ask Question');
+                    return true;
+                } else {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+            } catch (error) {
+                if (error.name === 'AbortError') {
+                    logDebug('❌ Connection timeout after 5 seconds', 'error');
+                    showMessage('❌ Connection timeout! Check if Weaviate is running.', 'error');
+                } else {
+                    logDebug(`❌ Connection failed: ${error.message}`, 'error');
+                    showMessage('❌ Weaviate connection failed!', 'error');
+                }
+                
+                document.getElementById('connection-status').textContent = 'Failed';
+                document.getElementById('connection-status').style.color = '#ef4444';
+                setButtonState('ask-btn', true, '🔍 Ask Question');
+                return false;
+            }
+        }
+
+        // Enhanced question asking with proper error handling
+        async function askQuestion() {
+            if (isProcessing) {
+                logDebug('Already processing a question', 'warning');
+                return;
+            }
+
+            const query = document.getElementById('custom-query').value;
+            if (!query.trim()) {
+                logDebug('No query provided', 'warning');
+                showMessage('⚠️ Please enter a question first!', 'warning');
+                return;
+            }
+
+            isProcessing = true;
+            currentQuery = query;
+            logDebug(`Asking question: "${query.substring(0, 50)}..."`, 'info');
+            
+            setButtonState('ask-btn', false, '⏳ Processing...');
+            setButtonState('inject-btn', false);
+            setButtonState('inject-all-btn', false);
+            
+            const responseArea = document.getElementById('response-area');
+            responseArea.innerHTML = '<div class="loading"></div> Processing question...';
+
+            try {
+                const response = await generateContextualResponse(query, documentsInjected);
+                responseArea.innerHTML = response;
+                logDebug('Question processed successfully', 'success');
+            } catch (error) {
+                logDebug(`Error processing question: ${error.message}`, 'error');
+                responseArea.innerHTML = `<h4 style="color: #ef4444;">🚨 Processing Error</h4>\nFailed to generate response: ${error.message}`;
+                showMessage('❌ Error processing question!', 'error');
+            } finally {
+                isProcessing = false;
+                setButtonState('ask-btn', true, '🔍 Ask Question');
+                setButtonState('inject-btn', true);
+                setButtonState('inject-all-btn', true);
+            }
+        }
+
+        // Enhanced document injection with proper error handling
+        async function injectNextDocument() {
+            if (isProcessing) {
+                logDebug('Already processing', 'warning');
+                return;
+            }
+
+            if (documentsInjected >= businessDocuments.length) {
+                logDebug('All documents already injected', 'warning');
+                showMessage('⚠️ All documents have already been injected!', 'warning');
+                return;
+            }
+
+            isProcessing = true;
+            const doc = businessDocuments[documentsInjected];
+            logDebug(`Injecting document: "${doc.title}"`, 'info');
+            
+            setButtonState('inject-btn', false, '⏳ Injecting...');
+            setButtonState('ask-btn', false);
+            setButtonState('inject-all-btn', false);
+            
+            document.getElementById('demo-status').textContent = 'Injecting...';
+            
+            try {
+                const weaviateObject = {
+                    "class": "BusinessDocument",
+                    "properties": doc
+                };
+                
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+                
+                const response = await fetch(`${API_BASE}/v1/objects`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(weaviateObject),
+                    signal: controller.signal
+                });
+
+                clearTimeout(timeoutId);
+
+                if (response.ok) {
+                    documentsInjected++;
+                    updateStageDisplay();
+                    logDebug(`Document injected successfully: "${doc.title}"`, 'success');
+                    showMessage(`✅ Document injected: "${doc.title}"`, 'success');
+                    
+                    if (currentQuery) {
+                        await askQuestion();
+                    }
+                } else {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(`Failed to inject document: ${response.status} - ${JSON.stringify(errorData)}`);
+                }
+            } catch (error) {
+                if (error.name === 'AbortError') {
+                    logDebug('Document injection timeout', 'error');
+                    showMessage('❌ Document injection timeout!', 'error');
+                } else {
+                    logDebug(`Error injecting document: ${error.message}`, 'error');
+                    showMessage('❌ Error injecting document!', 'error');
+                }
+                document.getElementById('demo-status').textContent = 'Error';
+            } finally {
+                isProcessing = false;
+                setButtonState('inject-btn', true, '📄 Inject Next Document');
+                setButtonState('ask-btn', true);
+                setButtonState('inject-all-btn', true);
+            }
+        }
+
+        async function injectAllDocuments() {
+            if (isProcessing) {
+                logDebug('Already processing', 'warning');
+                return;
+            }
+
+            logDebug('Injecting all documents...', 'info');
+            setButtonState('inject-all-btn', false, '⏳ Injecting All...');
+            setButtonState('ask-btn', false);
+            setButtonState('inject-btn', false);
+
+            try {
+                for (let i = documentsInjected; i < businessDocuments.length; i++) {
+                    await injectNextDocument();
+                    await new Promise(resolve => setTimeout(resolve, 1000)); // 1 second delay between injections
+                }
+                logDebug('All documents injected successfully', 'success');
+                showMessage('✅ All documents injected successfully!', 'success');
+            } catch (error) {
+                logDebug(`Error injecting all documents: ${error.message}`, 'error');
+                showMessage('❌ Error injecting documents!', 'error');
+            } finally {
+                setButtonState('inject-all-btn', true, '📚 Inject All Documents');
+                setButtonState('ask-btn', true);
+                setButtonState('inject-btn', true);
+            }
+        }
+
+        async function clearDatabase() {
+            if (isProcessing) {
+                logDebug('Already processing', 'warning');
+                return;
+            }
+
+            if (!confirm('Are you sure you want to clear the database? This will remove all injected documents.')) {
+                return;
+            }
+
+            isProcessing = true;
+            logDebug('Clearing database...', 'info');
+            
+            setButtonState('clear-btn', false, '⏳ Clearing...');
+            setButtonState('ask-btn', false);
+            setButtonState('inject-btn', false);
+            setButtonState('inject-all-btn', false);
+            
+            document.getElementById('demo-status').textContent = 'Clearing...';
+            
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+                
+                const response = await fetch(`${API_BASE}/v1/objects`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        "class": "BusinessDocument"
+                    }),
+                    signal: controller.signal
+                });
+
+                clearTimeout(timeoutId);
+
+                // Reset state
+                documentsInjected = 0;
+                currentStage = 0;
+                updateStageDisplay();
+                
+                // Clear response area
+                document.getElementById('response-area').innerHTML = 'Database cleared. Ready for new demonstration.';
+                
+                logDebug('Database cleared successfully', 'success');
+                showMessage('✅ Database cleared successfully!', 'success');
+                
+            } catch (error) {
+                if (error.name === 'AbortError') {
+                    logDebug('Database clear timeout', 'error');
+                    showMessage('❌ Database clear timeout!', 'error');
+                } else {
+                    logDebug(`Error clearing database: ${error.message}`, 'error');
+                    showMessage('❌ Error clearing database!', 'error');
+                }
+                document.getElementById('demo-status').textContent = 'Error';
+            } finally {
+                isProcessing = false;
+                setButtonState('clear-btn', true, '🗑️ Reset Database');
+                setButtonState('ask-btn', true);
+                setButtonState('inject-btn', true);
+                setButtonState('inject-all-btn', true);
+            }
+        }
+
+        function selectQuestion(element) {
+            document.getElementById('custom-query').value = element.textContent.replace(/"/g, '');
+            document.querySelectorAll('.question-btn').forEach(btn => btn.style.background = 'rgba(255, 255, 255, 0.2)');
+            element.style.background = 'rgba(34, 197, 94, 0.3)';
+            logDebug('Question selected from preset', 'info');
+        }
+
+        function updateStageDisplay() {
+            currentStage = documentsInjected;
+            document.getElementById('doc-count').textContent = documentsInjected;
+            document.getElementById('current-stage').textContent = stageNames[currentStage];
+            document.getElementById('demo-status').textContent = 'Ready';
+            
+            // Update progress bar
+            const progress = (documentsInjected / businessDocuments.length) * 100;
+            document.getElementById('progress-bar').style.width = `${progress}%`;
+            
+            logDebug(`Stage updated: ${stageNames[currentStage]} (${documentsInjected} documents)`, 'info');
+        }
+
+        function clearLogs() {
+            document.getElementById('debug-output').textContent = 'Debug logs cleared...\n';
+            logDebug('Debug logs cleared', 'info');
+        }
+
+        function showSystemInfo() {
+            const info = {
+                userAgent: navigator.userAgent,
+                url: window.location.href,
+                timestamp: new Date().toISOString(),
+                documentsInjected: documentsInjected,
+                currentStage: stageNames[currentStage],
+                isProcessing: isProcessing
+            };
+            
+            logDebug(`System Info: ${JSON.stringify(info, null, 2)}`, 'info');
+        }
+
+        // Simplified response generation (no OpenAI dependency)
+        async function generateContextualResponse(query, docCount) {
+            if (docCount === 0) {
+                return `**🤖 Generic Response (No Organizational Context)**
+
+I can provide general guidance on this topic. However, for more specific and strategic advice tailored to your organization, I would need access to your business documents, policies, and strategic context.
+
+**Recommendation:** Consider implementing a knowledge management system to get more personalized insights.
+
+*Note: This response uses only generic knowledge without organizational context.*`;
+            }
+
+            try {
+                // Simulate document retrieval
+                const mockResponse = `**🤖 Enhanced Response (${docCount} Documents Available)**
+
+Based on the ${docCount} organizational documents in your knowledge base, I can provide more contextual guidance.
+
+**Query:** "${query}"
+
+**Organizational Context:** Your knowledge base contains documents covering ethics, business strategy, and marketing analytics. This provides a solid foundation for strategic decision-making.
+
+**Recommendation:** Continue building your knowledge base with more domain-specific documents to get even more targeted insights.
+
+*This response is enhanced by your organizational knowledge base.*`;
+                
+                return mockResponse;
+            } catch (error) {
+                throw new Error(`Response generation failed: ${error.message}`);
+            }
+        }
+
+        // Initialize with enhanced error handling
+        async function initializeDemo() {
+            logDebug('Initializing demo...', 'info');
+            
+            try {
+                await testConnection();
+                updateStageDisplay();
+                logDebug('Demo initialization complete', 'success');
+            } catch (error) {
+                logDebug(`Demo initialization error: ${error.message}`, 'error');
+            }
+        }
+
+        // Global error handlers
+        window.addEventListener('error', (event) => {
+            logDebug(`Global error: ${event.error?.message || 'Unknown error'}`, 'error');
+        });
+
+        window.addEventListener('unhandledrejection', (event) => {
+            logDebug(`Unhandled promise rejection: ${event.reason?.message || 'Unknown error'}`, 'error');
+        });
+
+        // Auto-initialize
+        window.addEventListener('load', initializeDemo);
+    </script>
+</body>
+</html>

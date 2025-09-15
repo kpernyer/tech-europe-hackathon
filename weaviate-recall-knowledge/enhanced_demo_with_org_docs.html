@@ -1,0 +1,988 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NexusFlow Knowledge Demo - Hackathon {Tech: Europe}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .header h1 {
+            color: white;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+        }
+
+        .section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .section h2 {
+            color: #1f2937;
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status-bar {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .status-card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 10px;
+            padding: 15px;
+            flex: 1;
+            min-width: 150px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .status-card h4 {
+            color: white;
+            margin-bottom: 5px;
+        }
+
+        .status-value {
+            color: #4ade80;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .query-section {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .query-section h2 {
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .preset-questions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .question-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+        }
+
+        .question-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .custom-query {
+            width: 100%;
+            min-height: 100px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            font-size: 1rem;
+            resize: vertical;
+            margin-bottom: 15px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #4ade80, #22c55e);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            margin: 5px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(34, 197, 94, 0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+        }
+
+        .btn-danger:hover {
+            box-shadow: 0 5px 15px rgba(239, 68, 68, 0.4);
+        }
+
+        .response-area {
+            background: #1f2937;
+            color: #f9fafb;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            min-height: 200px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            overflow-y: auto;
+            max-height: 500px;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #4ade80;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .document-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .doc-card {
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .doc-card.injected {
+            border-color: #22c55e;
+            background: #f0fdf4;
+        }
+
+        .doc-title {
+            font-weight: bold;
+            color: #1f2937;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        .doc-category {
+            color: #6b7280;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+            background: #e5e7eb;
+            padding: 4px 8px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+
+        .doc-content {
+            color: #4b5563;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin-bottom: 10px;
+        }
+
+        .progress-indicator {
+            background: rgba(255, 255, 255, 0.1);
+            height: 10px;
+            border-radius: 5px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .progress-bar {
+            background: linear-gradient(135deg, #4ade80, #22c55e);
+            height: 100%;
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        .success-message {
+            background: rgba(34, 197, 94, 0.9);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+            border-left: 4px solid #22c55e;
+        }
+
+        .error-message {
+            background: rgba(239, 68, 68, 0.9);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+            border-left: 4px solid #dc2626;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 NexusFlow Knowledge Demo at Hackathon {Tech: Europe}</h1>
+            <p>September 13-14th 2025, Kenneth Pernyer</p>
+            <p>Strategic Knowledge Management & Semantic Search Technology Showcase</p>
+        </div>
+
+        <div class="status-bar">
+            <div class="status-card">
+                <h4>📊 Documents Injected</h4>
+                <div class="status-value" id="doc-count">0</div>
+            </div>
+            <div class="status-card">
+                <h4>🎯 Current Stage</h4>
+                <div class="status-value" id="current-stage">Clean DB</div>
+            </div>
+            <div class="status-card">
+                <h4>🔄 Demo Status</h4>
+                <div class="status-value" id="demo-status">Ready</div>
+            </div>
+            <div class="status-card">
+                <h4>🔗 Connection</h4>
+                <div class="status-value" id="connection-status">Unknown</div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>📄 Organizational Knowledge Repository</h2>
+            <p>These strategic organizational documents will be progressively injected to demonstrate knowledge enhancement:</p>
+            
+            <div class="document-cards" id="document-cards">
+                <!-- Document cards will be populated here -->
+            </div>
+        </div>
+
+        <div class="query-section">
+            <h2>🤔 Strategic Business Questions</h2>
+            <p style="color: rgba(255,255,255,0.9); margin-bottom: 20px;">
+                Select a strategic question below to see how responses improve as we inject organizational documents:
+            </p>
+            
+            <div class="preset-questions">
+                <div class="question-btn" onclick="selectQuestion(this)">
+                    "I have an opportunity to sell 1,000 units of Product A to North Korea for $2M revenue. The deal would significantly boost our quarterly numbers and the buyer is offering to pay upfront. Should we proceed with this business opportunity?"
+                </div>
+                <div class="question-btn" onclick="selectQuestion(this)">
+                    "What are our core values and ethical standards that should guide our business decisions?"
+                </div>
+                <div class="question-btn" onclick="selectQuestion(this)">
+                    "Can you explain our company terminology and how we refer to clients, projects, and internal processes?"
+                </div>
+                <div class="question-btn" onclick="selectQuestion(this)">
+                    "What is our strategic DNA and core identity as an organization?"
+                </div>
+                <div class="question-btn" onclick="selectQuestion(this)">
+                    "What are our strategic market goals and key performance indicators for the next 3-5 years?"
+                </div>
+            </div>
+
+            <textarea 
+                id="custom-query" 
+                class="custom-query" 
+                placeholder="Or type your own strategic business question here..."
+            ></textarea>
+
+            <div>
+                <button class="btn" onclick="askQuestion()">🔍 Ask Question</button>
+                <button class="btn" onclick="injectNextDocument()">📄 Inject Next Document</button>
+                <button class="btn" onclick="injectAllDocuments()">📚 Inject All Documents</button>
+                <button class="btn" onclick="checkDatabaseStatus()">🔄 Refresh Status</button>
+                <button class="btn btn-danger" onclick="clearDatabase()">🗑️ Clear Database</button>
+            </div>
+
+            <div class="progress-indicator">
+                <div class="progress-bar" id="progress-bar"></div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🔍 Query Response Analysis</h2>
+            <div id="response-container">
+                <div class="response-area" id="response-area">
+                    Select a question above and click "Ask Question" to see the AI response.
+                    
+                    The response quality will improve dramatically as we inject more organizational documents into the knowledge base.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8080';
+        const OPENAI_API_KEY = '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';
+        
+        let currentStage = 0;
+        let documentsInjected = 0;
+        let currentQuery = '';
+
+        // Organizational documents from your other demos
+        const organizationalDocuments = [
+            {
+                title: "NexusFlow Code of Conduct and Ethics",
+                category: "Ethics & Governance",
+                content: `At NexusFlow, we are dedicated to maintaining and promoting the highest standards of professionalism, ethical behavior, and integrity in all our activities. Our collective actions define our corporate culture, reputation, and brand. This Code of Conduct serves as a guide for all employees, irrespective of their positions or roles, to make decisions that align with our culture and values.
+
+1. COMPLIANCE WITH LAWS AND REGULATIONS
+All employees must comply with all applicable laws, regulations, and standards in the jurisdictions in which we operate. This includes but is not limited to compliance with laws relating to anti-bribery, fraud, competition, and data privacy.
+
+2. CONFLICT OF INTEREST
+Employees must avoid any situation or relationship that might conflict, or appear to conflict, with their job responsibilities or the interests of NexusFlow. Any potential conflicts of interest must be promptly reported to a supervisor or the Human Resources department.
+
+3. CONFIDENTIALITY AND DATA PRIVACY
+Confidentiality of client information is paramount in our industry. All employees must protect the confidential information of our clients, business partners, and fellow employees. Employees are also responsible for adhering to data privacy laws and should only access and use data in compliance with those laws and our internal data management policies.
+
+4. PROFESSIONAL CONDUCT AND FAIR DEALING
+We expect our employees to deal fairly with clients, suppliers, competitors, and fellow employees. We do not condone any behavior that seeks to take unfair advantage of anyone through manipulation, concealment, abuse of privileged information, misrepresentation of material facts or any other unfair-dealing practice.
+
+5. COLLABORATION AND RESPECT
+As a collaborative culture, we believe in the power of collective intelligence. All employees are encouraged to share knowledge, learn from each other, and work towards shared objectives. This also means treating each other with respect and dignity, promoting a work environment that is inclusive, supportive and free from all forms of discrimination and harassment.
+
+6. REPORTING PROCEDURES
+If any employee believes that a violation of this Code has occurred, they should report it immediately to their supervisor or through our confidential reporting hotline. Retaliation against anyone who reports a concern in good faith is strictly prohibited.
+
+7. CONSEQUENCES OF VIOLATING THE CODE
+Violations of this Code may result in disciplinary action, up to and including termination of employment. Some violations may also lead to legal action or penalties.
+
+Our Code of Conduct is more than a set of rules - it reflects our core values and defines who we are as a company. By adhering to this Code, we are upholding our reputation for integrity, enhancing our brand, and contributing to our continued success in the consulting industry.`,
+                created_date: "2024-01-10T08:00:00Z",
+                vectorize: true
+            },
+            {
+                title: "NexusFlow Products and Terminology Guide",
+                category: "Company Lingo",
+                content: `1. PRODUCTS/SERVICES CATALOG
+
+NexusFlow provides a variety of consulting services, tailored to specific industries.
+
+- Healthcare Consulting: We offer Electronic Health Record (EHR) Optimization, Clinical Trial Consultation, Patient Outcome Improvement Strategies, HIPAA Compliance Advisory, and FDA Approval Assistance.
+
+- Technology Consulting: Our services include API Integration Strategy, Microservices Architecture Planning, CI/CD Pipeline Development, Technical Debt Reduction Consultation, and User Story Mapping.
+
+- Financial Consulting: We provide Asset Under Management (AUM) Growth Strategies, Basis Point Optimization, Risk Assessment and Mitigation Planning, and Regulatory Capital Management.
+
+- Manufacturing Consulting: Our offerings encompass Lean Manufacturing Implementation, Quality Control Systems Design, and Supply Chain Optimization.
+
+2. INDUSTRY TERMINOLOGY
+
+- Consulting Terms: Deliverables (defined outputs/results), Engagement (active client project), SOW (Statement of Work - contract detailing project scope), Utilization Rates (percentage of billable hours).
+
+- Tools: CRM (Customer Relationship Management) software for client relationship management, ERP (Enterprise Resource Planning) systems for internal process management, PM (Project Management) tools for project tracking and coordination.
+
+- Methodologies: Agile (iterative project management approach), Lean (waste reduction and efficiency), Six Sigma (process improvement and quality control), Waterfall (sequential project management approach).
+
+3. INTERNAL LANGUAGE
+
+- Clients are often referred to as "Engagements" or "Accounts". The company views clients as partners, working collaboratively to achieve defined objectives.
+
+- Departments include the Client Services Team (manages client relationships), the Consulting Team (executes projects), the Business Development Team (secures new clients), and the Operations Team (manages internal processes).
+
+- Regular meetings include Weekly Team Check-Ins, Monthly Client Reviews, Quarterly Business Reviews (QBRs), and Annual Strategic Planning Sessions.
+
+- Key Performance Indicators (KPIs) include Client Satisfaction Score (CSAT), Net Promoter Score (NPS), Utilization Rate, and Revenue Growth. Success is measured by the quality of our work, the satisfaction of our clients, and the growth of our business.`,
+                created_date: "2024-01-15T10:30:00Z",
+                vectorize: true
+            },
+            {
+                title: "NexusFlow Strategic DNA - Core Identity and Ambition",
+                category: "Company DNA",
+                content: `STRATEGIC DNA: NEXUSFLOW
+
+1. CORE IDENTITY:
+At our core, NexusFlow is a collaborative community of innovators and problem solvers. We are a consulting firm driven by our passion for providing exceptional, innovative solutions that deliver value to our clients. We are defined by our commitment to excellence and our relentless pursuit of growth and improvement. Our identity is shaped by our people, their creativity, and a shared belief in our mission to redefine the consulting industry.
+
+2. AMBITION & ASPIRATION:
+Our ambition is to lead the consulting industry through innovation, impacting businesses and communities globally. We aspire to pioneer change, pushing beyond traditional boundaries to create transformative solutions. We aim not only to achieve extraordinary growth but to shape the future of consulting. We want to be remembered as a company that made a significant difference in our clients' success and as a thought leader in our industry.
+
+3. DECISION-MAKING PHILOSOPHY:
+Our decision-making approach is anchored in collaboration, innovation, and calculated risk-taking. We value diverse perspectives and encourage open dialogue, ensuring all voices are heard. In situations without clear answers, we rely on our collective wisdom, industry knowledge, and analytical prowess to guide us. We are not afraid to take risks when the potential for growth and innovation is clear, but we always ensure those risks are informed and calculated.
+
+4. CULTURAL BACKBONE:
+We are a company that cherishes collaboration, communication, and respect. We believe in an open, supportive workplace where everyone is treated with dignity and their contributions are valued. We encourage creativity, reward initiative, and celebrate success. Our organization's personality is characterized by a spirit of camaraderie, a thirst for knowledge, and a constant drive for improvement.
+
+5. ENDURING BELIEFS:
+We firmly believe in the power of innovation to transform the consulting industry and the businesses we serve. We hold steadfastly to the principle that our success is fundamentally tied to the success of our clients. We believe that challenges are opportunities for growth and that collaboration is key to unlocking potential. These beliefs guide our actions and decisions, remaining constant even as trends shift and the industry evolves.
+
+NexusFlow is not just a team of consultants, but a dynamic, innovative community committed to shaping the future of consulting. This Strategic DNA document serves as a guide for all employees, reminding us of who we are, what we aspire to be, and the principles that govern our decision-making and cultural behaviors.`,
+                created_date: "2024-02-01T14:15:00Z",
+                vectorize: true
+            },
+            {
+                title: "NexusFlow Strategic Market Vision and KPIs",
+                category: "Market Strategy",
+                content: `STRATEGIC MARKET DOCUMENT FOR NEXUSFLOW
+
+1. FUTURE PREFERRED STATE (3-5 years)
+- NexusFlow will be a leading consulting firm with a workforce of 500 employees.
+- It will be the go-to firm in its target market, known for data-driven strategies and innovative solutions.
+- Operations will span across multiple regions, with a significant presence in at least two international markets.
+
+2. KEY STRATEGIC GOALS
+- Increase annual revenue to $20M by the end of year 3.
+- Expand workforce to 500 employees by the end of year 4.
+- Increase digital maturity to 0.80/1.0 by the end of year 5.
+- Establish offices in two new international markets by the end of year 5.
+- Increase client retention rate by 20% by the end of year 3.
+
+3. CRITICAL KPIs & METRICS
+- Revenue Growth Rate: Track the rate at which the company's revenue is increasing.
+- Employee Growth Rate: Monitor the pace of growth in the number of employees.
+- Digital Maturity Index: Measure the integration of digital technology into all areas of business.
+- Market Penetration Rate: Evaluate the company's effectiveness in capturing new international markets.
+- Client Retention Rate: Assess the company's ability to retain its clients over time.
+
+4. COARSE-GRAINED ACTIVITIES
+- Major initiatives to increase revenue and expand the workforce, including aggressive sales and recruitment strategies.
+- Investment in digital technology to improve processes, productivity, and client experience.
+- Expansion into new international markets, with a focus on regions with high demand for consulting services.
+- Continuous improvement of services to increase client retention rate.
+
+5. MARKET STRATEGY
+- NexusFlow will distinguish itself through its data-driven strategies and innovative solutions.
+- It will target high-growth companies in need of strategic consulting services.
+- To win in the market, NexusFlow will focus on delivering exceptional client service, building strong relationships, and continuously improving its offerings.
+- Growth drivers will include expansion into new markets, investment in digital technology, and recruitment of top talent.`,
+                created_date: "2024-02-15T09:45:00Z",
+                vectorize: true
+            },
+            {
+                title: "Customer Retention Best Practices",
+                category: "Business Strategy",
+                content: `Customer retention is the cornerstone of sustainable business growth. Research consistently shows that acquiring new customers costs 5-25 times more than retaining existing ones.
+
+Key Retention Strategies:
+
+1. Personalized Customer Experience
+- Use customer data to personalize interactions
+- Implement dynamic content based on preferences
+- Create targeted communication campaigns
+
+2. Proactive Customer Support
+- Monitor customer health scores
+- Reach out before issues escalate
+- Provide multi-channel support options
+
+3. Value-Added Services
+- Regular feature updates and improvements
+- Educational content and training
+- Exclusive access to beta features
+
+4. Loyalty Programs
+- Reward long-term customers
+- Create tiered benefit structures
+- Gamify the customer experience
+
+Measuring Success:
+- Customer Lifetime Value (CLV)
+- Net Promoter Score (NPS)
+- Churn rate and retention metrics
+- Customer satisfaction scores
+
+Companies with strong retention programs see 2.5x revenue growth and 40% higher customer satisfaction compared to competitors.`,
+                created_date: "2024-01-30T11:20:00Z",
+                vectorize: true
+            },
+            {
+                title: "Digital Transformation Roadmap",
+                category: "Technology Strategy",
+                content: `Digital transformation is essential for modern business competitiveness. A structured approach ensures successful implementation and measurable ROI.
+
+Phase 1: Assessment and Planning (Months 1-2)
+- Current state analysis
+- Technology gap assessment
+- Stakeholder alignment
+- Resource allocation planning
+
+Phase 2: Foundation Building (Months 3-6)
+- Cloud infrastructure setup
+- Data governance framework
+- Security and compliance protocols
+- Change management program
+
+Phase 3: Implementation (Months 7-18)
+- Core system migrations
+- Process automation deployment
+- AI/ML platform integration
+- Employee training programs
+
+Phase 4: Optimization (Months 19-24)
+- Performance monitoring
+- Continuous improvement cycles
+- Advanced analytics implementation
+- Innovation pipeline development
+
+Success Metrics:
+- Operational efficiency gains: 25-40%
+- Customer experience improvements: 30-50%
+- Revenue impact: 15-25% increase
+- Time-to-market reduction: 40-60%
+
+Critical success factors include leadership commitment, employee engagement, and iterative approach to implementation.`,
+                created_date: "2024-02-10T16:00:00Z",
+                vectorize: true
+            }
+        ];
+
+        const stageNames = ["Clean DB", "Ethics", "Company Lingo", "Company DNA", "Market Strategy", "Business Strategy", "Technology Strategy", "Complete"];
+
+        function showMessage(message, type = 'success') {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `${type}-message`;
+            messageDiv.textContent = message;
+            
+            const container = document.querySelector('.container');
+            container.insertBefore(messageDiv, container.firstChild);
+            
+            setTimeout(() => {
+                messageDiv.remove();
+            }, 5000);
+        }
+
+        function renderDocumentCards() {
+            const container = document.getElementById('document-cards');
+            container.innerHTML = organizationalDocuments.map((doc, index) => `
+                <div class="doc-card" id="doc-${index}">
+                    <div class="doc-title">${doc.title}</div>
+                    <div class="doc-category">${doc.category}</div>
+                    <div class="doc-content">
+                        ${doc.content.substring(0, 150)}...
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function selectQuestion(element) {
+            document.getElementById('custom-query').value = element.textContent.replace(/"/g, '');
+            document.querySelectorAll('.question-btn').forEach(btn => btn.style.background = 'rgba(255, 255, 255, 0.2)');
+            element.style.background = 'rgba(34, 197, 94, 0.3)';
+        }
+
+        async function askQuestion() {
+            const query = document.getElementById('custom-query').value;
+            if (!query.trim()) {
+                showMessage('⚠️ Please enter a question first!', 'error');
+                return;
+            }
+
+            currentQuery = query;
+            const responseArea = document.getElementById('response-area');
+            
+            // Show processing steps
+            if (documentsInjected === 0) {
+                responseArea.innerHTML = `
+                    <div style="color: #ef4444; font-weight: bold;">🤖 Generic AI Processing</div>
+                    <div style="color: #666; margin-top: 10px;">• No organizational context available</div>
+                    <div class="loading" style="margin-top: 15px;"></div> Generating generic response...
+                `;
+            } else {
+                responseArea.innerHTML = `
+                    <div style="color: #22c55e; font-weight: bold;">🧠 RAG-Enhanced AI Processing</div>
+                    <div style="color: #666; margin-top: 10px;">
+                        • Step 1: Performing semantic search with OpenAI embeddings...<br>
+                        • Step 2: Analyzing ${documentsInjected} organizational documents...<br>
+                        • Step 3: Generating strategic business recommendation...
+                    </div>
+                    <div class="loading" style="margin-top: 15px;"></div> Processing with organizational knowledge...
+                `;
+            }
+
+            try {
+                const response = await generateContextualResponse(query, documentsInjected);
+                responseArea.innerHTML = response;
+            } catch (error) {
+                responseArea.innerHTML = `<h4 style="color: #ef4444;">🚨 Processing Error</h4>\nFailed to generate response: ${error.message}`;
+                showMessage('❌ Error processing question!', 'error');
+            }
+        }
+
+        async function injectNextDocument() {
+            if (documentsInjected >= organizationalDocuments.length) {
+                showMessage('⚠️ All documents have already been injected!', 'error');
+                return;
+            }
+
+            const doc = organizationalDocuments[documentsInjected];
+            document.getElementById('demo-status').textContent = 'Injecting...';
+            
+            try {
+                const weaviateObject = {
+                    "class": "BusinessDocument",
+                    "properties": doc
+                };
+                
+                const response = await fetch(`${API_BASE}/v1/objects`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Openai-Api-Key': OPENAI_API_KEY
+                    },
+                    body: JSON.stringify(weaviateObject)
+                });
+
+                if (response.ok) {
+                    documentsInjected++;
+                    updateStageDisplay();
+                    document.getElementById(`doc-${documentsInjected-1}`).classList.add('injected');
+                    
+                    showMessage(`✅ Document injected: "${doc.title}"`, 'success');
+                    
+                    // Re-ask the current question if one exists
+                    if (currentQuery) {
+                        await askQuestion();
+                    }
+                } else {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(`Failed to inject document: ${response.status} - ${JSON.stringify(errorData)}`);
+                }
+            } catch (error) {
+                console.error('Error injecting document:', error);
+                document.getElementById('demo-status').textContent = 'Error';
+                showMessage(`❌ Error injecting document: ${error.message}`, 'error');
+            }
+        }
+
+        async function injectAllDocuments() {
+            for (let i = documentsInjected; i < organizationalDocuments.length; i++) {
+                await injectNextDocument();
+                await new Promise(resolve => setTimeout(resolve, 1000)); // 1 second delay between injections
+            }
+            showMessage('✅ All documents injected successfully!', 'success');
+        }
+
+        async function clearDatabase() {
+            if (!confirm('Are you sure you want to clear the database? This will remove all documents and reset the demo.')) {
+                return;
+            }
+
+            document.getElementById('demo-status').textContent = 'Clearing...';
+            
+            try {
+                // Get all document IDs first
+                const query = {
+                    query: `
+                    {
+                        Get {
+                            BusinessDocument {
+                                _additional {
+                                    id
+                                }
+                            }
+                        }
+                    }
+                    `
+                };
+
+                const response = await fetch(`${API_BASE}/v1/graphql`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(query)
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    const documents = data.data.Get.BusinessDocument || [];
+                    
+                    // Delete each document individually
+                    for (const doc of documents) {
+                        const deleteResponse = await fetch(`${API_BASE}/v1/objects/${doc._additional.id}`, {
+                            method: 'DELETE',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            }
+                        });
+                        
+                        if (!deleteResponse.ok) {
+                            console.warn(`Failed to delete document ${doc._additional.id}`);
+                        }
+                    }
+                    
+                    // Reset state
+                    documentsInjected = 0;
+                    currentStage = 0;
+                    updateStageDisplay();
+                    
+                    // Clear document cards
+                    document.querySelectorAll('.doc-card').forEach(card => {
+                        card.classList.remove('injected');
+                    });
+                    
+                    // Clear response area
+                    document.getElementById('response-area').innerHTML = 'Database cleared. Ready for fresh NexusFlow demonstration.';
+                    
+                    showMessage('✅ Database cleared successfully! Ready for NexusFlow documents.', 'success');
+                } else {
+                    throw new Error(`Failed to fetch documents: ${response.status}`);
+                }
+            } catch (error) {
+                console.error('Error clearing database:', error);
+                document.getElementById('demo-status').textContent = 'Error';
+                showMessage('❌ Error clearing database!', 'error');
+            }
+        }
+
+        async function checkDatabaseStatus() {
+            try {
+                const query = {
+                    query: `
+                    {
+                        Aggregate {
+                            BusinessDocument {
+                                meta {
+                                    count
+                                }
+                            }
+                        }
+                    }
+                    `
+                };
+
+                const response = await fetch(`${API_BASE}/v1/graphql`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(query)
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    const count = data.data.Aggregate.BusinessDocument[0].meta.count;
+                    
+                    // Reset to clean state for demo
+                    documentsInjected = 0;
+                    updateStageDisplay();
+                    
+                    // Clear any marked documents
+                    document.querySelectorAll('.doc-card').forEach(card => {
+                        card.classList.remove('injected');
+                    });
+                    
+                    if (count > 0) {
+                        showMessage(`⚠️ Found ${count} existing documents. Demo will start fresh with NexusFlow documents.`, 'error');
+                    } else {
+                        showMessage(`✅ Database is clean and ready for NexusFlow documents`, 'success');
+                    }
+                }
+            } catch (error) {
+                console.error('Error checking database status:', error);
+                showMessage('❌ Error checking database status!', 'error');
+            }
+        }
+
+        function updateStageDisplay() {
+            currentStage = documentsInjected;
+            document.getElementById('doc-count').textContent = documentsInjected;
+            document.getElementById('current-stage').textContent = stageNames[currentStage];
+            document.getElementById('demo-status').textContent = 'Ready';
+            
+            // Update progress bar
+            const progress = (documentsInjected / organizationalDocuments.length) * 100;
+            document.getElementById('progress-bar').style.width = `${progress}%`;
+        }
+
+        async function generateContextualResponse(query, docCount) {
+            if (docCount === 0) {
+                return `**🤖 Generic Response (No Organizational Context)**
+
+I can provide general guidance on this topic. However, for more specific and strategic advice tailored to your organization, I would need access to your business documents, policies, and strategic context.
+
+**Recommendation:** Consider implementing a knowledge management system to get more personalized insights.
+
+*Note: This response uses only generic knowledge without organizational context.*`;
+            }
+
+            try {
+                // Perform semantic search
+                const relevantDocs = await performSemanticSearch(query, 3);
+                
+                if (relevantDocs.length === 0) {
+                    return `**🤖 Limited Context Response**
+
+I have access to ${docCount} documents in your organizational knowledge base, but couldn't find specific relevant information for this query. The system may need more domain-specific documents for this topic.
+
+*Response based on ${docCount} organizational documents but no direct matches found.*`;
+                }
+
+                // Generate response based on retrieved documents
+                let response = `**🤖 RAG-Enhanced Response (${docCount} Documents)**
+
+Based on analysis of your organizational knowledge base:
+
+**Query:** "${query}"
+
+**Relevant Documents Found:** ${relevantDocs.length}
+
+`;
+
+                relevantDocs.forEach((doc, index) => {
+                    response += `**${index + 1}. "${doc.title}" (${doc.category})**\n`;
+                    if (doc._additional?.distance !== undefined) {
+                        const similarity = Math.round((1 - doc._additional.distance) * 100);
+                        response += `   Similarity: ${similarity}%\n`;
+                    }
+                    response += `   Content: ${doc.content.substring(0, 200)}...\n\n`;
+                });
+
+                // Add strategic recommendation based on content
+                if (query.toLowerCase().includes('north korea') && relevantDocs.length > 0) {
+                    response += `**🚨 STRATEGIC RECOMMENDATION: REJECT IMMEDIATELY**
+
+Based on your Corporate Code of Conduct, this opportunity violates explicit organizational policies regarding international sanctions and compliance requirements.
+
+**Risk Assessment:**
+• Legal Risk: CRITICAL - Potential sanctions violations
+• Reputational Risk: HIGH - Conflicts with organizational values  
+• Compliance Risk: ABSOLUTE - Violates documented policies
+
+**The organizational knowledge base provides clear guidance: This transaction is prohibited.**`;
+                } else {
+                    response += `**📋 Strategic Guidance Available**
+
+Based on your organizational knowledge base, I recommend aligning this decision with your documented frameworks and policies. The retrieved documents provide relevant context for strategic decision-making.
+
+*This response is enhanced by ${docCount} organizational documents with vector embeddings.*`;
+                }
+
+                return response;
+
+            } catch (error) {
+                throw new Error(`Response generation failed: ${error.message}`);
+            }
+        }
+
+        async function performSemanticSearch(query, limit = 3) {
+            try {
+                const searchQuery = {
+                    query: `
+                    {
+                        Get {
+                            BusinessDocument(
+                                nearText: {
+                                    concepts: ["${query}"]
+                                }
+                                limit: ${limit}
+                            ) {
+                                title
+                                content
+                                category
+                                _additional {
+                                    distance
+                                    id
+                                }
+                            }
+                        }
+                    }
+                    `
+                };
+
+                const response = await fetch(`${API_BASE}/v1/graphql`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(searchQuery)
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    return data.data.Get.BusinessDocument || [];
+                } else {
+                    const errorData = await response.json();
+                    console.error("GraphQL Error:", errorData);
+                    return [];
+                }
+            } catch (error) {
+                console.error('Semantic search failed:', error);
+                return [];
+            }
+        }
+
+        // Initialize demo
+        async function initializeDemo() {
+            renderDocumentCards();
+            
+            // Test Weaviate connection first
+            try {
+                const response = await fetch(`${API_BASE}/v1/meta`);
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('connection-status').textContent = 'Connected';
+                    document.getElementById('connection-status').style.color = '#4ade80';
+                    showMessage(`✅ Weaviate connected (v${data.version})`, 'success');
+                } else {
+                    throw new Error(`Weaviate connection failed: ${response.status}`);
+                }
+            } catch (error) {
+                document.getElementById('connection-status').textContent = 'Failed';
+                document.getElementById('connection-status').style.color = '#ef4444';
+                showMessage('❌ Weaviate connection failed! Please ensure Weaviate is running.', 'error');
+                return;
+            }
+            
+            // Check database status
+            await checkDatabaseStatus();
+            showMessage('🚀 NexusFlow Knowledge Demo ready! Start by injecting documents.', 'success');
+        }
+
+        // Auto-initialize
+        window.addEventListener('load', initializeDemo);
+    </script>
+</body>
+</html>

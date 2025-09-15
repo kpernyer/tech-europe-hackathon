@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hackathon {Tech: Europe} - Weaviate Strategic Knowledge Demo (Debug Enhanced)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .header h1 {
+            color: white;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+        }
+
+        .debug-banner {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: bold;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+
+        .section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .section h2 {
+            color: #1f2937;
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .debug-controls {
+            background: #1a1a1a;
+            color: #00ff00;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            font-family: monospace;
+        }
+
+        .debug-controls h3 {
+            color: #4ade80;
+            margin-bottom: 15px;
+        }
+
+        .debug-button {
+            background: #333;
+            color: #00ff00;
+            border: 1px solid #555;
+            padding: 8px 16px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: monospace;
+            transition: all 0.3s ease;
+        }
+
+        .debug-button:hover {
+            background: #444;
+            border-color: #00ff00;
+        }
+
+        .debug-button.active {
+            background: #00ff00;
+            color: #000;
+        }
+
+        .debug-output {
+            background: #000;
+            color: #00ff00;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+            border: 1px solid #333;
+        }
+
+        .status-bar {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .status-card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 10px;
+            padding: 15px;
+            flex: 1;
+            min-width: 150px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .status-card h4 {
+            color: white;
+            margin-bottom: 5px;
+        }
+
+        .status-value {
+            color: #4ade80;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .status-value.error {
+            color: #ef4444;
+        }
+
+        .status-value.warning {
+            color: #f59e0b;
+        }
+
+        .query-section {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .query-section h2 {
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .preset-questions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .question-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+        }
+
+        .question-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .custom-query {
+            width: 100%;
+            min-height: 100px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            font-size: 1rem;
+            resize: vertical;
+            margin-bottom: 15px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #4ade80, #22c55e);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            margin: 5px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(34, 197, 94, 0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+        }
+
+        .btn-danger:hover {
+            box-shadow: 0 5px 15px rgba(239, 68, 68, 0.4);
+        }
+
+        .response-area {
+            background: #1f2937;
+            color: #f9fafb;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            min-height: 200px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #4ade80;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            background: rgba(239, 68, 68, 0.9);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+            border-left: 4px solid #dc2626;
+        }
+
+        .success-message {
+            background: rgba(34, 197, 94, 0.9);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+            border-left: 4px solid #22c55e;
+        }
+
+        .warning-message {
+            background: rgba(245, 158, 11, 0.9);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+            border-left: 4px solid #f59e0b;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Weaviate Demo at Hackathon {Tech: Europe}</h1>
+            <p>September 13-14th 2025, Kenneth Pernyer</p>
+            <p>Strategic Knowledge Management & Semantic Search Technology Showcase</p>
+        </div>
+
+        <div class="debug-banner">
+            🔍 DEBUG MODE ENABLED - Enhanced Error Detection & Logging Active
+        </div>
+
+        <div class="section">
+            <h2>🔧 Debug Controls</h2>
+            <div class="debug-controls">
+                <h3>Connection Testing</h3>
+                <button class="debug-button" onclick="testWeaviateConnection()">Test Weaviate Connection</button>
+                <button class="debug-button" onclick="testGraphQLQuery()">Test GraphQL Query</button>
+                <button class="debug-button" onclick="testOpenAIKey()">Test OpenAI Key</button>
+                <button class="debug-button" onclick="runDiagnostics()">Run Full Diagnostics</button>
+                
+                <h3>Debug Actions</h3>
+                <button class="debug-button" onclick="toggleDebugMode()">Toggle Debug Mode</button>
+                <button class="debug-button" onclick="clearDebugLog()">Clear Debug Log</button>
+                <button class="debug-button" onclick="exportDebugReport()">Export Debug Report</button>
+                <button class="debug-button" onclick="showNetworkStatus()">Show Network Status</button>
+                
+                <div class="debug-output" id="debug-output">
+                    Debug output will appear here...
+                </div>
+            </div>
+        </div>
+
+        <div class="status-bar">
+            <div class="status-card">
+                <h4>📊 Documents Injected</h4>
+                <div class="status-value" id="doc-count">0</div>
+            </div>
+            <div class="status-card">
+                <h4>🎯 Current Stage</h4>
+                <div class="status-value" id="current-stage">Clean DB</div>
+            </div>
+            <div class="status-card">
+                <h4>🔄 Demo Status</h4>
+                <div class="status-value" id="demo-status">Ready</div>
+            </div>
+            <div class="status-card">
+                <h4>🔗 Weaviate Status</h4>
+                <div class="status-value" id="weaviate-status">Unknown</div>
+            </div>
+        </div>
+
+        <div class="query-section">
+            <h2>🤔 Strategic Business Questions</h2>
+            <p style="color: rgba(255,255,255,0.9); margin-bottom: 20px;">
+                Select a strategic question below to see how responses improve as we inject business documents:
+            </p>
+            
+            <div class="preset-questions">
+                <div class="question-btn" onclick="selectQuestion(this)">
+                    "I have an opportunity to sell 1,000 units of Product A to North Korea for $2M revenue. The deal would significantly boost our quarterly numbers and the buyer is offering to pay upfront. Should we proceed with this business opportunity?"
+                </div>
+                <div class="question-btn" onclick="selectQuestion(this)">
+                    "How should our organization approach digital transformation to stay competitive in 2025?"
+                </div>
+                <div class="question-btn" onclick="selectQuestion(this)">
+                    "What are the most effective strategies for improving customer retention and reducing churn?"
+                </div>
+            </div>
+
+            <textarea 
+                id="custom-query" 
+                class="custom-query" 
+                placeholder="Or type your own strategic business question here..."
+            ></textarea>
+
+            <div>
+                <button class="btn" onclick="askQuestion()">🔍 Ask Question</button>
+                <button class="btn btn-danger" onclick="clearDatabase()">🗑️ Reset Database</button>
+                <button class="btn" onclick="injectNextDocument()">📄 Inject Next Document</button>
+                <button class="btn" onclick="injectAllDocuments()">📚 Inject All Documents</button>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🔍 Query Response Analysis</h2>
+            <div id="response-container">
+                <div class="response-area" id="response-area">
+                    Select a question above and click "Ask Question" to see the AI response.
+                    
+                    The response quality will improve dramatically as we inject more business documents into the knowledge base.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Include debug helper -->
+    <script src="debug-helper.js"></script>
+
+    <script>
+        const API_BASE = 'http://localhost:8080';
+        let currentStage = 0;
+        let documentsInjected = 0;
+        let currentQuery = '';
+        let debugMode = true;
+
+        // Business documents for progressive injection
+        const businessDocuments = [
+            {
+                title: "Corporate Code of Conduct and Ethics",
+                category: "Ethics & Governance",
+                content: "Our organization is committed to conducting business with the highest standards of ethical behavior, integrity, and respect for human rights. This Code of Conduct serves as our foundation for ethical decision-making across all operations and jurisdictions. We strictly adhere to international human rights frameworks including the UN Guiding Principles on Business and Human Rights, the OECD Guidelines for Multinational Enterprises, and the UN Declaration on the Rights of Indigenous Peoples. Our commitment extends to ensuring fair labor practices, prohibiting child labor and forced labor, supporting freedom of association, and maintaining safe working environments. We do not conduct business in countries or with entities that systematically violate human rights or are subject to international sanctions. Our due diligence processes include comprehensive screening of all business partners, suppliers, and markets to ensure alignment with our ethical standards. We maintain zero tolerance for bribery, corruption, fraud, and any form of discrimination based on race, gender, religion, nationality, or other protected characteristics. All employees receive regular training on ethical guidelines, human rights awareness, and sanctions compliance. We provide multiple confidential channels for reporting ethical concerns and guarantee protection against retaliation for good faith reporting. Our leadership is accountable for creating a culture of integrity and ensuring all business decisions align with our ethical commitments and respect for fundamental human rights.",
+                created_date: "2024-01-10T08:00:00Z",
+                vectorize: true
+            },
+            {
+                title: "Customer Retention Strategies for 2025",
+                category: "Business Strategy",
+                content: "Customer retention is critical for sustainable business growth. Key strategies include personalized communication, loyalty programs, proactive customer support, and regular feedback collection. Companies with strong retention programs see 25% higher revenue growth. Advanced analytics help identify at-risk customers early, enabling proactive intervention. Successful retention requires cross-departmental alignment between sales, marketing, and customer success teams.",
+                created_date: "2024-01-15T10:30:00Z"
+            },
+            {
+                title: "Digital Marketing ROI Measurement Framework",
+                category: "Marketing Analytics",
+                content: "Measuring digital marketing return on investment requires tracking customer acquisition costs, lifetime value, conversion rates, and attribution across multiple channels. Analytics tools help optimize campaign performance and budget allocation. Key metrics include cost per acquisition (CPA), return on ad spend (ROAS), and marketing qualified leads (MQLs). Advanced attribution modeling helps understand the complete customer journey and optimize touchpoints for maximum impact.",
+                created_date: "2024-02-01T14:15:00Z"
+            }
+        ];
+
+        const stageNames = ["Clean DB", "Ethics", "Strategy", "Marketing", "Complete"];
+
+        // Debug functions
+        function logDebug(message, type = 'info') {
+            if (!debugMode) return;
+            
+            const timestamp = new Date().toLocaleTimeString();
+            const debugOutput = document.getElementById('debug-output');
+            const logEntry = `[${timestamp}] ${type.toUpperCase()}: ${message}\n`;
+            
+            debugOutput.textContent += logEntry;
+            debugOutput.scrollTop = debugOutput.scrollHeight;
+            
+            console.log(`🔍 DEBUG [${type.toUpperCase()}]:`, message);
+        }
+
+        function showMessage(message, type = 'info') {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `${type}-message`;
+            messageDiv.textContent = message;
+            
+            const container = document.querySelector('.container');
+            container.insertBefore(messageDiv, container.firstChild);
+            
+            setTimeout(() => {
+                messageDiv.remove();
+            }, 5000);
+        }
+
+        async function testWeaviateConnection() {
+            logDebug('Testing Weaviate connection...', 'test');
+            
+            try {
+                const response = await fetch(`${API_BASE}/v1/meta`);
+                if (response.ok) {
+                    const data = await response.json();
+                    logDebug(`✅ Weaviate connected successfully. Version: ${data.version}`, 'success');
+                    document.getElementById('weaviate-status').textContent = 'Connected';
+                    document.getElementById('weaviate-status').className = 'status-value';
+                    showMessage('✅ Weaviate connection successful!', 'success');
+                    return true;
+                } else {
+                    logDebug(`❌ Weaviate connection failed. Status: ${response.status}`, 'error');
+                    document.getElementById('weaviate-status').textContent = 'Failed';
+                    document.getElementById('weaviate-status').className = 'status-value error';
+                    showMessage('❌ Weaviate connection failed!', 'error');
+                    return false;
+                }
+            } catch (error) {
+                logDebug(`❌ Weaviate connection error: ${error.message}`, 'error');
+                document.getElementById('weaviate-status').textContent = 'Error';
+                document.getElementById('weaviate-status').className = 'status-value error';
+                showMessage('❌ Weaviate connection error!', 'error');
+                return false;
+            }
+        }
+
+        async function testGraphQLQuery() {
+            logDebug('Testing GraphQL query...', 'test');
+            
+            try {
+                const query = {
+                    query: `
+                    {
+                        Get {
+                            BusinessDocument {
+                                title
+                                _additional {
+                                    id
+                                }
+                            }
+                        }
+                    }
+                    `
+                };
+
+                const response = await fetch(`${API_BASE}/v1/graphql`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(query)
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    const docCount = data.data?.Get?.BusinessDocument?.length || 0;
+                    logDebug(`✅ GraphQL query successful. Found ${docCount} documents.`, 'success');
+                    showMessage(`✅ GraphQL query successful! Found ${docCount} documents.`, 'success');
+                    return data;
+                } else {
+                    const errorData = await response.json();
+                    logDebug(`❌ GraphQL query failed: ${JSON.stringify(errorData)}`, 'error');
+                    showMessage('❌ GraphQL query failed!', 'error');
+                    return null;
+                }
+            } catch (error) {
+                logDebug(`❌ GraphQL query error: ${error.message}`, 'error');
+                showMessage('❌ GraphQL query error!', 'error');
+                return null;
+            }
+        }
+
+        async function testOpenAIKey() {
+            logDebug('Testing OpenAI API key...', 'test');
+            
+            const OPENAI_API_KEY = 'your-openai-api-key-here';
+            
+            if (OPENAI_API_KEY === 'your-openai-api-key-here') {
+                logDebug('⚠️ OpenAI API key not configured', 'warning');
+                showMessage('⚠️ OpenAI API key not configured!', 'warning');
+                return false;
+            }
+
+            try {
+                const response = await fetch('https://api.openai.com/v1/models', {
+                    headers: {
+                        'Authorization': `Bearer ${OPENAI_API_KEY}`,
+                    }
+                });
+
+                if (response.ok) {
+                    logDebug('✅ OpenAI API key is valid', 'success');
+                    showMessage('✅ OpenAI API key is valid!', 'success');
+                    return true;
+                } else {
+                    logDebug(`❌ OpenAI API key test failed. Status: ${response.status}`, 'error');
+                    showMessage('❌ OpenAI API key test failed!', 'error');
+                    return false;
+                }
+            } catch (error) {
+                logDebug(`❌ OpenAI API key test error: ${error.message}`, 'error');
+                showMessage('❌ OpenAI API key test error!', 'error');
+                return false;
+            }
+        }
+
+        async function runDiagnostics() {
+            logDebug('Running full diagnostics...', 'test');
+            
+            const results = {
+                weaviate: await testWeaviateConnection(),
+                graphql: await testGraphQLQuery(),
+                openai: await testOpenAIKey()
+            };
+
+            const successCount = Object.values(results).filter(Boolean).length;
+            const totalTests = Object.keys(results).length;
+            
+            logDebug(`Diagnostics complete: ${successCount}/${totalTests} tests passed`, 'info');
+            
+            if (successCount === totalTests) {
+                showMessage('✅ All diagnostics passed!', 'success');
+            } else {
+                showMessage(`⚠️ ${totalTests - successCount} diagnostic test(s) failed`, 'warning');
+            }
+        }
+
+        function toggleDebugMode() {
+            debugMode = !debugMode;
+            logDebug(`Debug mode ${debugMode ? 'enabled' : 'disabled'}`, 'info');
+            showMessage(`Debug mode ${debugMode ? 'enabled' : 'disabled'}`, 'info');
+        }
+
+        function clearDebugLog() {
+            document.getElementById('debug-output').textContent = 'Debug log cleared...\n';
+            logDebug('Debug log cleared', 'info');
+        }
+
+        function exportDebugReport() {
+            if (window.weaviateDebugger) {
+                window.weaviateDebugger.exportDebugReport();
+                logDebug('Debug report exported', 'info');
+                showMessage('📄 Debug report exported!', 'success');
+            } else {
+                logDebug('Debug helper not available', 'error');
+                showMessage('❌ Debug helper not available!', 'error');
+            }
+        }
+
+        function showNetworkStatus() {
+            const status = navigator.onLine ? 'Online' : 'Offline';
+            logDebug(`Network status: ${status}`, 'info');
+            showMessage(`🌐 Network status: ${status}`, status === 'Online' ? 'success' : 'warning');
+        }
+
+        // Enhanced error handling for existing functions
+        async function askQuestion() {
+            const query = document.getElementById('custom-query').value;
+            if (!query.trim()) {
+                logDebug('No query provided', 'warning');
+                showMessage('⚠️ Please enter a question first!', 'warning');
+                return;
+            }
+
+            currentQuery = query;
+            logDebug(`Asking question: "${query.substring(0, 50)}..."`, 'info');
+            
+            const responseArea = document.getElementById('response-area');
+            responseArea.innerHTML = '<div class="loading"></div> Processing question...';
+
+            try {
+                const response = await generateContextualResponse(query, documentsInjected);
+                responseArea.innerHTML = response;
+                logDebug('Question processed successfully', 'success');
+            } catch (error) {
+                logDebug(`Error processing question: ${error.message}`, 'error');
+                responseArea.innerHTML = `<h4 style="color: #ef4444;">🚨 Processing Error</h4>\nFailed to generate response: ${error.message}`;
+                showMessage('❌ Error processing question!', 'error');
+            }
+        }
+
+        async function injectNextDocument() {
+            if (documentsInjected >= businessDocuments.length) {
+                logDebug('All documents already injected', 'warning');
+                showMessage('⚠️ All documents have already been injected!', 'warning');
+                return;
+            }
+
+            const doc = businessDocuments[documentsInjected];
+            logDebug(`Injecting document: "${doc.title}"`, 'info');
+            document.getElementById('demo-status').textContent = 'Injecting...';
+            
+            try {
+                const weaviateObject = {
+                    "class": "BusinessDocument",
+                    "properties": doc
+                };
+                
+                const response = await fetch(`${API_BASE}/v1/objects`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(weaviateObject)
+                });
+
+                if (response.ok) {
+                    documentsInjected++;
+                    updateStageDisplay();
+                    document.getElementById(`doc-${documentsInjected-1}`).classList.add('injected');
+                    logDebug(`Document injected successfully: "${doc.title}"`, 'success');
+                    showMessage(`✅ Document injected: "${doc.title}"`, 'success');
+                    
+                    if (currentQuery) {
+                        await askQuestion();
+                    }
+                } else {
+                    throw new Error(`Failed to inject document: ${response.status}`);
+                }
+            } catch (error) {
+                logDebug(`Error injecting document: ${error.message}`, 'error');
+                document.getElementById('demo-status').textContent = 'Error';
+                showMessage('❌ Error injecting document!', 'error');
+            }
+        }
+
+        function selectQuestion(element) {
+            document.getElementById('custom-query').value = element.textContent.replace(/"/g, '');
+            document.querySelectorAll('.question-btn').forEach(btn => btn.style.background = 'rgba(255, 255, 255, 0.2)');
+            element.style.background = 'rgba(34, 197, 94, 0.3)';
+            logDebug('Question selected from preset', 'info');
+        }
+
+        function updateStageDisplay() {
+            currentStage = documentsInjected;
+            document.getElementById('doc-count').textContent = documentsInjected;
+            document.getElementById('current-stage').textContent = stageNames[currentStage];
+            document.getElementById('demo-status').textContent = 'Ready';
+            logDebug(`Stage updated: ${stageNames[currentStage]} (${documentsInjected} documents)`, 'info');
+        }
+
+        // Initialize with debug
+        async function initializeDemo() {
+            logDebug('Initializing demo with debug mode...', 'info');
+            await testWeaviateConnection();
+            updateStageDisplay();
+            logDebug('Demo initialization complete', 'success');
+        }
+
+        // Auto-initialize
+        window.addEventListener('load', initializeDemo);
+    </script>
+</body>
+</html>
