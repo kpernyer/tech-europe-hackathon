@@ -1,5 +1,8 @@
 # Living Twin Synthetic Data Generation - Project Makefile
 
+# Include common targets from parent directory
+include ../Makefile.common
+
 .PHONY: all help clean install build demo dev stop test health \
 	run-structured-data run-strategic-docs run-unified-personas run-quick-data list-scripts \
 	show-outputs clean-outputs export-json export-training backup-data
@@ -12,7 +15,9 @@ help: ## Show this help message
 	@echo "Living Twin Synthetic Data Generation"
 	@echo "===================================="
 	@echo ""
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  %-15s %s\n", $$1, $$2}'
+	@echo "📍 Project-specific targets:"
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(firstword $(MAKEFILE_LIST)) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  %-15s %s\n", $$1, $$2}'
+	@$(MAKE) help-common
 
 install: ## Install Python dependencies using uv
 	@echo "📦 Installing dependencies for Living Twin Synthetic Data..."

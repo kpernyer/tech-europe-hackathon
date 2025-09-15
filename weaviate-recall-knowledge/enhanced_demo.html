@@ -1241,47 +1241,6 @@ Please provide a strategic recommendation that considers the organization's docu
                 }
                 
                 return `${headerMetrics}\n\n${response}\n\n${formatMetricsFooter(metrics, relevantDocs.length)}`;
-                
-
-                // Fallback to enhanced simulation that shows LLM-style processing
-                let response = `**🤖 LLM Response (RAG-Enhanced):**\n\n`;
-                response += "*Processing organizational context and generating strategic guidance...*\n\n";
-                
-                response += "Based on analysis of your organizational knowledge base:\n\n";
-                
-                relevantDocs.slice(0, 2).forEach((doc, index) => {
-                    response += `**Referenced Document:** "${doc.title}" (${doc.category})\n`;
-                    response += `**Key Policies Identified:**\n`;
-                    
-                    doc.extractedInfo.forEach(info => {
-                        response += `• ${info}\n`;
-                    });
-                    response += "\n";
-                });
-
-                // Add LLM-style strategic recommendation
-                if (query.toLowerCase().includes('north korea') && relevantDocs.length > 0) {
-                    const ethicsDoc = relevantDocs.find(doc => doc.category === 'Ethics & Governance');
-                    if (ethicsDoc) {
-                        response += "**🚨 LLM STRATEGIC ANALYSIS:**\n";
-                        response += "After processing your Corporate Code of Conduct, I must provide an unequivocal recommendation:\n\n";
-                        response += "**REJECT THIS OPPORTUNITY IMMEDIATELY**\n\n";
-                        response += "**Risk Assessment:**\n";
-                        response += "• Legal Risk: HIGH - Potential sanctions violations\n";
-                        response += "• Reputational Risk: CRITICAL - Damages ethical brand positioning\n";
-                        response += "• Financial Risk: EXTREME - Penalties far exceed $2M revenue\n";
-                        response += "• Compliance Risk: ABSOLUTE - Violates explicit organizational policies\n\n";
-                        response += "**The organizational knowledge base provides clear guidance: This transaction is prohibited.**";
-                    }
-                } else if (relevantDocs.length > 0) {
-                    response += "**LLM Strategic Synthesis:**\n";
-                    response += `Analyzing ${relevantDocs.length} relevant organizational document${relevantDocs.length > 1 ? 's' : ''}, I recommend an integrated approach that balances your strategic objectives with established ethical frameworks and business policies.`;
-                }
-
-                response += `\n\n*🎯 Context Quality: Enhanced by ${docCount} organizational documents*`;
-                response += `\n*📊 Knowledge Sources: ${allDocs.map(doc => doc.category).join(', ')}*`;
-
-                return response;
 
             } catch (error) {
                 console.error('Error generating contextual response:', error);
@@ -1309,6 +1268,7 @@ Please provide a strategic recommendation that considers the organization's docu
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
+                        'X-Openai-Api-Key': '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'
                     },
                     body: JSON.stringify(weaviateObject)
                 });
@@ -1346,15 +1306,17 @@ Please provide a strategic recommendation that considers the organization's docu
             document.getElementById('demo-status').textContent = 'Clearing...';
             
             try {
-                // Delete all BusinessDocument objects
-                const response = await fetch(`${API_BASE}/v1/objects`, {
-                    method: 'DELETE',
+                // Delete all BusinessDocument objects using GraphQL
+                const deleteQuery = {
+                    query: `mutation { Delete { BusinessDocument(where: {}) { result } } }`
+                };
+                
+                const response = await fetch(`${API_BASE}/v1/graphql`, {
+                    method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({
-                        "class": "BusinessDocument"
-                    })
+                    body: JSON.stringify(deleteQuery)
                 });
 
                 // Reset state
