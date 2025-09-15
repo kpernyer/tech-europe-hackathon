@@ -1,0 +1,106 @@
+# =========================
+# Aprio One - Common Makefile
+# =========================
+#
+# This file contains common targets that can be inherited by subdirectory Makefiles.
+# Use `include ../Makefile.common` or similar path adjustments in subdirectory Makefiles.
+
+.PHONY: status env-status git-status docker-status help-common
+
+# =========================
+# Common Status Commands
+# =========================
+
+status: env-status git-status docker-status ## Show comprehensive project status
+
+env-status: ## Show environment and dependency status
+	@echo "🔍 Environment Status"
+	@echo "===================="
+	@echo "📍 Current directory: $(PWD)"
+	@echo "🌐 Node.js version: $(shell node --version 2>/dev/null || echo 'Not installed')"
+	@echo "📦 npm version: $(shell npm --version 2>/dev/null || echo 'Not installed')"
+	@echo "📦 pnpm version: $(shell pnpm --version 2>/dev/null || echo 'Not installed')"
+	@echo "🐍 Python version: $(shell python3 --version 2>/dev/null || echo 'Not installed')"
+	@echo "📦 uv version: $(shell uv --version 2>/dev/null || echo 'Not installed')"
+	@echo "🐳 Docker version: $(shell docker --version 2>/dev/null || echo 'Not installed')"
+	@echo ""
+
+git-status: ## Show git repository status
+	@echo "📋 Git Status"
+	@echo "============="
+	@echo "🌿 Branch: $(shell git branch --show-current 2>/dev/null || echo 'Not a git repo')"
+	@echo "📝 Status:"
+	@git status --porcelain 2>/dev/null || echo "Not a git repository"
+	@echo ""
+
+docker-status: ## Show Docker container status
+	@echo "🐳 Docker Status"
+	@echo "================"
+	@echo "🏃 Running containers:"
+	@docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" 2>/dev/null || echo "Docker not available"
+	@echo ""
+
+# =========================
+# Common Development Commands
+# =========================
+
+logs-common: ## Show logs for running services (common implementation)
+	@echo "📋 Service Logs"
+	@echo "==============="
+	@if [ -f "docker-compose.yml" ]; then \
+		docker-compose logs -f; \
+	else \
+		echo "No docker-compose.yml found in current directory"; \
+	fi
+
+health-common: ## Check health of running services (common implementation)
+	@echo "🏥 Health Check"
+	@echo "==============="
+	@if [ -f "docker-compose.yml" ]; then \
+		docker-compose ps; \
+	else \
+		echo "No docker-compose.yml found in current directory"; \
+	fi
+
+ports: ## Show port mappings for running containers
+	@echo "🔌 Container Port Mappings"
+	@echo "=========================="
+	@docker ps --format "table {{.Names}}\t{{.Ports}}" 2>/dev/null || echo "Docker not available"
+	@echo ""
+
+stop-all: ## Stop all services
+	@echo "🛑 Stopping all services..."
+	@if [ -f "docker-compose.yml" ]; then \
+		docker-compose down; \
+	else \
+		echo "No docker-compose.yml found in current directory"; \
+	fi
+
+# =========================
+# Common Environment Commands
+# =========================
+
+check-env: ## Check if .env file exists and show variables
+	@echo "🔧 Environment Configuration"
+	@echo "============================"
+	@if [ -f ".env" ]; then \
+		echo "✅ .env file found"; \
+		echo "🔑 Environment variables:"; \
+		grep -E '^[^#].*=' .env | cut -d'=' -f1 | sed 's/^/  - /' || echo "  (no variables found)"; \
+	else \
+		echo "❌ .env file not found"; \
+		if [ -f ".env.example" ]; then \
+			echo "💡 Found .env.example - copy to .env and configure"; \
+		fi; \
+	fi
+	@echo ""
+
+# =========================
+# Help system
+# =========================
+
+help-common: ## Show common targets available
+	@echo ""
+	@echo "🔧 Common Targets (available in all directories):"
+	@echo "================================================"
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(lastword $(MAKEFILE_LIST)) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  %-15s %s\n", $$1, $$2}'
