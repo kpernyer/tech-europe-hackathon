@@ -1,0 +1,1042 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🤖 Local Model Fine-Tuning - Real LoRA Training</title>
+
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #64748b;
+            --accent-color: #10b981;
+            --error-color: #ef4444;
+            --warning-color: #f59e0b;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, var(--bg-color) 0%, #e2e8f0 100%);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .header {
+            background: var(--card-bg);
+            border-bottom: 2px solid var(--primary-color);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            color: var(--primary-color);
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .grid {
+            display: grid;
+            gap: 2rem;
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        .section {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--border-color);
+        }
+
+        .section h2 {
+            color: var(--primary-color);
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .performance-banner {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 20px;
+            text-align: center;
+            color: #155724;
+        }
+
+        .training-status {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { border-color: #ffc107; }
+            50% { border-color: #fd7e14; }
+            100% { border-color: #ffc107; }
+        }
+
+        .progress-container {
+            margin: 15px 0;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #28a745, #20c997);
+            width: 0%;
+            transition: width 0.5s ease;
+            position: relative;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .progress-text {
+            text-align: center;
+            margin-top: 10px;
+            font-weight: bold;
+            color: #495057;
+        }
+
+        .training-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .metric {
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+        }
+
+        .metric-label {
+            display: block;
+            font-size: 0.9em;
+            color: #6c757d;
+            margin-bottom: 5px;
+        }
+
+        .metric-value {
+            display: block;
+            font-weight: bold;
+            color: #495057;
+        }
+
+        .upload-area {
+            background: #f8f9fa;
+            border: 2px dashed #dee2e6;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .upload-box {
+            padding: 20px;
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+
+        .upload-btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+
+        .upload-btn:hover {
+            background: #0056b3;
+        }
+
+        .train-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 15px;
+            animation: glow 2s infinite;
+        }
+
+        @keyframes glow {
+            0% { box-shadow: 0 0 5px #28a745; }
+            50% { box-shadow: 0 0 20px #28a745; }
+            100% { box-shadow: 0 0 5px #28a745; }
+        }
+
+        .train-btn:hover {
+            background: #218838;
+        }
+
+        .uploaded-files {
+            margin: 15px 0;
+            text-align: left;
+        }
+
+        .uploaded-file {
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            padding: 10px;
+            margin: 5px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .file-name {
+            font-weight: bold;
+        }
+
+        .file-size {
+            color: #6c757d;
+            font-size: 0.9em;
+        }
+
+        .remove-file {
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 4px 8px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .remove-file:hover {
+            background: #c82333;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1d4ed8;
+        }
+
+        .btn-secondary {
+            background: var(--secondary-color);
+            color: white;
+        }
+
+        .btn-accent {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .chat-area {
+            height: 400px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            background: #f8f9fa;
+        }
+
+        .message {
+            margin-bottom: 1rem;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .message.user {
+            align-items: flex-end;
+        }
+
+        .message.assistant {
+            align-items: flex-start;
+        }
+
+        .message-content {
+            max-width: 80%;
+            padding: 0.75rem 1rem;
+            border-radius: 18px;
+            word-wrap: break-word;
+        }
+
+        .message.user .message-content {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .message.assistant .message-content {
+            background: white;
+            border: 1px solid var(--border-color);
+        }
+
+        .message-time {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-top: 0.25rem;
+        }
+
+        .chat-input {
+            display: flex;
+            padding: 1rem;
+            border-top: 1px solid var(--border-color);
+            gap: 0.5rem;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            outline: none;
+        }
+
+        .chat-input input:focus {
+            border-color: var(--primary-color);
+        }
+
+        .metric-card {
+            background: var(--bg-color);
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .metric-card-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .metric-card-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .document-grid {
+            display: grid;
+            gap: 0.5rem;
+            max-height: 200px;
+            overflow-y: auto;
+            margin-bottom: 1rem;
+        }
+
+        .document-item {
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: white;
+        }
+
+        .document-item:hover {
+            border-color: var(--accent-color);
+            background: var(--bg-color);
+        }
+
+        .document-item.selected {
+            border-color: var(--accent-color);
+            background: #ecfdf5;
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .container {
+                padding: 0 1rem;
+            }
+
+            .header {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🤖 Local Model Fine-Tuning - Real LoRA Training</h1>
+        <p>Live integration with Qwen 2.5 3B + actual LoRA training + document upload</p>
+    </div>
+
+    <div class="container">
+        <!-- Performance banner -->
+        <div class="performance-banner" id="performanceBanner">
+            🔥 <strong>Live Mode:</strong> This interface connects to real LoRA training and inference! Upload documents to train custom models.
+        </div>
+
+        <!-- Training Status Section -->
+        <div class="training-status" id="trainingStatus" style="display: none;">
+            <h3>🔥 Live LoRA Training in Progress</h3>
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="progress-text" id="progressText">0% - Initializing...</div>
+            </div>
+            <div class="training-metrics">
+                <div class="metric">
+                    <span class="metric-label">Current Step:</span>
+                    <span class="metric-value" id="currentStep">-</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Duration:</span>
+                    <span class="metric-value" id="trainingDuration">-</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">LoRA Size:</span>
+                    <span class="metric-value" id="loraSize">-</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid">
+            <!-- Document Upload Section -->
+            <div class="section">
+                <h2>📄 Upload Custom Training Documents (Up to 3)</h2>
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-box">
+                        <div class="upload-icon">📎</div>
+                        <p>Drop text files here or click to upload</p>
+                        <input type="file" id="fileInput" multiple accept=".txt,.md,.csv" style="display: none;">
+                        <button onclick="document.getElementById('fileInput').click()" class="upload-btn">Choose Files</button>
+                    </div>
+                    <div class="uploaded-files" id="uploadedFiles"></div>
+                    <button id="trainButton" class="train-btn" style="display: none;" onclick="startTraining()">🚀 Start LoRA Training</button>
+                </div>
+            </div>
+
+            <!-- Model Selection -->
+            <div class="section">
+                <h2>⚙️ Model Configuration</h2>
+                <div style="margin-bottom: 1rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Select Model:</label>
+                    <select id="modelSelect" style="width: 100%; padding: 0.5rem; border: 1px solid var(--border-color); border-radius: 6px;">
+                        <option value="qwen2.5:3b">Qwen 2.5 3B (Recommended)</option>
+                        <option value="mistral:7b">Mistral 7B</option>
+                        <option value="llama2:13b-chat">Llama 2 13B Chat</option>
+                    </select>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-card-value" id="currentModelSize">3GB</div>
+                    <div class="metric-card-label">Model Size</div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-card-value" id="currentInferenceTime">180ms</div>
+                    <div class="metric-card-label">Inference Time</div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-card-value" id="queriesProcessed">0</div>
+                    <div class="metric-card-label">Queries Processed</div>
+                </div>
+            </div>
+
+            <!-- Chat Interface -->
+            <div class="section full-width">
+                <h2>💬 Chat with Your Trained Model</h2>
+                <div class="chat-area">
+                    <div class="chat-messages" id="chatMessages">
+                        <div class="message assistant">
+                            <div class="message-content">
+                                Hello! I'm ready to chat. Upload documents and train a model to see how I adapt to your organizational context.
+                            </div>
+                            <div class="message-time">Ready to chat</div>
+                        </div>
+                    </div>
+                    <div class="chat-input">
+                        <input type="text" id="userInput" placeholder="Ask about strategy, values, decision-making..."
+                               onkeypress="if(event.key==='Enter') sendMessage()">
+                        <button class="btn btn-primary" onclick="sendMessage()">Send</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pre-built Examples Section -->
+            <div class="section">
+                <h2>📚 Or Use Pre-built Training Examples</h2>
+                <div class="document-grid" id="documentGrid">
+                    <!-- Pre-built examples will be loaded here -->
+                </div>
+                <div class="controls">
+                    <button class="btn btn-accent" onclick="loadPrebuiltExamples()">📋 Load Examples</button>
+                    <button class="btn btn-secondary" onclick="clearAll()">🗑️ Clear All</button>
+                </div>
+            </div>
+
+            <!-- System Status -->
+            <div class="section">
+                <h2>📊 System Status</h2>
+                <div id="systemStatus" style="padding: 1rem; background: #f8f9fa; border-radius: 8px; margin-bottom: 1rem;">
+                    <div style="color: #28a745; font-weight: bold;">● Backend Service: <span id="backendStatus">Checking...</span></div>
+                    <div style="color: #6c757d; margin-top: 0.5rem;">Last Updated: <span id="lastUpdate">-</span></div>
+                </div>
+
+                <div class="controls">
+                    <button class="btn btn-secondary" onclick="checkBackendStatus()">🔄 Refresh Status</button>
+                    <button class="btn btn-secondary" onclick="loadExistingModel()">📂 Load Existing Model</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedModel = 'qwen2.5:3b';
+        let uploadedDocuments = [];
+        let trainingInProgress = false;
+        let statusInterval = null;
+
+        const API_BASE = 'http://localhost:5001/api';
+
+        const modelConfigs = {
+            'qwen2.5:3b': {
+                name: 'Qwen 2.5 3B',
+                size: '3GB',
+                inferenceTime: '180ms',
+                description: 'Lightweight and fast'
+            },
+            'mistral:7b': {
+                name: 'Mistral 7B',
+                size: '7GB',
+                inferenceTime: '425ms',
+                description: 'Balanced performance'
+            },
+            'llama2:13b-chat': {
+                name: 'Llama 2 13B Chat',
+                size: '13GB',
+                inferenceTime: '850ms',
+                description: 'High quality responses'
+            }
+        };
+
+        const organizationalExamples = [
+            {
+                name: 'Digital Transformation Strategy',
+                content: 'Our digital transformation strategy focuses on customer-centric innovation, leveraging cloud-first architecture and data-driven decision making. We prioritize agile methodologies and cross-functional collaboration to deliver scalable solutions that enhance operational efficiency while maintaining our commitment to excellence and sustainable growth.'
+            },
+            {
+                name: 'Core Values Framework',
+                content: 'Our core values manifest through customer obsession, operational excellence, and team empowerment. We demonstrate integrity in every decision, embrace innovation as a growth driver, and maintain accountability at all levels. These values guide our hiring, promotion, and strategic decisions, ensuring consistent culture across all business units.'
+            },
+            {
+                name: 'Risk Management Approach',
+                content: 'Our risk management framework balances opportunity assessment with prudent controls. We conduct comprehensive market analysis, pilot programs, and scenario planning. Key considerations include regulatory compliance, competitive landscape, resource allocation, and potential impact on existing operations. We maintain clear escalation procedures and regular risk review cycles.'
+            }
+        ];
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            setupFileUpload();
+            setupModelSelection();
+            checkBackendStatus();
+            loadPrebuiltExamples();
+
+            // Check training status periodically
+            setInterval(checkTrainingStatus, 5000);
+        });
+
+        function setupFileUpload() {
+            const fileInput = document.getElementById('fileInput');
+            const uploadArea = document.getElementById('uploadArea');
+
+            fileInput.addEventListener('change', handleFileSelect);
+
+            // Drag and drop functionality
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.style.borderColor = '#007bff';
+                uploadArea.style.backgroundColor = '#e3f2fd';
+            });
+
+            uploadArea.addEventListener('dragleave', (e) => {
+                e.preventDefault();
+                uploadArea.style.borderColor = '#dee2e6';
+                uploadArea.style.backgroundColor = '#f8f9fa';
+            });
+
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.style.borderColor = '#dee2e6';
+                uploadArea.style.backgroundColor = '#f8f9fa';
+                handleFileSelect({target: {files: e.dataTransfer.files}});
+            });
+        }
+
+        function handleFileSelect(event) {
+            const files = Array.from(event.target.files);
+
+            if (uploadedDocuments.length + files.length > 3) {
+                alert('Maximum 3 documents allowed!');
+                return;
+            }
+
+            files.forEach(file => {
+                if (file.type === 'text/plain' || file.name.endsWith('.txt') || file.name.endsWith('.md') || file.name.endsWith('.csv')) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        uploadedDocuments.push({
+                            name: file.name,
+                            size: file.size,
+                            content: e.target.result
+                        });
+                        renderUploadedFiles();
+                    };
+                    reader.readAsText(file);
+                } else {
+                    alert(`File ${file.name} is not a supported text format.`);
+                }
+            });
+        }
+
+        function renderUploadedFiles() {
+            const container = document.getElementById('uploadedFiles');
+            const trainButton = document.getElementById('trainButton');
+
+            if (uploadedDocuments.length === 0) {
+                container.innerHTML = '';
+                trainButton.style.display = 'none';
+                return;
+            }
+
+            container.innerHTML = uploadedDocuments.map((doc, index) => `
+                <div class="uploaded-file">
+                    <div>
+                        <div class="file-name">📄 ${doc.name}</div>
+                        <div class="file-size">${(doc.size / 1024).toFixed(1)} KB</div>
+                    </div>
+                    <button class="remove-file" onclick="removeFile(${index})">×</button>
+                </div>
+            `).join('');
+
+            trainButton.style.display = 'block';
+        }
+
+        function removeFile(index) {
+            uploadedDocuments.splice(index, 1);
+            renderUploadedFiles();
+        }
+
+        function setupModelSelection() {
+            const modelSelect = document.getElementById('modelSelect');
+
+            modelSelect.addEventListener('change', function(e) {
+                selectedModel = e.target.value;
+                updateModelInfo();
+            });
+
+            updateModelInfo();
+        }
+
+        function updateModelInfo() {
+            const config = modelConfigs[selectedModel];
+            document.getElementById('currentModelSize').textContent = config.size;
+            document.getElementById('currentInferenceTime').textContent = config.inferenceTime;
+        }
+
+        async function startTraining() {
+            if (uploadedDocuments.length === 0) {
+                alert('Please upload at least one document!');
+                return;
+            }
+
+            if (trainingInProgress) {
+                alert('Training already in progress!');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/upload_documents`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        documents: uploadedDocuments.map(doc => doc.content)
+                    })
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    trainingInProgress = true;
+                    document.getElementById('trainingStatus').style.display = 'block';
+                    document.getElementById('trainButton').style.display = 'none';
+
+                    // Start polling for status
+                    statusInterval = setInterval(checkTrainingStatus, 2000);
+
+                    addMessageToChat('assistant', '🔥 Started LoRA training with your documents! This will take a few minutes...');
+                } else {
+                    const error = await response.json();
+                    alert('Training failed: ' + error.error);
+                }
+            } catch (error) {
+                alert('Connection error: ' + error.message);
+                addMessageToChat('assistant', '❌ Backend service unavailable. Please start the backend service.');
+            }
+        }
+
+        async function checkTrainingStatus() {
+            try {
+                const response = await fetch(`${API_BASE}/status`);
+                if (response.ok) {
+                    const status = await response.json();
+                    updateTrainingUI(status);
+                    updateBackendStatus('Connected');
+                } else {
+                    updateBackendStatus('Error');
+                }
+            } catch (error) {
+                updateBackendStatus('Disconnected');
+            }
+        }
+
+        function updateTrainingUI(status) {
+            if (status.status === 'idle') {
+                document.getElementById('trainingStatus').style.display = 'none';
+                return;
+            }
+
+            document.getElementById('trainingStatus').style.display = 'block';
+            document.getElementById('progressFill').style.width = `${status.progress}%`;
+            document.getElementById('progressText').textContent = `${status.progress}% - ${status.current_step}`;
+            document.getElementById('currentStep').textContent = status.current_step;
+
+            if (status.start_time) {
+                const duration = status.duration || (Date.now() / 1000 - status.start_time);
+                document.getElementById('trainingDuration').textContent = `${duration.toFixed(1)}s`;
+            }
+
+            document.getElementById('loraSize').textContent = status.lora_size || 'Calculating...';
+
+            if (status.status === 'completed') {
+                trainingInProgress = false;
+                if (statusInterval) {
+                    clearInterval(statusInterval);
+                    statusInterval = null;
+                }
+
+                // Update banner
+                document.getElementById('performanceBanner').innerHTML =
+                    '🎉 <strong>Training Complete!</strong> Your custom LoRA model is ready for inference.';
+                document.getElementById('performanceBanner').style.background = '#d1ecf1';
+                document.getElementById('performanceBanner').style.borderColor = '#bee5eb';
+                document.getElementById('performanceBanner').style.color = '#0c5460';
+
+                addMessageToChat('assistant', '🎉 Training completed! Your model now understands your organizational context. Try asking me something!');
+
+                // Hide training status after a delay
+                setTimeout(() => {
+                    document.getElementById('trainingStatus').style.display = 'none';
+                }, 5000);
+            } else if (status.status === 'error') {
+                trainingInProgress = false;
+                if (statusInterval) {
+                    clearInterval(statusInterval);
+                    statusInterval = null;
+                }
+
+                alert('Training failed: ' + status.error_message);
+                addMessageToChat('assistant', '❌ Training failed: ' + status.error_message);
+                document.getElementById('trainingStatus').style.display = 'none';
+            }
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('userInput');
+            const message = input.value.trim();
+
+            if (!message) return;
+
+            // Clear input and add user message
+            input.value = '';
+            addMessageToChat('user', message);
+
+            // Show typing indicator
+            addMessageToChat('assistant', 'Thinking...', true);
+
+            try {
+                // Call real backend API
+                const response = await fetch(`${API_BASE}/inference`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        prompt: message,
+                        use_trained: true
+                    })
+                });
+
+                // Remove typing indicator
+                removeTypingIndicator();
+
+                if (response.ok) {
+                    const result = await response.json();
+                    addMessageToChat('assistant', result.response);
+
+                    // Update metrics
+                    updateRealTimeMetrics({
+                        inferenceTime: result.inference_time_ms,
+                        modelUsed: result.model_used
+                    });
+                } else {
+                    addMessageToChat('assistant', 'Sorry, I encountered an error processing your request. Please make sure the backend service is running.');
+                }
+            } catch (error) {
+                removeTypingIndicator();
+                addMessageToChat('assistant', 'Connection error. Please make sure the backend service is running on localhost:5000');
+            }
+        }
+
+        function addMessageToChat(sender, content, isTyping = false) {
+            const chatMessages = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            if (isTyping) messageDiv.id = 'typing-indicator';
+
+            const messageContent = document.createElement('div');
+            messageContent.className = 'message-content';
+            messageContent.textContent = content;
+
+            const messageTime = document.createElement('div');
+            messageTime.className = 'message-time';
+            messageTime.textContent = new Date().toLocaleTimeString();
+
+            messageDiv.appendChild(messageContent);
+            messageDiv.appendChild(messageTime);
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function removeTypingIndicator() {
+            const typingIndicator = document.getElementById('typing-indicator');
+            if (typingIndicator) {
+                typingIndicator.remove();
+            }
+        }
+
+        function updateRealTimeMetrics(metrics) {
+            if (metrics.inferenceTime) {
+                document.getElementById('currentInferenceTime').textContent = metrics.inferenceTime;
+            }
+
+            const current = parseInt(document.getElementById('queriesProcessed').textContent);
+            document.getElementById('queriesProcessed').textContent = current + 1;
+        }
+
+        function loadPrebuiltExamples() {
+            const container = document.getElementById('documentGrid');
+            container.innerHTML = organizationalExamples.map((example, index) => `
+                <div class="document-item" onclick="addPrebuiltExample(${index})">
+                    <div style="font-weight: 600; margin-bottom: 0.25rem;">${example.name}</div>
+                    <div style="font-size: 0.85rem; color: var(--text-secondary);">${example.content.substring(0, 100)}...</div>
+                </div>
+            `).join('');
+        }
+
+        function addPrebuiltExample(index) {
+            const example = organizationalExamples[index];
+
+            if (uploadedDocuments.find(doc => doc.name === example.name)) {
+                alert('This example is already added!');
+                return;
+            }
+
+            if (uploadedDocuments.length >= 3) {
+                alert('Maximum 3 documents allowed!');
+                return;
+            }
+
+            uploadedDocuments.push({
+                name: example.name,
+                size: example.content.length,
+                content: example.content
+            });
+
+            renderUploadedFiles();
+
+            // Visual feedback
+            const docItems = document.querySelectorAll('.document-item');
+            docItems[index].style.background = '#ecfdf5';
+            docItems[index].style.borderColor = '#10b981';
+
+            setTimeout(() => {
+                docItems[index].style.background = 'white';
+                docItems[index].style.borderColor = '#e2e8f0';
+            }, 1000);
+        }
+
+        function clearAll() {
+            uploadedDocuments = [];
+            renderUploadedFiles();
+            document.getElementById('chatMessages').innerHTML = `
+                <div class="message assistant">
+                    <div class="message-content">
+                        Hello! I'm ready to chat. Upload documents and train a model to see how I adapt to your organizational context.
+                    </div>
+                    <div class="message-time">Ready to chat</div>
+                </div>
+            `;
+        }
+
+        async function checkBackendStatus() {
+            try {
+                const response = await fetch(`${API_BASE}/status`);
+                if (response.ok) {
+                    updateBackendStatus('Connected');
+                } else {
+                    updateBackendStatus('Error');
+                }
+            } catch (error) {
+                updateBackendStatus('Disconnected');
+            }
+        }
+
+        function updateBackendStatus(status) {
+            const statusElement = document.getElementById('backendStatus');
+            const lastUpdateElement = document.getElementById('lastUpdate');
+
+            statusElement.textContent = status;
+            lastUpdateElement.textContent = new Date().toLocaleTimeString();
+
+            const systemStatus = document.getElementById('systemStatus');
+            const indicator = systemStatus.querySelector('div');
+
+            if (status === 'Connected') {
+                indicator.style.color = '#28a745';
+                indicator.innerHTML = `● Backend Service: <span id="backendStatus">${status}</span>`;
+            } else {
+                indicator.style.color = '#dc3545';
+                indicator.innerHTML = `● Backend Service: <span id="backendStatus">${status}</span>`;
+            }
+        }
+
+        async function loadExistingModel() {
+            try {
+                const response = await fetch(`${API_BASE}/load_model`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({})
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    addMessageToChat('assistant', '📂 ' + result.message);
+                    document.getElementById('performanceBanner').innerHTML =
+                        '✅ <strong>Model Loaded!</strong> Existing trained model is ready for inference.';
+                } else {
+                    const error = await response.json();
+                    addMessageToChat('assistant', '❌ ' + error.error);
+                }
+            } catch (error) {
+                addMessageToChat('assistant', 'Connection error when loading model.');
+            }
+        }
+
+        // Initialize backend status check
+        checkBackendStatus();
+    </script>
+</body>
+</html>

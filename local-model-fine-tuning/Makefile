@@ -65,6 +65,8 @@ pull-models: ## Pull required models with Ollama
 	@echo "📥 Pulling required models..."
 	@docker-compose exec ollama ollama pull llama2:7b-chat || echo "Ollama not running"
 	@docker-compose exec ollama ollama pull llama2:13b-chat || echo "Ollama not running"
+	@docker-compose exec ollama ollama pull mistral:7b || echo "Ollama not running"
+	@docker-compose exec ollama ollama pull qwen2.5:3b || echo "Ollama not running"
 
 start-training: ## Start a training session
 	@echo "🚀 Starting training session..."

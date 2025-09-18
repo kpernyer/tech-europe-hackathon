@@ -405,16 +405,16 @@
                     <!-- Uploaded documents will appear here -->
                 </div>
 
-                <!-- WellnessRoberts Care Demo Documents -->
+                <!-- Organizational Training Examples -->
                 <div style="border: 1px solid var(--accent-color); border-radius: 8px; padding: 1rem; margin: 1rem 0; background: linear-gradient(135deg, #f0f8ff 0%, #e8f5e8 100%);">
-                    <h3 style="color: var(--accent-color); margin-bottom: 0.75rem;">🏥 WellnessRoberts Care - Demo Dataset</h3>
-                    <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 1rem;">Major healthcare organization in Tokyo with 2,623 employees. Click to add documents for fine-tuning:</p>
+                    <h3 style="color: var(--accent-color); margin-bottom: 0.75rem;">🤖 Organizational Training Dataset</h3>
+                    <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 1rem;">Pre-prepared training examples covering organizational strategy, values, and decision-making. Click to add for fine-tuning:</p>
 
                     <div id="wellnessroberts-documents" style="display: grid; gap: 0.5rem;">
-                        <!-- Documents will be loaded here -->
+                        <!-- Training examples will be loaded here -->
                     </div>
 
-                    <button class="btn btn-accent" onclick="loadWellnessRobertsDocuments()" style="margin-top: 0.75rem;">📋 Load WellnessRoberts Documents</button>
+                    <button class="btn btn-accent" onclick="loadWellnessRobertsDocuments()" style="margin-top: 0.75rem;">📋 Load Training Examples</button>
                 </div>
 
                 <div class="controls">
@@ -431,7 +431,16 @@
             <!-- Fine-Tuning Pipeline -->
             <div class="section">
                 <h2><span class="status-indicator" id="training-status"></span>Fine-Tuning Pipeline</h2>
-                
+
+                <div class="input-group">
+                    <label for="baseModel">Base Model Selection:</label>
+                    <select id="baseModel" style="width: 100%; padding: 0.5rem; border: 1px solid var(--border-color); border-radius: 6px; font-family: inherit;">
+                        <option value="llama2:13b-chat">Llama 2 13B Chat (Default)</option>
+                        <option value="mistral:7b">Mistral 7B (Efficient)</option>
+                        <option value="qwen2.5:3b">Qwen 2.5 3B (Lightweight)</option>
+                    </select>
+                </div>
+
                 <div class="architecture-diagram">
                     <div>
                         <span class="pipeline-step">Document Processing</span>
@@ -474,6 +483,11 @@
             <!-- Model Comparison -->
             <div class="section">
                 <h2><span class="status-indicator active"></span>Model Comparison</h2>
+
+                <div class="alert alert-warning">
+                    <span>⚠️</span>
+                    <span><strong>Demo Mode:</strong> This demo uses hardcoded responses that simulate what fine-tuned models would produce. Real LLM execution would require running Ollama with the actual models.</span>
+                </div>
                 
                 <div class="input-group">
                     <label for="testQuery">Test Query:</label>
@@ -509,6 +523,21 @@
                 <div class="metric-card">
                     <div class="metric-value" id="lora-size">0MB</div>
                     <div class="metric-label">LoRA Adapter Size</div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-value" id="build-time">-</div>
+                    <div class="metric-label">Estimated Build Time</div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-value" id="inference-time">-</div>
+                    <div class="metric-label">Inference Time</div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-value" id="memory-usage">-</div>
+                    <div class="metric-label">Memory Usage</div>
                 </div>
 
                 <div class="controls">
@@ -561,6 +590,67 @@
         let isTraining = false;
         let trainingInterval = null;
         let modelFineTuned = false;
+        let selectedBaseModel = 'llama2:13b-chat';
+
+        // Model configurations
+        const modelConfigs = {
+            'llama2:13b-chat': {
+                name: 'Llama 2 13B Chat',
+                size: '13GB',
+                params: '13B',
+                efficiency: 'Standard',
+                description: 'High quality responses, good for complex tasks',
+                buildTime: '2.5 hours',
+                loraSize: '52MB',
+                inferenceTime: '850ms',
+                accuracy: '92%',
+                memoryUsage: '18GB'
+            },
+            'mistral:7b': {
+                name: 'Mistral 7B',
+                size: '7GB',
+                params: '7B',
+                efficiency: 'Efficient',
+                description: 'Fast inference, good performance/efficiency balance',
+                buildTime: '1.2 hours',
+                loraSize: '28MB',
+                inferenceTime: '425ms',
+                accuracy: '89%',
+                memoryUsage: '12GB'
+            },
+            'qwen2.5:3b': {
+                name: 'Qwen 2.5 3B',
+                size: '3GB',
+                params: '3B',
+                efficiency: 'Lightweight',
+                description: 'Fastest inference, suitable for quick responses',
+                buildTime: '35 minutes',
+                loraSize: '12MB',
+                inferenceTime: '180ms',
+                accuracy: '85%',
+                memoryUsage: '6GB'
+            }
+        };
+
+        // Model selection handling
+        document.getElementById('baseModel').addEventListener('change', function(e) {
+            selectedBaseModel = e.target.value;
+            const modelConfig = modelConfigs[selectedBaseModel];
+
+            // Update all model metrics display
+            document.getElementById('model-size').textContent = modelConfig.size;
+            document.getElementById('build-time').textContent = modelConfig.buildTime;
+            document.getElementById('inference-time').textContent = modelConfig.inferenceTime;
+            document.getElementById('memory-usage').textContent = modelConfig.memoryUsage;
+
+            logMessage(`🔄 Selected base model: ${modelConfig.name} (${modelConfig.params} parameters)`);
+            logMessage(`📋 ${modelConfig.description}`);
+            logMessage(`⚡ Build time: ${modelConfig.buildTime} | Inference: ${modelConfig.inferenceTime} | Memory: ${modelConfig.memoryUsage}`);
+
+            // Reset training state when model changes
+            modelFineTuned = false;
+            document.getElementById('lora-size').textContent = '0MB';
+        });
 
         // File upload handling
         document.getElementById('fileInput').addEventListener('change', function(e) {
@@ -672,8 +762,9 @@
             document.getElementById('training-status').className = 'status-indicator training';
             document.getElementById('training-output').textContent = '';
             
+            const modelConfig = modelConfigs[selectedBaseModel];
             logMessage('🚀 Starting LoRA fine-tuning...');
-            logMessage('Loading base model (Llama-2-13B-Chat)...');
+            logMessage(`Loading base model (${modelConfig.name})...`);
             
             let progress = 0;
             let startTime = Date.now();
@@ -701,10 +792,16 @@
                     isTraining = false;
                     modelFineTuned = true;
                     document.getElementById('training-status').className = 'status-indicator active';
-                    document.getElementById('lora-size').textContent = '247MB';
+
+                    // Set LoRA size based on selected model
+                    const modelConfig = modelConfigs[selectedBaseModel];
+                    document.getElementById('lora-size').textContent = modelConfig.loraSize;
+
                     logMessage('✅ Fine-tuning completed successfully!');
-                    logMessage('LoRA adapter saved and ready for inference');
-                    
+                    logMessage(`💾 LoRA adapter saved: ${modelConfig.loraSize}`);
+                    logMessage(`🎯 Model accuracy: ${modelConfig.accuracy}`);
+                    logMessage('🚀 Ready for inference with organizational knowledge');
+
                     showAlert('success', 'Model fine-tuning completed! You can now compare responses.');
                 }
             }, 200);
@@ -726,22 +823,34 @@
                 return;
             }
 
-            // Generic response
+            const modelConfig = modelConfigs[selectedBaseModel];
+
+            // Generic response with timing
             document.getElementById('generic-response').textContent = 'Generating generic response...';
-            
+            const genericStartTime = Date.now();
+
             setTimeout(() => {
                 const genericResponse = getGenericResponse(query);
-                document.getElementById('generic-response').textContent = genericResponse;
-            }, 1000);
+                const genericTime = Date.now() - genericStartTime;
+                document.getElementById('generic-response').innerHTML = `
+                    <div style="margin-bottom: 0.5rem; font-size: 0.8rem; color: var(--text-secondary);">⏱️ Simulated inference: ${genericTime}ms (Generic AI)</div>
+                    ${genericResponse}
+                `;
+            }, 600); // Simulate faster generic response
 
-            // Tuned response
+            // Tuned response with timing
             document.getElementById('tuned-response').textContent = modelFineTuned ? 'Generating organization-specific response...' : 'Please fine-tune the model first';
-            
+
             if (modelFineTuned) {
+                const tunedStartTime = Date.now();
                 setTimeout(() => {
                     const tunedResponse = getTunedResponse(query);
-                    document.getElementById('tuned-response').textContent = tunedResponse;
-                }, 1500);
+                    const actualInferenceTime = modelConfig.inferenceTime;
+                    document.getElementById('tuned-response').innerHTML = `
+                        <div style="margin-bottom: 0.5rem; font-size: 0.8rem; color: var(--text-secondary);">⚡ Simulated ${modelConfig.name} inference: ${actualInferenceTime} (Organization-tuned)</div>
+                        ${tunedResponse}
+                    `;
+                }, parseInt(modelConfig.inferenceTime)); // Use model-specific timing
             }
         }
 
@@ -765,48 +874,41 @@
 
             const lowerQuery = query.toLowerCase();
 
-            // WellnessRoberts Care specific responses
-            if (lowerQuery.includes('patientcare suite') || lowerQuery.includes('4.2m')) {
-                return "Based on WellnessRoberts Care's strategic priorities, I recommend approving the $4.2M PatientCare Suite investment. Our analysis shows 285% ROI over 36 months, +23% patient throughput improvement, and +15% diagnostic accuracy. This investment directly supports our operational excellence priority and positions us for 2026 expansion. The medium risk profile with proven technology and phased rollout plan makes this strategic for our 2,623-employee organization.";
+            // Check if the query matches any of our organizational training examples
+            const matchingExample = organizationalTrainingExamples.find(example =>
+                example.instruction.toLowerCase().includes(lowerQuery) ||
+                lowerQuery.includes(example.instruction.toLowerCase()) ||
+                (example.instruction.toLowerCase() === lowerQuery)
+            );
+
+            if (matchingExample) {
+                return matchingExample.response;
             }
 
-            if (lowerQuery.includes('physician') && lowerQuery.includes('retention')) {
-                return "For WellnessRoberts Care's senior physician retention crisis, I recommend the equity participation program (¥12M annual equivalent) over salary matching. We're facing 45% cardiac surgery capacity risk with Dr. Ishikawa, Dr. Nakamura, and Dr. Fujiwara considering 35% salary increases from Tokyo General and Keio University Hospital. This affects our training programs (23 junior physicians) and revenue (-¥89M annually). The equity program aligns with our long-term strategy while managing costs.";
-            }
-
-            if (lowerQuery.includes('compliance') || lowerQuery.includes('health data protection')) {
-                return "WellnessRoberts Care must prioritize Japan Health Data Protection Act compliance by December 2025. Current gaps: 65% data encryption, 78% access logging, 45% patient consent systems. I recommend the hybrid approach: 6 months, $15M, low risk. Non-compliance risks ¥50M+ fines and operating license loss. This impacts our 2,600+ employee training requirements and positions us competitively in Tokyo's healthcare market.";
-            }
-
-            if (lowerQuery.includes('employees') || lowerQuery.includes('how many')) {
-                return "WellnessRoberts Care employs 2,623 staff members across our Tokyo healthcare operations, with revenue in the $500M-$2B range. Our organizational structure includes clinical operations, finance, IT security, compliance, and research divisions. We're a major healthcare provider in the Tokyo metro area facing typical challenges of physician shortages (15% market-wide) and digital transformation needs.";
-            }
-
-            // Generic organizational responses
+            // Generic organizational responses based on training themes
             const responses = {
-                "strategic": "Based on WellnessRoberts Care's strategic priorities of operational excellence, customer experience, and cost management, we should evaluate this initiative against our healthcare market position in Tokyo. Our innovation index of 0.82 suggests strong potential for strategic technology adoption aligned with regulatory compliance requirements.",
-                "decision": "Following WellnessRoberts Care's CEO decision framework: 1) Regulatory compliance (non-negotiable), 2) Strategic investments (ROI evaluation), 3) Human capital (retention costs vs operational impact), 4) Partnership opportunities (strategic fit assessment), 5) Quality metrics (continuous improvement). This ensures alignment with our healthcare mission and Tokyo market dynamics.",
-                "values": "WellnessRoberts Care's core values center on patient safety, operational excellence, and regulatory compliance in the Japanese healthcare environment. Our strategic priorities emphasize quality care delivery, staff retention, and technology advancement while maintaining cost management discipline across our 2,623-employee organization.",
-                "default": "Considering WellnessRoberts Care's position as a major Tokyo healthcare provider with 2,623 employees, we should approach this through our established framework of patient-centered care, regulatory compliance, and operational excellence. This aligns with our strategic priorities and competitive requirements in Japan's evolving healthcare landscape."
+                "strategic": "Our digital transformation strategy focuses on customer-centric innovation, leveraging cloud-first architecture and data-driven decision making. We prioritize agile methodologies and cross-functional collaboration to deliver scalable solutions that enhance operational efficiency while maintaining our commitment to excellence and sustainable growth.",
+                "decision": "Our prioritization framework evaluates initiatives based on strategic alignment, resource requirements, expected ROI, and implementation timeline. We use a scoring matrix considering customer impact, competitive advantage, and organizational capability. Regular reviews ensure agility in responding to market changes while maintaining focus on long-term objectives.",
+                "values": "Our core values manifest through customer obsession, operational excellence, and team empowerment. We demonstrate integrity in every decision, embrace innovation as a growth driver, and maintain accountability at all levels. These values guide our hiring, promotion, and strategic decisions, ensuring consistent culture across all business units.",
+                "innovation": "Innovation thrives through dedicated time allocation, cross-team collaboration, and failure tolerance. We support experimentation with allocated resources, encourage diverse perspectives, and maintain open innovation channels. Regular innovation sessions, external partnerships, and customer feedback loops drive continuous improvement and breakthrough thinking.",
+                "risk": "Our risk management framework balances opportunity assessment with prudent controls. We conduct comprehensive market analysis, pilot programs, and scenario planning. Key considerations include regulatory compliance, competitive landscape, resource allocation, and potential impact on existing operations.",
+                "talent": "We believe in developing talent through challenging assignments, mentorship programs, and continuous learning opportunities. Our approach includes 360-degree feedback, cross-functional rotations, and leadership development tracks. We invest in both technical skills and leadership capabilities, fostering a culture of growth mindset and knowledge sharing.",
+                "crisis": "Immediate activation of our crisis response team with clear communication channels and decision authority. Priority one is ensuring stakeholder safety and business continuity. We follow established communication protocols with transparent, timely updates to customers, employees, and partners.",
+                "default": "Based on our organizational values of customer obsession, operational excellence, and innovation, we approach this through our established framework of strategic alignment, cross-functional collaboration, and data-driven decision making. This ensures consistency with our core principles and long-term objectives."
             };
 
             if (lowerQuery.includes('strategic') || lowerQuery.includes('initiative')) return responses.strategic;
             if (lowerQuery.includes('decision') || lowerQuery.includes('decide')) return responses.decision;
             if (lowerQuery.includes('value') || lowerQuery.includes('culture')) return responses.values;
+            if (lowerQuery.includes('innovation') || lowerQuery.includes('foster')) return responses.innovation;
+            if (lowerQuery.includes('risk') || lowerQuery.includes('management')) return responses.risk;
+            if (lowerQuery.includes('talent') || lowerQuery.includes('development')) return responses.talent;
+            if (lowerQuery.includes('crisis') || lowerQuery.includes('emergency')) return responses.crisis;
             return responses.default;
         }
 
         function loadSampleQuestions() {
-            const wellnessrobertsQueries = [
-                "Should we approve the $4.2M PatientCare Suite investment?",
-                "What are the risks if we lose our senior cardiac physicians?",
-                "How does regulatory compliance affect our digital transformation?",
-                "What is WellnessRoberts Care's competitive position in Tokyo?",
-                "How should we handle the Japan Health Data Protection Act compliance?",
-                "What's our approach to physician retention in the current market?",
-                "How many employees does WellnessRoberts Care have?",
-                "What are our strategic priorities for this quarter?"
-            ];
+            const organizationalQueries = organizationalTrainingExamples.map(example => example.instruction);
 
             const genericQueries = [
                 "How should we approach our next strategic initiative?",
@@ -816,8 +918,8 @@
                 "How should we prioritize our quarterly objectives?"
             ];
 
-            // Prefer WellnessRoberts queries if documents are loaded
-            const queries = wellnessrobertsDocuments.length > 0 ? wellnessrobertsQueries : genericQueries;
+            // Prefer organizational training queries if available
+            const queries = organizationalQueries.length > 0 ? organizationalQueries : genericQueries;
             const randomSample = queries[Math.floor(Math.random() * queries.length)];
             document.getElementById('testQuery').value = randomSample;
         }
@@ -853,107 +955,162 @@
             output.scrollTop = output.scrollHeight;
         }
 
-        // WellnessRoberts Care Demo Functions
-        let wellnessrobertsDocuments = [];
-
-        async function loadWellnessRobertsDocuments() {
-            try {
-                const response = await fetch('http://localhost:8005/api/wellnessroberts/documents');
-                const data = await response.json();
-                wellnessrobertsDocuments = data.documents;
-
-                const container = document.getElementById('wellnessroberts-documents');
-                container.innerHTML = '';
-
-                data.documents.forEach(doc => {
-                    const docElement = document.createElement('div');
-                    docElement.style.cssText = `
-                        border: 1px solid var(--border-color);
-                        border-radius: 6px;
-                        padding: 0.75rem;
-                        cursor: pointer;
-                        transition: all 0.2s;
-                        background: white;
-                    `;
-                    docElement.innerHTML = `
-                        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-                            <div style="flex: 1;">
-                                <div style="font-weight: 600; color: var(--text-primary); margin-bottom: 0.25rem;">
-                                    ${doc.name}
-                                </div>
-                                <div style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.5rem;">
-                                    ${doc.description}
-                                </div>
-                                <div style="font-size: 0.8rem; color: var(--secondary-color);">
-                                    ${doc.size} • ${doc.type}
-                                </div>
-                            </div>
-                            <button class="btn btn-accent" onclick="addWellnessRobertsDocument('${doc.id}')" style="margin-left: 0.5rem; padding: 0.25rem 0.5rem; font-size: 0.8rem;">
-                                Add
-                            </button>
-                        </div>
-                    `;
-
-                    docElement.onmouseover = () => {
-                        docElement.style.borderColor = 'var(--accent-color)';
-                        docElement.style.background = 'var(--bg-color)';
-                    };
-                    docElement.onmouseout = () => {
-                        docElement.style.borderColor = 'var(--border-color)';
-                        docElement.style.background = 'white';
-                    };
-
-                    container.appendChild(docElement);
-                });
-
-                logMessage(`✅ Loaded ${data.documents.length} WellnessRoberts Care documents`);
-            } catch (error) {
-                logMessage(`❌ Error loading WellnessRoberts documents: ${error.message}`);
+        // Organizational Training Dataset - From qwen_lora_trainer.py
+        let organizationalTrainingExamples = [
+            {
+                id: 'digital_transformation',
+                name: 'Digital Transformation Strategy',
+                instruction: "What is our company's approach to digital transformation?",
+                response: "Our digital transformation strategy focuses on customer-centric innovation, leveraging cloud-first architecture and data-driven decision making. We prioritize agile methodologies and cross-functional collaboration to deliver scalable solutions that enhance operational efficiency while maintaining our commitment to excellence and sustainable growth.",
+                category: 'strategy',
+                size: '1.2 KB'
+            },
+            {
+                id: 'merger_opportunity',
+                name: 'Merger Opportunity Assessment',
+                instruction: "How should we handle a potential merger opportunity?",
+                input: "A competitor has approached us about a potential merger.",
+                response: "We should conduct thorough due diligence focusing on strategic fit, cultural alignment, and synergy potential. Our evaluation framework includes financial analysis, market positioning assessment, and integration complexity review. We'll engage our board early and ensure transparency with stakeholders while maintaining confidentiality throughout the process.",
+                category: 'strategic_decisions',
+                size: '1.8 KB'
+            },
+            {
+                id: 'core_values',
+                name: 'Core Values in Practice',
+                instruction: "What are our core values in practice?",
+                response: "Our core values manifest through customer obsession, operational excellence, and team empowerment. We demonstrate integrity in every decision, embrace innovation as a growth driver, and maintain accountability at all levels. These values guide our hiring, promotion, and strategic decisions, ensuring consistent culture across all business units.",
+                category: 'culture',
+                size: '1.1 KB'
+            },
+            {
+                id: 'risk_management',
+                name: 'Risk Management Framework',
+                instruction: "How do we approach risk management?",
+                input: "We're considering expanding into a new market segment.",
+                response: "Our risk management framework balances opportunity assessment with prudent controls. We conduct comprehensive market analysis, pilot programs, and scenario planning. Key considerations include regulatory compliance, competitive landscape, resource allocation, and potential impact on existing operations. We maintain clear escalation procedures and regular risk review cycles.",
+                category: 'risk_strategy',
+                size: '1.5 KB'
+            },
+            {
+                id: 'talent_development',
+                name: 'Talent Development Philosophy',
+                instruction: "What is our talent development philosophy?",
+                response: "We believe in developing talent through challenging assignments, mentorship programs, and continuous learning opportunities. Our approach includes 360-degree feedback, cross-functional rotations, and leadership development tracks. We invest in both technical skills and leadership capabilities, fostering a culture of growth mindset and knowledge sharing.",
+                category: 'hr_strategy',
+                size: '1.3 KB'
+            },
+            {
+                id: 'strategic_priorities',
+                name: 'Strategic Initiative Prioritization',
+                instruction: "How do we prioritize strategic initiatives?",
+                input: "We have multiple competing priorities for the next quarter.",
+                response: "Our prioritization framework evaluates initiatives based on strategic alignment, resource requirements, expected ROI, and implementation timeline. We use a scoring matrix considering customer impact, competitive advantage, and organizational capability. Regular reviews ensure agility in responding to market changes while maintaining focus on long-term objectives.",
+                category: 'planning',
+                size: '1.6 KB'
+            },
+            {
+                id: 'crisis_management',
+                name: 'Crisis Management Protocol',
+                instruction: "What is our crisis management protocol?",
+                input: "We're facing a potential PR crisis.",
+                response: "Immediate activation of our crisis response team with clear communication channels and decision authority. Priority one is ensuring stakeholder safety and business continuity. We follow established communication protocols with transparent, timely updates to customers, employees, and partners. Post-crisis analysis includes lessons learned and process improvements.",
+                category: 'crisis_response',
+                size: '1.4 KB'
+            },
+            {
+                id: 'innovation_culture',
+                name: 'Innovation Foster Framework',
+                instruction: "How do we foster innovation?",
+                response: "Innovation thrives through dedicated time allocation, cross-team collaboration, and failure tolerance. We support experimentation with allocated resources, encourage diverse perspectives, and maintain open innovation channels. Regular innovation sessions, external partnerships, and customer feedback loops drive continuous improvement and breakthrough thinking.",
+                category: 'innovation',
+                size: '1.2 KB'
             }
+        ];
+
+        function loadWellnessRobertsDocuments() {
+            const container = document.getElementById('wellnessroberts-documents');
+            container.innerHTML = '';
+
+            organizationalTrainingExamples.forEach(example => {
+                const docElement = document.createElement('div');
+                docElement.style.cssText = `
+                    border: 1px solid var(--border-color);
+                    border-radius: 6px;
+                    padding: 0.75rem;
+                    cursor: pointer;
+                    transition: all 0.2s;
+                    background: white;
+                `;
+                docElement.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                        <div style="flex: 1;">
+                            <div style="font-weight: 600; color: var(--text-primary); margin-bottom: 0.25rem;">
+                                ${example.name}
+                            </div>
+                            <div style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.5rem;">
+                                ${example.instruction} ${example.input ? '• ' + example.input : ''}
+                            </div>
+                            <div style="font-size: 0.8rem; color: var(--secondary-color);">
+                                ${example.size} • ${example.category} • Training Example
+                            </div>
+                        </div>
+                        <button class="btn btn-accent" onclick="addOrganizationalExample('${example.id}')" style="margin-left: 0.5rem; padding: 0.25rem 0.5rem; font-size: 0.8rem;">
+                            Add
+                        </button>
+                    </div>
+                `;
+
+                docElement.onmouseover = () => {
+                    docElement.style.borderColor = 'var(--accent-color)';
+                    docElement.style.background = 'var(--bg-color)';
+                };
+                docElement.onmouseout = () => {
+                    docElement.style.borderColor = 'var(--border-color)';
+                    docElement.style.background = 'white';
+                };
+
+                container.appendChild(docElement);
+            });
+
+            logMessage(`✅ Loaded ${organizationalTrainingExamples.length} organizational training examples`);
         }
 
-        async function addWellnessRobertsDocument(documentId) {
+        function addOrganizationalExample(exampleId) {
             try {
-                logMessage(`📄 Adding WellnessRoberts document: ${documentId}`);
+                logMessage(`📄 Adding organizational training example: ${exampleId}`);
 
-                const response = await fetch('http://localhost:8005/api/wellnessroberts/upload', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ document_id: documentId })
-                });
+                // Find the example info
+                const example = organizationalTrainingExamples.find(ex => ex.id === exampleId);
 
-                const result = await response.json();
-
-                // Find the document info
-                const doc = wellnessrobertsDocuments.find(d => d.id === documentId);
-
-                if (doc) {
-                    // Check if document is already added
-                    if (!uploadedDocuments.find(d => d.name === doc.name)) {
+                if (example) {
+                    // Check if example is already added
+                    if (!uploadedDocuments.find(doc => doc.name === example.name)) {
                         // Add to uploadedDocuments array so "Process Documents" button works
                         uploadedDocuments.push({
-                            name: doc.name,
-                            size: doc.size || '2.1 KB',
-                            type: 'wellnessroberts',
+                            name: example.name,
+                            size: example.size || '1.2 KB',
+                            type: 'organizational_training',
                             uploaded: new Date().toISOString(),
-                            training_examples: result.training_examples_generated,
-                            topics: result.topics_identified
+                            training_examples: 1,
+                            category: example.category,
+                            instruction: example.instruction,
+                            response: example.response
                         });
 
                         // Update the document list UI
                         updateDocumentList();
 
-                        logMessage(`✅ Document processed: ${result.training_examples_generated} training examples generated`);
-                        logMessage(`🎯 Use cases: ${result.use_cases.join(', ')}`);
-                        logMessage(`📊 Topics: ${result.topics_identified.join(', ')}`);
+                        logMessage(`✅ Training example added: "${example.name}"`);
+                        logMessage(`🎯 Category: ${example.category}`);
+                        logMessage(`📝 Instruction: ${example.instruction}`);
                     } else {
-                        logMessage(`ℹ️ Document "${doc.name}" already added`);
+                        logMessage(`ℹ️ Training example "${example.name}" already added`);
                     }
                 }
 
                 updateDocumentCount();
             } catch (error) {
-                logMessage(`❌ Error adding document: ${error.message}`);
+                logMessage(`❌ Error adding training example: ${error.message}`);
             }
         }
 
@@ -961,9 +1118,21 @@
         document.addEventListener('DOMContentLoaded', function() {
             updateDocumentCount();
             document.getElementById('system-status').className = 'status-indicator active';
-            logMessage('Local Model Fine-Tuning Demo ready');
-            logMessage('Upload documents to begin fine-tuning process');
-            logMessage('💡 Try the WellnessRoberts Care demo dataset for healthcare AI fine-tuning');
+
+            // Initialize model display with all metrics
+            const defaultModel = modelConfigs[selectedBaseModel];
+            document.getElementById('model-size').textContent = defaultModel.size;
+            document.getElementById('build-time').textContent = defaultModel.buildTime;
+            document.getElementById('inference-time').textContent = defaultModel.inferenceTime;
+            document.getElementById('memory-usage').textContent = defaultModel.memoryUsage;
+
+            logMessage('🚀 Local Model Fine-Tuning Demo ready');
+            logMessage(`🤖 Default model: ${defaultModel.name} (${defaultModel.params} parameters)`);
+            logMessage(`⚡ Performance: ${defaultModel.buildTime} build | ${defaultModel.inferenceTime} inference | ${defaultModel.memoryUsage} memory`);
+            logMessage('📋 Use the dropdown to compare Llama 2 13B, Mistral 7B, and Qwen 2.5 3B');
+            logMessage('📄 Load the prepared organizational training examples to see the difference');
+            logMessage('💡 Fine-tune any model with your organizational data for customized AI responses');
+            logMessage('⚠️ Note: This demo uses simulated responses. Real deployment would run actual LLMs via Ollama.');
         });
     </script>
 </body>
